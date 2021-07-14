@@ -1,0 +1,15 @@
+<ng-container *ngIf="tbTr !== undefined">
+    <app-list
+        [title]="'Lokacije'"
+        [addNewTitle]="'Nova lokacija'"
+        [tbTh]="tbTh"
+        [tbTrDummy]="tbTr"
+        [form]="form"
+        (triggerPrepareEdit)="prepareEdit($event)"
+        (triggerInsert)="insertFunction($event)"
+        (triggerUpdate)="updateFunction($event)"
+        (triggerDelete)="deleteFunction($event)"
+    >
+    </app-list>
+</ng-container>
+<app-toast [toastActive]="toastActive" [toastText]="toastText"></app-toast>

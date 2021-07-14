@@ -1,0 +1,13 @@
+<ng-container *ngIf="tbTr !== undefined">
+    <app-list
+        [title]="'Media'"
+        [addNewTitle]="'Nova media'"
+        [tbTh]="tbTh"
+        [tbTrDummy]="tbTr"
+        [form]="form"
+        (triggerInsert)="insertFunction($event)"
+        (triggerDelete)="deleteFunction($event)"
+    >
+    </app-list>
+</ng-container>
+<app-toast [toastActive]="toastActive" [toastText]="toastText"></app-toast>

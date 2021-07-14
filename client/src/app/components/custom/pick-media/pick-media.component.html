@@ -1,0 +1,3 @@
+<div class="main-contaner">
+    <img *ngFor="let image of images" [src]="image.src_name" [alt]="image.alt_text" (click)="pickImage(image.id)">
+</div>

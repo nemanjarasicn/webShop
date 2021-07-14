@@ -1,0 +1,4 @@
+./routes/db/mysql.ts
+./routes/user.ts
+./routes/products.ts
+./routes/media.ts

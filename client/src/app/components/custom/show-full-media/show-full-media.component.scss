@@ -1,0 +1,23 @@
+.main-container{
+    display: grid;
+    place-items: center;
+    grid-template-rows: 1fr auto;
+    row-gap: 15px;
+    .full-image-container{
+        width: 400px;
+        img{
+            width: 100%;
+        }
+    }
+    .mini-images-container{
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        width: 100%;
+        img{
+            cursor: pointer;
+            width: 80px;
+            height: 80px
+        }
+    }
+}

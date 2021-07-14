@@ -1,0 +1,33 @@
+<ng-container *ngIf="isLoggedIn !== undefined">
+    <app-login *ngIf="!isLoggedIn" (triggerIsLogin)="isLogedinChange($event)"></app-login>
+    <ng-container *ngIf="isLoggedIn">
+        <div class="page-wrapper">
+            <app-admin-header></app-admin-header>
+            <div class="page-body-wrapper">
+                <app-admin-menu class="page-sidebar" [class.open]="isMenuOpened"></app-admin-menu>
+                <div class="page-body">
+                    <!-- Container-fluid starts-->
+                    <div class="container-fluid">
+                        <div class="page-header">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="page-header-left">
+                                        <h3>Kontrolna tabla</h3>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <ol class="breadcrumb pull-right">
+                                        <li class="breadcrumb-item"><a [routerLink]="['/admin/dashboard']"><fa-icon icon="tachometer-alt"></fa-icon></a></li>
+                                        <li class="breadcrumb-item active">Kontrolna tabla</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Container-fluid Ends-->
+                    <router-outlet></router-outlet>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+</ng-container>

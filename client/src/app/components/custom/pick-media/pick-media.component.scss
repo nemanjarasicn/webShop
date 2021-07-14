@@ -1,0 +1,14 @@
+.main-contaner{
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    img{
+        margin: 2px;
+        padding: 2px;
+        border: 1px solid #fff;
+        height: 120px;
+        &.active{
+            border: 1px solid #000;
+        }
+    }
+}

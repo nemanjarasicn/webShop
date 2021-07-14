@@ -1,0 +1,8 @@
+<div class="main-container" *ngIf="activeImage !== undefined">
+    <div class="full-image-container">
+        <img [src]="activeImage" alt="puna velicina slike, slika">
+    </div>
+    <div class="mini-images-container">
+        <img *ngFor="let src of showMediaArr" [src]="src" alt="mala slike, slika" (click)="setActiveImage(src)">
+    </div>
+</div>            
