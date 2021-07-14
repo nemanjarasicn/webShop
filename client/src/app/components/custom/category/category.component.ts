@@ -47,7 +47,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
       placeholder: 'Potpada pod'
     },
     {
-      key: 'category_media',
+      key: 'image',
       type: ListFormType.SINGLE_MEDIA,
       label: 'Dodaj sliku',
     }

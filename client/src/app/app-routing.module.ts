@@ -8,6 +8,7 @@ import { CategoryComponent } from './components/custom/category/category.compone
 import { AdminService } from 'src/app/services/admin.service'
 import { DiscountsComponent } from './components/custom/discounts/discounts.component';
 import { LocationsComponent } from './components/custom/locations/locations.component';
+import { StoreComponent } from './components/custom/store/store.component';
 import { MediaComponent } from './components/custom/media/media.component';
 
 const routes: Routes = [
@@ -15,6 +16,7 @@ const routes: Routes = [
   {path: 'shop', component: ShopComponent},
   {path: 'admin', component: AdminComponent, children:[
     {path: 'dashboard', component: DashboardComponent},
+    {path: 'store', component: StoreComponent},
     {path: 'products', component: ProductsComponent},
     {path: 'category', component:  CategoryComponent},
     {path: 'discounts', component:  DiscountsComponent},

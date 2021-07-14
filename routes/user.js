@@ -37,8 +37,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 exports.user_endpoint = void 0;
-//@ts-ignore
-var pool = require('./db/mysql');
+var mysql_1 = require("./db/mysql");
 var _TB_NAME = "`user`";
 var makeSession = function (req, user_id) {
     var hour = 3600000;
@@ -59,7 +58,7 @@ var getUserData = function (user_id) { return __awaiter(void 0, void 0, void 0, 
         return [2 /*return*/, new Promise(function (res, rej) {
                 var sql = "SELECT `id`, `username`, `firstname`, `lastname`, `rule_id`, `phone`, `email`  FROM " + _TB_NAME + " WHERE `id` = ?";
                 var queryParams = [user_id];
-                pool.query(sql, queryParams, function (error, results, fields) {
+                mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
                     if (error)
                         rej(false);
                     res(JSON.parse(JSON.stringify([true, results[0]] || [false, null])));
@@ -75,7 +74,7 @@ var login = function (params, req) { return __awaiter(void 0, void 0, void 0, fu
                 sql = "SELECT `id`, `username`, `firstname`, `lastname`, `rule_id`, `phone`, `email`  FROM " + _TB_NAME + " WHERE `rule_id` = ? AND `username` = ? AND `password` = SHA2(?, 256)";
                 queryParams = [1, params.username, params.password];
                 return [4 /*yield*/, new Promise(function (res, rej) {
-                        pool.query(sql, queryParams, function (error, results, fields) {
+                        mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
                             if (error)
                                 rej(false);
                             res(JSON.parse(JSON.stringify(results[0] || false)));

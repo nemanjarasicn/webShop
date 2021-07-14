@@ -10,6 +10,7 @@ import { FormGroup, FormControl, Validators, ValidatorFn} from '@angular/forms';
 import { ListTableTd } from 'src/app/interfaces/list-table-td';
 import { MediaService } from 'src/app/services/media.service';
 import { DataTableDirective } from 'angular-datatables';
+import { PickMedia } from 'src/app/interfaces/pick-media';
 
 @Component({
   selector: 'app-list',
@@ -36,6 +37,7 @@ export class ListComponent implements OnDestroy, OnInit {
 
   @ViewChild('formListModalCloseBtn') formListModalCloseBtn: ElementRef;
   @ViewChild('deleteListModalCloseBtn') deleteListModalCloseBtn: ElementRef;
+  @ViewChild('closePickMedia') closePickMedia: ElementRef
 
   //list form types
   inputTextType: ListFormType = ListFormType.INPUT_TEXT
@@ -51,12 +53,12 @@ export class ListComponent implements OnDestroy, OnInit {
   tdImageType: ListTableTdType = ListTableTdType.IMAGE
 
   listForm!: FormGroup
-  singleMedia: string = ''
-  selectedMediaID: number | null = null
+  medias: PickMedia[] = []
+  selectedMedia: PickMedia | null = null
   containMedia: boolean = false
   itemID: number = null
   formListModalRef: ElementRef
-  
+  imgKey: string
   mediaOptions: {id: number, label: string}[] = []
 
   @ViewChild(DataTableDirective, {static: false})
@@ -65,11 +67,17 @@ export class ListComponent implements OnDestroy, OnInit {
   dtTrigger: Subject<any> = new Subject<any>();
 
   subsctiption: Subscription
+  subsctiption2: Subscription
+  subsctiption3: Subscription
   constructor(private cd: ChangeDetectorRef, private listService: ListService, private mediaService: MediaService) {}
 
   ngOnInit(): void {
-    this.listService.subscribeTrTd().subscribe((tbTrDummy)=>{
+    this.subsctiption2 = this.listService.subscribeTrTd().subscribe((tbTrDummy)=>{
       this.makeTrTd(tbTrDummy)
+    })
+
+    this.subsctiption3 = this.listService.subscribePickMedia().subscribe(res=>{
+      this.selectedMedia = res
     })
     
 
@@ -107,7 +115,12 @@ export class ListComponent implements OnDestroy, OnInit {
         for (const key in value) {
           if(key === 'id') this.itemID = value[key]
           else if(key === 'active' || key === 'featured') this.listForm.get(key).setValue(!!value[key])
-          else if(key.includes('image')) this.singleMedia = value[key]
+          else if(key.includes('image')){ 
+            this.imgKey = key
+            
+            if(value[key] !== null && value[key]?.length > 0) this.medias.push(...value[key])
+            else this.medias = []
+          }
           else this.listForm.get(key).setValue(value[key])
         }
       }
@@ -221,9 +234,22 @@ export class ListComponent implements OnDestroy, OnInit {
   showFullMedia(srcArr: string[]): void{
     this.mediaService.setShowFullMediaActiveArr(srcArr)
   }
+  
+  removeMediaFromArr(index):void{
+    this.medias.splice(index, 1)
+  }
 
   chooseMedia(): void{
+    this.medias.push(this.selectedMedia)
+    
+    //set value to form control
+    this.listForm.controls[this.imgKey].setValue(this.medias)
 
+    //close modal
+    this.closePickMedia.nativeElement.click()
+
+    //reset
+    this.listService.setPickMedia(null)
   }
 
   dtRerender(): void {
@@ -240,6 +266,8 @@ export class ListComponent implements OnDestroy, OnInit {
   ngOnDestroy(): void{
     this.dtTrigger.unsubscribe()
     this.subsctiption.unsubscribe()
+    this.subsctiption2.unsubscribe()
+    this.subsctiption3.unsubscribe()
     this.listService.setSingleItem(null)
   }
 }

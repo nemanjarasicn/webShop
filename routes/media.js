@@ -37,15 +37,14 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 exports.medias_endpoint = void 0;
-//@ts-ignore
-var pool = require('./db/mysql');
+var mysql_1 = require("./db/mysql");
 var _TB_NAME_ = "`media`";
 var _TB_NAME_TYPE_ = "`media_type`";
 var getAll = function () {
     return new Promise(function (res, rej) {
         var sql = "SELECT `m`.`id`, `m`.`name`, `m`.`src_name`, `m`.`src_name` as `image`, `m`.`alt_text`, `mt`.`name` as `type_name` FROM " + _TB_NAME_ + " `m` " +
             "INNER JOIN " + _TB_NAME_TYPE_ + " `mt` on `mt`.`id` = `m`.`type_id`";
-        pool.query(sql, function (error, results, fields) {
+        mysql_1.pool.query(sql, function (error, results, fields) {
             if (error)
                 rej(false);
             res(JSON.parse(JSON.stringify(results || [])));
@@ -56,7 +55,7 @@ var deleteItem = function (id) {
     return new Promise(function (res, rej) {
         var sql = "DELETE FROM " + _TB_NAME_ + " WHERE `id` = ? ";
         var queryParams = [id];
-        pool.query(sql, queryParams, function (error, results, fields) {
+        mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
             if (error)
                 rej(false);
             res(JSON.parse(JSON.stringify(true)));
@@ -68,7 +67,7 @@ var insert = function (params, file) {
         var src_name = "assets/media/" + file.filename;
         var sql = "INSERT INTO " + _TB_NAME_ + " (`name`, `type_id`, `src_name`, `alt_text`) VALUES ( ?, ?, ?, ? )";
         var queryParams = [params.name, +params.type_id, src_name, params.alt_text];
-        pool.query(sql, queryParams, function (error, results, fields) {
+        mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
             if (error)
                 rej(false);
             res(JSON.parse(JSON.stringify(true)));
@@ -78,7 +77,7 @@ var insert = function (params, file) {
 var getTypes = function () {
     return new Promise(function (res, rej) {
         var sql = "SELECT `id`, `name` FROM " + _TB_NAME_TYPE_;
-        pool.query(sql, function (error, results, fields) {
+        mysql_1.pool.query(sql, function (error, results, fields) {
             if (error)
                 rej(false);
             res(JSON.parse(JSON.stringify(results)));
@@ -89,7 +88,7 @@ var getPickAll = function () {
     return new Promise(function (res, rej) {
         var sql = "SELECT `id`, `name`, `src_name`, `alt_text` FROM " + _TB_NAME_ + " WHERE `type_id` = ?";
         var sqlParams = [1];
-        pool.query(sql, sqlParams, function (error, results, fields) {
+        mysql_1.pool.query(sql, sqlParams, function (error, results, fields) {
             if (error)
                 rej(false);
             res(JSON.parse(JSON.stringify(results)));

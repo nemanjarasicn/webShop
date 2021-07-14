@@ -7,7 +7,9 @@
         padding: 2px;
         border: 1px solid #fff;
         height: 120px;
-        &.active{
+        transition: all 0.2s;
+        cursor: pointer;
+        &.selected{
             border: 1px solid #000;
         }
     }

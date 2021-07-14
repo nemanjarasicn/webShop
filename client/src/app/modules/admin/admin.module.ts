@@ -20,7 +20,7 @@ import { FontAwesomeModule, FaIconLibrary } from '@fortawesome/angular-fontaweso
 import { 
   faUserCircle, faWindowMaximize, faTachometerAlt, faStore, faChevronRight, faReceipt, faSignOutAlt,
   faThList, faPercent, faList, faPlusCircle, faPhotoVideo, faEdit, faTrashAlt, faToggleOff, faToggleOn,
-  faMapMarkedAlt,
+  faMapMarkedAlt,faUsers,
   faBox
  } from '@fortawesome/free-solid-svg-icons';
 import { ProductsService } from 'src/app/services/products.service';
@@ -32,6 +32,7 @@ import { ToastComponent } from '../../components/custom/toast/toast.component';
 import { LocationsComponent } from '../../components/custom/locations/locations.component';
 import { LocationsService } from 'src/app/services/locations.service';
 import { MediaComponent } from '../../components/custom/media/media.component';
+import { StoreComponent } from 'src/app/components/custom/store/store.component';
 import { MediaService } from 'src/app/services/media.service';
 
 @NgModule({
@@ -50,7 +51,8 @@ import { MediaService } from 'src/app/services/media.service';
     LocationsComponent,
     MediaComponent,
     ShowFullMediaComponent,
-    PickMediaComponent
+    PickMediaComponent,
+    StoreComponent
   ],
   imports: [
     AppRoutingModule,
@@ -67,6 +69,6 @@ import { MediaService } from 'src/app/services/media.service';
 export class AdminModule {
   constructor(library: FaIconLibrary) {
     // Add an icon to the library for convenient access in other components
-    library.addIcons(faUserCircle, faMapMarkedAlt, faWindowMaximize, faTachometerAlt, faStore, faChevronRight, faBox, faReceipt, faSignOutAlt, faThList, faPercent, faList, faPlusCircle, faPhotoVideo, faEdit, faTrashAlt, faToggleOff, faToggleOn);
+    library.addIcons(faUserCircle, faUsers, faMapMarkedAlt, faWindowMaximize, faTachometerAlt, faStore, faChevronRight, faBox, faReceipt, faSignOutAlt, faThList, faPercent, faList, faPlusCircle, faPhotoVideo, faEdit, faTrashAlt, faToggleOff, faToggleOn);
   } 
 }

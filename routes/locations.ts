@@ -1,5 +1,4 @@
-//@ts-ignore
-const pool = require('./db/mysql')
+import { pool } from './db/mysql'
 
 const _TB_NAME_ = "`location`"
 

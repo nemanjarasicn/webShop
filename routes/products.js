@@ -37,8 +37,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 exports.products_endpoint = void 0;
-//@ts-ignore
-var pool = require('./db/mysql');
+var mysql_1 = require("./db/mysql");
 var _TB_NAME_PRODUCTS = "`product`";
 var _TB_NAME_CATEGORY = "`product_category`";
 var _TB_NAME_CATEGORY_MEDIA = "`category_media`";
@@ -48,7 +47,7 @@ var _TB_NAME_DISCOUNT = "`discount`";
 var getAllParentCategories = function () {
     return new Promise(function (res, rej) {
         var sql = "SELECT `id`, `name` FROM " + _TB_NAME_CATEGORY + " WHERE `parent_cat` IS NULL";
-        pool.query(sql, function (error, results, fields) {
+        mysql_1.pool.query(sql, function (error, results, fields) {
             if (error)
                 rej(false);
             res(JSON.parse(JSON.stringify(results || [])));
@@ -61,7 +60,7 @@ var getAllCategories = function () {
             " LEFT JOIN " + _TB_NAME_CATEGORY + " `c2` on `c2`.`id` = `c`.`parent_cat` " +
             " LEFT JOIN " + _TB_NAME_CATEGORY_MEDIA + " `cm` ON `cm`.`category_id` = `c`.`id`" +
             " LEFT JOIN " + _TB_NAME_MEDIA + " `m` on `m`.`id` = `cm`.`media_id`";
-        pool.query(sql, function (error, results, fields) {
+        mysql_1.pool.query(sql, function (error, results, fields) {
             if (error)
                 rej(false);
             res(JSON.parse(JSON.stringify(results || [])));
@@ -70,15 +69,31 @@ var getAllCategories = function () {
 };
 var getSingleCategory = function (id) {
     return new Promise(function (res, rej) {
-        var sql = "SELECT `c`.`name`, `c`.`featured`, `c`.`parent_cat`, `m`.`src_name` as `image` FROM " + _TB_NAME_CATEGORY + "  `c` " +
-            " LEFT JOIN " + _TB_NAME_CATEGORY_MEDIA + " `cm` ON `cm`.`category_id` = `c`.`id`" +
-            " LEFT JOIN " + _TB_NAME_MEDIA + " `m` on `m`.`id` = `cm`.`media_id` " +
-            " WHERE `c`.`id` = ? ";
-        var queryParams = [id];
-        pool.query(sql, queryParams, function (error, results, fields) {
-            if (error)
-                rej(false);
-            res(JSON.parse(JSON.stringify(results[0] || null)));
+        var completeResponse;
+        new Promise(function (resIN, rejIN) {
+            var sql = "SELECT `c`.`name`, `c`.`featured`, `c`.`parent_cat` FROM " + _TB_NAME_CATEGORY + "  `c`  WHERE `c`.`id` = ? ";
+            var queryParams = [id];
+            mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
+                if (error) {
+                    console.log(error);
+                    return rej(false);
+                }
+                completeResponse = JSON.parse(JSON.stringify(results[0] || null));
+                resIN(true);
+            });
+        }).then(function (result) {
+            var sql = "SELECT `m`.`id`, `m`.`src_name`, `m`.`alt_text` FROM " + _TB_NAME_MEDIA + " `m` " +
+                " INNER JOIN " + _TB_NAME_CATEGORY_MEDIA + " `cm` ON `cm`.`media_id` = `m`.`id` " +
+                " WHERE `cm`.`category_id` = ? ";
+            var queryParams = [id];
+            mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
+                if (error) {
+                    console.log(error);
+                    return rej(false);
+                }
+                completeResponse.image = results;
+                res(completeResponse);
+            });
         });
     });
 };
@@ -86,7 +101,7 @@ var deleteCategory = function (id) {
     return new Promise(function (res, rej) {
         var sql = "DELETE FROM " + _TB_NAME_CATEGORY + " WHERE `id` = ? ";
         var queryParams = [id];
-        pool.query(sql, queryParams, function (error, results, fields) {
+        mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
             if (error)
                 rej(false);
             res(JSON.parse(JSON.stringify(true)));
@@ -95,22 +110,44 @@ var deleteCategory = function (id) {
 };
 var updateCategory = function (params) {
     return new Promise(function (res, rej) {
-        var sql = "UPDATE " + _TB_NAME_CATEGORY + "  SET `name` = ?, `featured` = ? , `parent_cat` = ? WHERE `id` = ?";
-        var queryParams = [params.name, params.featured === true ? 1 : 0, params.parent_cat, params.id];
-        pool.query(sql, queryParams, function (error, results, fields) {
-            if (error)
-                rej(false);
+        new Promise(function (resIN, rejIN) {
+            var sql = "UPDATE " + _TB_NAME_CATEGORY + "  SET `name` = ?, `featured` = ? , `parent_cat` = ? WHERE `id` = ?";
+            var queryParams = [params.name, params.featured === true ? 1 : 0, params.parent_cat, params.id];
+            mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
+                if (error)
+                    return rej(false);
+                resIN(true);
+            });
+        }).then(function (result) {
             res(JSON.parse(JSON.stringify(true)));
         });
     });
 };
 var insertCategory = function (params) {
     return new Promise(function (res, rej) {
-        var sql = "INSERT INTO " + _TB_NAME_CATEGORY + " (`name`, `featured`, `parent_cat`) VALUES ( ?, ?, ? )";
-        var queryParams = [params.name, params.featured === true ? 1 : 0, params.parent_cat];
-        pool.query(sql, queryParams, function (error, results, fields) {
-            if (error)
-                rej(false);
+        new Promise(function (resIN, rejIN) {
+            var sql = "INSERT INTO " + _TB_NAME_CATEGORY + " (`name`, `featured`, `parent_cat`) VALUES ( ?, ?, ? )";
+            var queryParams = [params.name, params.featured === true ? 1 : 0, params.parent_cat];
+            mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
+                if (error)
+                    return rej(false);
+                resIN(results.insertId);
+            });
+        }).then(function (result) {
+            var _a;
+            //insert media
+            if ((result !== null || result !== undefined) && ((_a = params.image) === null || _a === void 0 ? void 0 : _a.length) > 0) {
+                var lastInsertedCatID_1 = result;
+                params.image.forEach(function (img) {
+                    var sql = "INSERT INTO " + _TB_NAME_CATEGORY_MEDIA + " (`category_id`, `media_id`) VALUES (?, ?)";
+                    var queryParams = [lastInsertedCatID_1, img.id];
+                    mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
+                        if (error)
+                            return rej(false);
+                    });
+                });
+                return res(JSON.parse(JSON.stringify(true)));
+            }
             res(JSON.parse(JSON.stringify(true)));
         });
     });
@@ -119,7 +156,7 @@ var insertCategory = function (params) {
 var getAllDiscounts = function () {
     return new Promise(function (res, rej) {
         var sql = "SELECT * FROM " + _TB_NAME_DISCOUNT;
-        pool.query(sql, function (error, results, fields) {
+        mysql_1.pool.query(sql, function (error, results, fields) {
             if (error)
                 rej(false);
             res(JSON.parse(JSON.stringify(results || [])));
@@ -131,7 +168,7 @@ var getSingleDiscount = function (id) {
         var sql = "SELECT * FROM " + _TB_NAME_DISCOUNT +
             " WHERE `id` = ? ";
         var queryParams = [id];
-        pool.query(sql, queryParams, function (error, results, fields) {
+        mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
             if (error)
                 rej(false);
             res(JSON.parse(JSON.stringify(results[0] || null)));
@@ -142,7 +179,7 @@ var deleteDiscount = function (id) {
     return new Promise(function (res, rej) {
         var sql = "DELETE FROM " + _TB_NAME_DISCOUNT + " WHERE `id` = ? ";
         var queryParams = [id];
-        pool.query(sql, queryParams, function (error, results, fields) {
+        mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
             if (error)
                 rej(false);
             res(JSON.parse(JSON.stringify(true)));
@@ -153,7 +190,7 @@ var updateDiscount = function (params) {
     return new Promise(function (res, rej) {
         var sql = "UPDATE " + _TB_NAME_DISCOUNT + "  SET `name` = ?, `percentage_value` = ? , `start_at` = ?, `end_at` = ?, `promo_code` = ? WHERE `id` = ?";
         var queryParams = [params.name, params.percentage_value, params.start_at, params.end_at, params.promo_code, params.id];
-        pool.query(sql, queryParams, function (error, results, fields) {
+        mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
             if (error)
                 rej(false);
             res(JSON.parse(JSON.stringify(true)));
@@ -164,7 +201,7 @@ var insertDiscount = function (params) {
     return new Promise(function (res, rej) {
         var sql = "INSERT INTO " + _TB_NAME_DISCOUNT + " (`name`, `percentage_value`, `start_at`, `end_at`, `promo_code`) VALUES ( ?, ?, ?, ?, ? )";
         var queryParams = [params.name, +params.percentage_value, params.start_at, params.end_at, params.promo_code];
-        pool.query(sql, queryParams, function (error, results, fields) {
+        mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
             if (error)
                 rej(false);
             res(JSON.parse(JSON.stringify(true)));

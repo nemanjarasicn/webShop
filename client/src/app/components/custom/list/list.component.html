@@ -123,16 +123,24 @@
                                                         <app-list-select [options]="item.options" [required]="item.required || false" [form]="listForm" [key]="item.key" [label]="item.label" [api_path]="item.selectTableCall"></app-list-select>
                                                     </div>
                                                     <div *ngIf="item.type === singleMediaType" class="col-xs-12 m-b-15">
-                                                        <label [for]="'id_' + item.key" class="form-label">
-                                                            {{item.label}} 
-                                                            <span *ngIf="item?.required" class="required">*</span>
-                                                        </label>
-                                                        <button style="width: 120px;" type="button" data-bs-toggle="modal" data-bs-target="#pickMediaModal" class="m-l-10 btn btn-primary">
-                                                            <fa-icon icon="plus-circle"></fa-icon>
-                                                        </button>
-                                                        <div class="m-t-15 m-b-15 col-xs-12" *ngIf="singleMedia?.length > 0">
-                                                            <img [src]="'assets/meida/' + singleMedia" [alt]="'slika'">
-                                                        </div>
+                                                        <ng-container *ngIf="medias?.length < 1">
+                                                            <label [for]="'id_' + item.key" class="form-label">
+                                                                {{item.label}} 
+                                                                <span *ngIf="item?.required" class="required">*</span>
+                                                            </label>
+                                                            <button style="width: 120px;" type="button" data-bs-toggle="modal" data-bs-target="#pickMediaModal" class="m-l-10 btn btn-primary">
+                                                                <fa-icon icon="plus-circle"></fa-icon>
+                                                            </button>
+                                                        </ng-container>
+                                                        <ng-container *ngIf="medias?.length > 0">
+                                                            <div class="m-t-15 m-b-15 col-xs-12 col-sm-6">                                                                
+                                                                <div class="img-header">
+                                                                    <span>Slika</span>
+                                                                    <span style="cursor: pointer;"><fa-icon icon="trash-alt" (click)="removeMediaFromArr(0)" title="Ukloni"></fa-icon></span>
+                                                                </div>
+                                                                <img [src]="medias[0].src_name" [alt]="medias[0]?.alt_text || 'slika'" style="width: 100%;">
+                                                            </div>
+                                                        </ng-container>
                                                     </div>
                                                 </ng-container>
                                             </form>
@@ -230,14 +238,14 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalLabel">Odaberi sliku</h5>
-                <button type="button" class="btn-close"data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close"data-bs-dismiss="modal" #closePickMedia aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <app-pick-media></app-pick-media>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Zatvori</button>
-                <button type="button" class="btn btn-primary" (click)="chooseMedia()" [disabled]="selectedMediaID === null">Odaberi</button>
+                <button type="button" class="btn btn-primary" (click)="chooseMedia()" [disabled]="selectedMedia === null">Odaberi</button>
             </div>
         </div>
     </div>

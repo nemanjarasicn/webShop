@@ -1,5 +1,4 @@
-//@ts-ignore
-const pool = require('./db/mysql')
+import { pool } from './db/mysql'
 
 const _TB_NAME_PRODUCTS = "`product`"
 const _TB_NAME_CATEGORY = "`product_category`"
@@ -36,16 +35,32 @@ const getAllCategories = () =>{
 
 const getSingleCategory = (id: number) => {
     return new Promise((res, rej)=>{
-        const sql = "SELECT `c`.`name`, `c`.`featured`, `c`.`parent_cat`, `m`.`src_name` as `image` FROM " + _TB_NAME_CATEGORY  + "  `c` " +
-        " LEFT JOIN " + _TB_NAME_CATEGORY_MEDIA + " `cm` ON `cm`.`category_id` = `c`.`id`" +
-        " LEFT JOIN " + _TB_NAME_MEDIA + " `m` on `m`.`id` = `cm`.`media_id` " +
-        " WHERE `c`.`id` = ? " 
-        const queryParams = [id]
+        let completeResponse
 
-        pool.query(sql, queryParams, function (error, results, fields) {
-            if(error) rej(false)
-            res(JSON.parse(JSON.stringify(results[0] || null)))
-        });
+        new Promise((resIN, rejIN)=>{
+            const sql = "SELECT `c`.`name`, `c`.`featured`, `c`.`parent_cat` FROM " + _TB_NAME_CATEGORY  + "  `c`  WHERE `c`.`id` = ? " 
+            const queryParams = [id]
+    
+            pool.query(sql, queryParams, function (error, results, fields) {
+                if(error)return rej(false)
+                completeResponse = JSON.parse(JSON.stringify(results[0] || null))
+
+                resIN(true)
+            });
+        }).then(result => {
+            const sql = "SELECT `m`.`id`, `m`.`src_name`, `m`.`alt_text` FROM " + _TB_NAME_MEDIA + " `m` " +
+            " INNER JOIN " + _TB_NAME_CATEGORY_MEDIA + " `cm` ON `cm`.`media_id` = `m`.`id` " +
+            " WHERE `cm`.`category_id` = ? "
+            const queryParams = [id]
+
+            pool.query(sql, queryParams, function (error, results, fields) {
+                if(error) return rej(false)
+                
+                completeResponse.image = results
+                
+                res(completeResponse)
+            });            
+        })
     })
 }
 
@@ -63,25 +78,47 @@ const deleteCategory = (id: number) => {
 
 const updateCategory = (params: {name: string, featured: boolean | null, parent_cat: number | null, id: number}) =>{
     return new Promise((res, rej)=>{
-        const sql = "UPDATE " + _TB_NAME_CATEGORY + "  SET `name` = ?, `featured` = ? , `parent_cat` = ? WHERE `id` = ?"
-        const queryParams = [params.name, params.featured === true? 1 : 0, params.parent_cat, params.id]
+        new Promise((resIN, rejIN) =>{
+            const sql = "UPDATE " + _TB_NAME_CATEGORY + "  SET `name` = ?, `featured` = ? , `parent_cat` = ? WHERE `id` = ?"
+            const queryParams = [params.name, params.featured === true? 1 : 0, params.parent_cat, params.id]
+    
+            pool.query(sql, queryParams, function (error, results, fields) {
+                if(error) return rej(false)
+                resIN(true)
+            });
+        }).then(result=>{
 
-        pool.query(sql, queryParams, function (error, results, fields) {
-            if(error) rej(false)
             res(JSON.parse(JSON.stringify(true)))
-        });
+        })
     })
 }
 
-const insertCategory = (params: {name: string, featured: boolean | null, parent_cat: number | null}) =>{
+const insertCategory = (params: {name: string, featured: boolean | null, parent_cat: number | null, image: {id: number, src_name: string, alt_text: string}[]}) =>{
     return new Promise((res, rej)=>{
-        const sql = "INSERT INTO " + _TB_NAME_CATEGORY + " (`name`, `featured`, `parent_cat`) VALUES ( ?, ?, ? )"
-        const queryParams = [params.name, params.featured === true? 1 : 0, params.parent_cat]
+        new Promise((resIN, rejIN)=>{
+            const sql = "INSERT INTO " + _TB_NAME_CATEGORY + " (`name`, `featured`, `parent_cat`) VALUES ( ?, ?, ? )"
+            const queryParams = [params.name, params.featured === true? 1 : 0, params.parent_cat]
+            pool.query(sql, queryParams, function (error, results, fields) {
+                if(error) return rej(false)
+                resIN(results.insertId)
+            });
+        }).then((result)=>{
+            //insert media
+            if((result !== null || result !== undefined) && params.image?.length > 0){
+                const lastInsertedCatID = result
+                params.image.forEach(img=>{
+                    const sql = "INSERT INTO " + _TB_NAME_CATEGORY_MEDIA + " (`category_id`, `media_id`) VALUES (?, ?)"
+                    const queryParams = [lastInsertedCatID, img.id]
+                    pool.query(sql, queryParams, function (error, results, fields) {
+                        if(error) return rej(false)
+                    });
+                })
+                
+                return res(JSON.parse(JSON.stringify(true)))
+            }
 
-        pool.query(sql, queryParams, function (error, results, fields) {
-            if(error) rej(false)
             res(JSON.parse(JSON.stringify(true)))
-        });
+        })
     })
 }
 

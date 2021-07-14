@@ -10,7 +10,7 @@
         </div>
         <ul class="sidebar-menu">
             <li><a routerLink="/admin/dashboard" class="sidebar-header" ><fa-icon icon="tachometer-alt"></fa-icon><span>Kontrolna tabla</span></a></li>
-            <li (mouseenter)="activeProductsMenu()" (mouseleave)="deactiveProductsMenu()" [class.active]="isProductsMenuActive"><a routerLink="/admin/products" class="sidebar-header"><fa-icon icon="store"></fa-icon><span>Prodavnica</span><fa-icon icon="chevron-right"></fa-icon></a>
+            <li (mouseenter)="activeProductsMenu()" (mouseleave)="deactiveProductsMenu()" [class.active]="isProductsMenuActive"><a routerLink="/admin/store" class="sidebar-header"><fa-icon icon="store"></fa-icon><span>Prodavnica</span><fa-icon icon="chevron-right"></fa-icon></a>
                 <ul class="sidebar-submenu">
                     <li><a routerLink="/admin/category"><fa-icon icon="th-list"></fa-icon>Kategorije</a></li>
                     <li><a routerLink="/admin/discounts"><fa-icon icon="percent"></fa-icon>Popusti / Akcije</a></li>
@@ -19,6 +19,7 @@
             </li>
             <li><a routerLink="/admin/media" class="sidebar-header"><fa-icon icon="photo-video"></fa-icon>Media</a></li>
             <li><a routerLink="/admin/invoice" class="sidebar-header"><fa-icon icon="receipt"></fa-icon><span>Računi</span></a></li>
+            <li><a routerLink="/admin/customer" class="sidebar-header"><fa-icon icon="users"></fa-icon><span>Kupci</span></a></li>
             <li><a routerLink="/admin/locations" class="sidebar-header"><fa-icon icon="map-marked-alt"></fa-icon><span>Lokacije</span></a></li>
             <li><a class="sidebar-header" (click)="logout()" href="javascript:void(0)"><fa-icon icon="sign-out-alt"></fa-icon><span>Odjavi se</span></a>
             </li>

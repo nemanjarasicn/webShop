@@ -37,13 +37,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 exports.locations_endpoint = void 0;
-//@ts-ignore
-var pool = require('./db/mysql');
+var mysql_1 = require("./db/mysql");
 var _TB_NAME_ = "`location`";
 var getAll = function () {
     return new Promise(function (res, rej) {
         var sql = "SELECT * FROM " + _TB_NAME_;
-        pool.query(sql, function (error, results, fields) {
+        mysql_1.pool.query(sql, function (error, results, fields) {
             if (error)
                 rej(false);
             res(JSON.parse(JSON.stringify(results || [])));
@@ -55,7 +54,7 @@ var getSingle = function (id) {
         var sql = "SELECT * FROM " + _TB_NAME_ +
             " WHERE `id` = ? ";
         var queryParams = [id];
-        pool.query(sql, queryParams, function (error, results, fields) {
+        mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
             if (error)
                 rej(false);
             res(JSON.parse(JSON.stringify(results[0] || null)));
@@ -66,7 +65,7 @@ var deleteItem = function (id) {
     return new Promise(function (res, rej) {
         var sql = "DELETE FROM " + _TB_NAME_ + " WHERE `id` = ? ";
         var queryParams = [id];
-        pool.query(sql, queryParams, function (error, results, fields) {
+        mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
             if (error)
                 rej(false);
             res(JSON.parse(JSON.stringify(true)));
@@ -77,7 +76,7 @@ var update = function (params) {
     return new Promise(function (res, rej) {
         var sql = "UPDATE " + _TB_NAME_ + "  SET `name` = ?, `delivery_tax` = ? WHERE `id` = ?";
         var queryParams = [params.name, params.delivery_tax, params.id];
-        pool.query(sql, queryParams, function (error, results, fields) {
+        mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
             if (error)
                 rej(false);
             res(JSON.parse(JSON.stringify(true)));
@@ -88,7 +87,7 @@ var insert = function (params) {
     return new Promise(function (res, rej) {
         var sql = "INSERT INTO " + _TB_NAME_ + " (`name`, `delivery_tax`) VALUES ( ?, ? )";
         var queryParams = [params.name, params.delivery_tax];
-        pool.query(sql, queryParams, function (error, results, fields) {
+        mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
             if (error)
                 rej(false);
             res(JSON.parse(JSON.stringify(true)));
