@@ -5,7 +5,7 @@ import { ListTableTdType } from 'src/app/enums/list-table-td-type.enum'
 import { ListFormType } from 'src/app/enums/list-form-type.enum'
 import { ListForm } from 'src/app/interfaces/list-form';
 import { ListService } from 'src/app/services/list.service'
-import { Subject, Subscription } from 'rxjs';
+import { of, Subject, Subscription } from 'rxjs';
 import { FormGroup, FormControl, Validators, ValidatorFn} from '@angular/forms';
 import { ListTableTd } from 'src/app/interfaces/list-table-td';
 import { MediaService } from 'src/app/services/media.service';
@@ -33,6 +33,7 @@ export class ListComponent implements OnDestroy, OnInit {
   @Output() triggerUpdate: EventEmitter<any> = new EventEmitter
   @Output() triggerDelete: EventEmitter<any> = new EventEmitter
   @Output() triggerPrepareEdit: EventEmitter<any> = new EventEmitter
+  @Output() triggerDeleteMediaLink: EventEmitter<any> = new EventEmitter
   @Output() triggerListFormSubmit: EventEmitter<{api_action: string, values: []}> = new EventEmitter()
 
   @ViewChild('formListModalCloseBtn') formListModalCloseBtn: ElementRef;
@@ -46,19 +47,27 @@ export class ListComponent implements OnDestroy, OnInit {
   selectType: ListFormType = ListFormType.SELECT
   singleMediaType: ListFormType = ListFormType.SINGLE_MEDIA
   dateType: ListFormType = ListFormType.DATE
+  textareaType: ListFormType = ListFormType.TEXTAREA
+  galleryType:  ListFormType = ListFormType.GALLERY
 
   //list table td types
   tdTextType: ListTableTdType = ListTableTdType.TEXT
   tdIconType: ListTableTdType = ListTableTdType.ICON
   tdImageType: ListTableTdType = ListTableTdType.IMAGE
+  tbGalleryType: ListTableTdType = ListTableTdType.GALLERY
 
+  isItMain: boolean = false
   listForm!: FormGroup
   medias: PickMedia[] = []
+  mediaToInsert: PickMedia[] = []
+  mediaToInsertIndex: number = 0
   selectedMedia: PickMedia | null = null
   containMedia: boolean = false
+  newMediaFlag: boolean = false
   itemID: number = null
   formListModalRef: ElementRef
   imgKey: string
+  additionalTxt: string = ''
   mediaOptions: {id: number, label: string}[] = []
 
   @ViewChild(DataTableDirective, {static: false})
@@ -79,7 +88,6 @@ export class ListComponent implements OnDestroy, OnInit {
     this.subsctiption3 = this.listService.subscribePickMedia().subscribe(res=>{
       this.selectedMedia = res
     })
-    
 
     if(this.form?.length > 0){
       let frmGroup = {}
@@ -91,7 +99,7 @@ export class ListComponent implements OnDestroy, OnInit {
         if(element?.validationMinLength) validators.push(Validators.minLength(element.validationMinLength))
         if(element?.validationMax) validators.push(Validators.max(element.validationMax))
         if(element?.validationMin) validators.push(Validators.min(element.validationMin))
-  
+
         frmGroup[element.key] = (validators.length > 0)? 
           new FormControl(element.defaultValue || null, validators) :
           new FormControl(element.defaultValue || null)
@@ -111,15 +119,19 @@ export class ListComponent implements OnDestroy, OnInit {
     }
 
     this.subsctiption = this.listService.subscribeSingleItem().subscribe((value)=>{
+      this.medias = [null]
+      this.mediaToInsertIndex = 0
+      this.mediaToInsert = []
+
       if(value !== null){
         for (const key in value) {
           if(key === 'id') this.itemID = value[key]
-          else if(key === 'active' || key === 'featured') this.listForm.get(key).setValue(!!value[key])
-          else if(key.includes('image')){ 
-            this.imgKey = key
-            
+          else if(key === 'active' || key === 'featured' || key === 'delivery_matter') this.listForm.get(key).setValue(!!value[key])
+          else if(key === 'image'){  
+            this.medias[0] = value[key][0]
+          }
+          else if(key === 'gallery'){
             if(value[key] !== null && value[key]?.length > 0) this.medias.push(...value[key])
-            else this.medias = []
           }
           else this.listForm.get(key).setValue(value[key])
         }
@@ -172,6 +184,7 @@ export class ListComponent implements OnDestroy, OnInit {
               type = ListTableTdType.IMAGE 
             }
             else if(key === 'active' || key === 'featured') type = ListTableTdType.ICON
+            else if(key === 'gallery') type = ListTableTdType.GALLERY
             else type = ListTableTdType.TEXT 
             tds.push({
               value,
@@ -198,6 +211,10 @@ export class ListComponent implements OnDestroy, OnInit {
     this.cd.detectChanges()
   }
 
+  openNew(): void{
+    this.medias = []
+  }
+
   frmSubmit(): void{    
     if(this.itemID === null) this.triggerInsert.emit(this.listForm.value)
     else this.triggerUpdate.emit([this.itemID, this.listForm.value])
@@ -207,6 +224,9 @@ export class ListComponent implements OnDestroy, OnInit {
   }
 
   editItem(id: number): void{
+    //reset fleg
+    this.newMediaFlag = false
+
     this.itemID = id
     this.triggerPrepareEdit.emit(id)
   }
@@ -235,21 +255,57 @@ export class ListComponent implements OnDestroy, OnInit {
     this.mediaService.setShowFullMediaActiveArr(srcArr)
   }
   
-  removeMediaFromArr(index):void{
-    this.medias.splice(index, 1)
+  removeMediaFromArr(index: number, customInd?: number):void{    
+    const toBeSpliced = this.medias[index]
+
+    const doAfter = () =>{
+      if(index === 0) this.medias[0] = undefined
+      else this.medias.splice(index, 1)
+    }
+
+    if(this.itemID !== null &&  this.newMediaFlag === false){
+      //delete media link into DB
+      this.triggerDeleteMediaLink.emit({
+        item_id: this.itemID, 
+        media_id: this.medias[index].id
+      })
+
+      this.dtRerender()
+
+      doAfter()
+    }else{
+      doAfter()
+      //remove media from toInsert part
+      if(index !== 0 || this.mediaToInsert?.length > 1){
+        this.mediaToInsert = this.mediaToInsert.filter(item => item.customInd !== toBeSpliced.customInd )
+        this.listForm.controls['image'].setValue(this.mediaToInsert)
+      }
+      else{
+        this.mediaToInsertIndex = 0
+        this.mediaToInsert = []
+        this.listForm.controls['image'].setValue(null)
+      }
+    }
   }
 
   chooseMedia(): void{
-    this.medias.push(this.selectedMedia)
+    this.selectedMedia.customInd = this.mediaToInsertIndex
+    this.mediaToInsertIndex = this.mediaToInsertIndex + 1
+    
+    if(this.isItMain) this.medias[0] = this.selectedMedia
+    else this.medias.push({...this.selectedMedia})
     
     //set value to form control
-    this.listForm.controls[this.imgKey].setValue(this.medias)
+    this.mediaToInsert.push({...this.selectedMedia})
+    this.listForm.controls['image'].setValue(this.mediaToInsert)
 
     //close modal
     this.closePickMedia.nativeElement.click()
 
     //reset
     this.listService.setPickMedia(null)
+    this.isItMain = false
+
   }
 
   dtRerender(): void {
@@ -261,6 +317,15 @@ export class ListComponent implements OnDestroy, OnInit {
         this.dtTrigger.next();
       },100)
     });
+  }
+
+  openPickModal(isItMainTrue?: boolean): void{
+    this.newMediaFlag = true
+    if(isItMainTrue) this.isItMain = true
+  }
+
+  setAdditionalTxt(txt: string): void{
+    this.additionalTxt = txt
   }
 
   ngOnDestroy(): void{

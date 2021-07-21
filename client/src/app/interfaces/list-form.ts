@@ -7,11 +7,12 @@ export interface ListForm {
     label: string,
     required?: boolean,
     placeholder?: string,
-    defaultValue?: string,
+    defaultValue?: string | number | boolean,
     validationPatern?: RegExp,
     validationMinLength?: number,
     validationMaxLength?: number,
     validationMin?: number,
     validationMax?: number,
+    additionalTxt?: string,
     options?: {label: string, value: string}[]
 }

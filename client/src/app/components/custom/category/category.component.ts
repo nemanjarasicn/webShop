@@ -1,8 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ListTableTdType } from 'src/app/enums/list-table-td-type.enum';
-import { ListTableTd } from 'src/app/interfaces/list-table-td';
 import { ListTableTh } from 'src/app/interfaces/list-table-th';
-import { ListTableTr } from 'src/app/interfaces/list-table-tr';
 import { ProductsService } from 'src/app/services/products.service';
 import { Category } from 'src/app/interfaces/category'
 import { ListForm } from 'src/app/interfaces/list-form';
@@ -24,7 +21,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
     {title: 'Naziv'},
     {title: 'Istaknuto'},
     {title: 'Potpada pod'},
-    {title: 'Slika'}
+    {title: 'Glavna slika'}
   ]
   tbTr!: Array<Category>
   form: ListForm[] = [
@@ -49,7 +46,7 @@ export class CategoryComponent implements OnInit, OnDestroy {
     {
       key: 'image',
       type: ListFormType.SINGLE_MEDIA,
-      label: 'Dodaj sliku',
+      label: 'Dodaj glavnu sliku',
     }
     
   ]
@@ -124,6 +121,19 @@ export class CategoryComponent implements OnInit, OnDestroy {
   prepareEdit(id: number): void{
     this.productsService.getSingleCategory(id).toPromise().then((arr: Category)=>{
         this.listService.setSingleItem(arr)
+    })
+  }
+  
+  deleteMediaLink($event: {item_id: number, media_id: number}): void{
+    this.productsService.deleteCategoryMedia($event.item_id, $event.media_id).then(res => {
+      if(res){
+        this.toastText = 'Uspešno obrisana slika kategorije!'
+        this.refrash()
+      }
+      else this.toastText = 'Neuspešno obrisana slika kategorije! Molimo vas pokušajte kasnije.'
+
+      this.toastActive = true
+      this.hideToast()
     })
   }
 

@@ -1,5 +1,6 @@
 export enum ListTableTdType {
     TEXT,
     ICON,
-    IMAGE
+    IMAGE,
+    GALLERY
 }

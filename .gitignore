@@ -2,7 +2,7 @@
 ./node_modules/
 ./routes/db/mysql.js
 ./routes/user.js
-./routes/medias.js
+./routes/media.js
 ./routes/locations.js
 ./routes/products.js
 ./routes/db/mysql.js

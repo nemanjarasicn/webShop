@@ -20,8 +20,7 @@ import { FontAwesomeModule, FaIconLibrary } from '@fortawesome/angular-fontaweso
 import { 
   faUserCircle, faWindowMaximize, faTachometerAlt, faStore, faChevronRight, faReceipt, faSignOutAlt,
   faThList, faPercent, faList, faPlusCircle, faPhotoVideo, faEdit, faTrashAlt, faToggleOff, faToggleOn,
-  faMapMarkedAlt,faUsers,
-  faBox
+  faMapMarkedAlt, faUsers, faImages, faBox, faComment
  } from '@fortawesome/free-solid-svg-icons';
 import { ProductsService } from 'src/app/services/products.service';
 import { ListSelectService } from 'src/app/services/list-select.service';
@@ -69,6 +68,6 @@ import { MediaService } from 'src/app/services/media.service';
 export class AdminModule {
   constructor(library: FaIconLibrary) {
     // Add an icon to the library for convenient access in other components
-    library.addIcons(faUserCircle, faUsers, faMapMarkedAlt, faWindowMaximize, faTachometerAlt, faStore, faChevronRight, faBox, faReceipt, faSignOutAlt, faThList, faPercent, faList, faPlusCircle, faPhotoVideo, faEdit, faTrashAlt, faToggleOff, faToggleOn);
+    library.addIcons(faUserCircle, faImages, faUsers, faComment, faMapMarkedAlt, faWindowMaximize, faTachometerAlt, faStore, faChevronRight, faBox, faReceipt, faSignOutAlt, faThList, faPercent, faList, faPlusCircle, faPhotoVideo, faEdit, faTrashAlt, faToggleOff, faToggleOn);
   } 
 }

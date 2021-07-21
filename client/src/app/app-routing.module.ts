@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { ActivatedRouteSnapshot, RouterModule, RouterStateSnapshot, Routes } from '@angular/router';
 import { AdminComponent } from './components/admin/admin.component'
 import { ShopComponent } from './components/shop/shop.component'
 import { DashboardComponent } from './components/custom/dashboard/dashboard.component'

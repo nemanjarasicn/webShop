@@ -1,5 +1,4 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ListSelectService } from 'src/app/services/list-select.service';
 import { FormGroup } from '@angular/forms';
 
 
@@ -15,10 +14,9 @@ export class ListSelectComponent implements OnInit {
   @Input() label: string
   @Input() key: string
   @Input() required: boolean
-  @Input() options: {label: string, value: string}[]
+  @Input() options!: {label: string, value: string}[]
 
-  //options: {value: string, name: string}[]
-  constructor(private listSelectService: ListSelectService) { }
+  constructor() { }
 
   ngOnInit(): void {}
 }

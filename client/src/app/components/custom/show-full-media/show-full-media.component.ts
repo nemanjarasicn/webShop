@@ -9,17 +9,18 @@ import { MediaService } from 'src/app/services/media.service';
 })
 export class ShowFullMediaComponent implements OnInit, OnDestroy {
 
-  showMediaArr!: string[]
+  showMediaArr!: string[] | {src_name: string}[]
   activeImage!: string
   subscribe: Subscription
 
   constructor(private mediaService: MediaService) { }
 
   ngOnInit(): void {
-    this.subscribe = this.mediaService.showFullMediaActiveArr().subscribe(res=>{
+    this.subscribe = this.mediaService.showFullMediaActiveArr().subscribe((res: string[] | {src_name: string}[])=>{
       if(res){
         this.showMediaArr = res
-        this.activeImage = res[0]
+        //@ts-ignore
+        this.activeImage = res[0]?.src_name || res[0]
       }
     })  
   }
@@ -31,5 +32,4 @@ export class ShowFullMediaComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void{
     this.subscribe.unsubscribe()
   }
-
 }

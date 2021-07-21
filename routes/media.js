@@ -40,6 +40,8 @@ exports.medias_endpoint = void 0;
 var mysql_1 = require("./db/mysql");
 var _TB_NAME_ = "`media`";
 var _TB_NAME_TYPE_ = "`media_type`";
+var _TB_CATEGORY_MEDIA_ = "`category_media`";
+var _TB_PRODUCT_MEDIA_ = "`product_media`";
 var getAll = function () {
     return new Promise(function (res, rej) {
         var sql = "SELECT `m`.`id`, `m`.`name`, `m`.`src_name`, `m`.`src_name` as `image`, `m`.`alt_text`, `mt`.`name` as `type_name` FROM " + _TB_NAME_ + " `m` " +
@@ -52,15 +54,38 @@ var getAll = function () {
     });
 };
 var deleteItem = function (id) {
-    return new Promise(function (res, rej) {
-        var sql = "DELETE FROM " + _TB_NAME_ + " WHERE `id` = ? ";
-        var queryParams = [id];
-        mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
-            if (error)
-                rej(false);
-            res(JSON.parse(JSON.stringify(true)));
+    return new Promise(function (res, rej) { return __awaiter(void 0, void 0, void 0, function () {
+        var sql, queryParams;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    sql = "DELETE FROM " + _TB_CATEGORY_MEDIA_ + " WHERE `media_id` = ?";
+                    queryParams = [id];
+                    return [4 /*yield*/, mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
+                            if (error)
+                                return rej(false);
+                        })];
+                case 1:
+                    _a.sent();
+                    sql = "DELETE FROM " + _TB_PRODUCT_MEDIA_ + " WHERE `media_id` = ?";
+                    return [4 /*yield*/, mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
+                            if (error)
+                                return rej(false);
+                        })];
+                case 2:
+                    _a.sent();
+                    sql = "DELETE FROM " + _TB_NAME_ + " WHERE `id` = ?";
+                    return [4 /*yield*/, mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
+                            if (error)
+                                return rej(false);
+                        })];
+                case 3:
+                    _a.sent();
+                    res(JSON.parse(JSON.stringify(true)));
+                    return [2 /*return*/];
+            }
         });
-    });
+    }); });
 };
 var insert = function (params, file) {
     return new Promise(function (res, rej) {
@@ -76,7 +101,7 @@ var insert = function (params, file) {
 };
 var getTypes = function () {
     return new Promise(function (res, rej) {
-        var sql = "SELECT `id`, `name` FROM " + _TB_NAME_TYPE_;
+        var sql = "SELECT `id` as `value`, `name` as `label` FROM " + _TB_NAME_TYPE_;
         mysql_1.pool.query(sql, function (error, results, fields) {
             if (error)
                 rej(false);

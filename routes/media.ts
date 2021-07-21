@@ -2,6 +2,8 @@ import { pool } from './db/mysql'
 
 const _TB_NAME_ = "`media`"
 const _TB_NAME_TYPE_ = "`media_type`"
+const _TB_CATEGORY_MEDIA_ = "`category_media`"
+const _TB_PRODUCT_MEDIA_ = "`product_media`"
 
 const getAll = () =>{
     return new Promise((res, rej)=>{
@@ -16,14 +18,25 @@ const getAll = () =>{
 }
 
 const deleteItem = (id: number) => {
-    return new Promise((res, rej)=>{
-        const sql = "DELETE FROM " + _TB_NAME_ + " WHERE `id` = ? "
+    return new Promise(async (res, rej)=>{
+        let sql = "DELETE FROM " + _TB_CATEGORY_MEDIA_  + " WHERE `media_id` = ?"
         const queryParams = [id]
 
-        pool.query(sql, queryParams, function (error, results, fields) {
-            if(error) rej(false)
-            res(JSON.parse(JSON.stringify(true)))
-        });
+        await pool.query(sql, queryParams, function (error, results, fields) {
+            if(error)return rej(false)    
+        })
+
+        sql ="DELETE FROM " + _TB_PRODUCT_MEDIA_  + " WHERE `media_id` = ?"
+        await pool.query(sql, queryParams, function (error, results, fields) {
+            if(error)return rej(false)
+        })
+
+        sql ="DELETE FROM " + _TB_NAME_ + " WHERE `id` = ?"
+        await pool.query(sql, queryParams, function (error, results, fields) {
+            if(error)return rej(false)
+        })
+
+        res(JSON.parse(JSON.stringify(true)))
     })
 }
 
@@ -43,7 +56,7 @@ const insert = (params: {name: string, type_id: string, alt_text: string}, file)
 
 const getTypes = () => {
     return new Promise((res, rej)=>{
-        const sql = "SELECT `id`, `name` FROM " + _TB_NAME_TYPE_ 
+        const sql = "SELECT `id` as `value`, `name` as `label` FROM " + _TB_NAME_TYPE_ 
 
         pool.query(sql, function (error, results, fields) {
             if(error) rej(false)

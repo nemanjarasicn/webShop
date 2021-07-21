@@ -52,7 +52,7 @@
                     <!--NOT MEDIA-->
                     <ng-container *ngIf="form?.length > 0">
                         <div class="btn-popup pull-right">                            
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#formListModal">
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#formListModal" (click)="openNew()">
                                 {{addNewTitle}}
                             </button>
                             <!-- Modal -->
@@ -104,6 +104,11 @@
                                                                 {{item.label}}
                                                                 <span *ngIf="item?.required" class="required">*</span>
                                                             </label>
+                                                            <ng-container *ngIf="item?.additionalTxt">
+                                                                <button (click)="setAdditionalTxt(item.additionalTxt)" data-bs-toggle="modal" data-bs-target="#additionalTxtModal"  class="additionalTxtCon" >
+                                                                    <fa-icon  icon="comment" title="Objašnjenje"></fa-icon>                                                                    
+                                                                </button>
+                                                            </ng-container>
                                                         </div>
                                                     </div>
                                                     <div class="col-xs-12 m-b-15" *ngIf="item.type === dateType">
@@ -119,26 +124,63 @@
                                                             class="form-control"  
                                                             [placeholder]="item.placeholder">
                                                     </div>
+                                                    <div class="col-xs-12 m-b-15" *ngIf="item.type === textareaType">
+                                                        <div class="form-floating">
+                                                            <textarea 
+                                                                style="height: 100px"
+                                                                [formControlName]="item.key"
+                                                                [id]="'id_' + item.key" 
+                                                                [required]="item.required" 
+                                                                class="form-control"  
+                                                                [placeholder]="item.placeholder">
+                                                            >
+                                                            </textarea>
+                                                            <label [id]="'id_' + item.key" >{{item.label}}</label>
+                                                        </div>
+                                                    </div>
                                                     <div *ngIf="item.type === selectType" class="col-xs-12 m-b-15">
-                                                        <app-list-select [options]="item.options" [required]="item.required || false" [form]="listForm" [key]="item.key" [label]="item.label" [api_path]="item.selectTableCall"></app-list-select>
+                                                        <app-list-select *ngIf="item?.options" [options]="item.options" [required]="item.required || false" [form]="listForm" [key]="item.key" [label]="item.label"></app-list-select>
                                                     </div>
                                                     <div *ngIf="item.type === singleMediaType" class="col-xs-12 m-b-15">
-                                                        <ng-container *ngIf="medias?.length < 1">
+                                                        <ng-container *ngIf="!medias[0]?.src_name">
                                                             <label [for]="'id_' + item.key" class="form-label">
                                                                 {{item.label}} 
                                                                 <span *ngIf="item?.required" class="required">*</span>
                                                             </label>
-                                                            <button style="width: 120px;" type="button" data-bs-toggle="modal" data-bs-target="#pickMediaModal" class="m-l-10 btn btn-primary">
+                                                            <button style="width: 120px;" type="button" (click)="openPickModal(true)" data-bs-toggle="modal" data-bs-target="#pickMediaModal" class="m-l-10 btn btn-primary">
                                                                 <fa-icon icon="plus-circle"></fa-icon>
                                                             </button>
                                                         </ng-container>
-                                                        <ng-container *ngIf="medias?.length > 0">
+                                                        <ng-container *ngIf="medias[0]?.src_name">
                                                             <div class="m-t-15 m-b-15 col-xs-12 col-sm-6">                                                                
                                                                 <div class="img-header">
-                                                                    <span>Slika</span>
-                                                                    <span style="cursor: pointer;"><fa-icon icon="trash-alt" (click)="removeMediaFromArr(0)" title="Ukloni"></fa-icon></span>
+                                                                    <span>Glavna slika</span>
+                                                                    <span style="cursor: pointer;"><fa-icon icon="trash-alt" (click)="removeMediaFromArr(0, medias[0]?.customInd)" title="Ukloni"></fa-icon></span>
                                                                 </div>
                                                                 <img [src]="medias[0].src_name" [alt]="medias[0]?.alt_text || 'slika'" style="width: 100%;">
+                                                            </div>
+                                                        </ng-container>
+                                                    </div>
+                                                    <div *ngIf="item.type === galleryType" class="col-xs-12 m-b-15">
+                                                        <h5>{{item.label}}</h5>
+                                                        <div>
+                                                            <label for="">Dodaj sliku</label>
+                                                            <button style="width: 120px;" type="button" (click)="openPickModal()" data-bs-toggle="modal" data-bs-target="#pickMediaModal" class="m-l-10 btn btn-primary">
+                                                                <fa-icon icon="plus-circle"></fa-icon>
+                                                            </button>
+                                                        </div>
+                                                        <hr>                                                        
+                                                        <ng-container *ngIf="medias?.length > 0">
+                                                            <div class="row">
+                                                                <ng-container *ngFor="let media of medias, index as i">
+                                                                    <div class="m-t-15 m-b-15 col-xs-12 col-sm-6 col-md-4 col-lg-4" *ngIf="medias[i]?.src_name">
+                                                                        <div class="img-header">
+                                                                            <span>Slika</span>
+                                                                            <span style="cursor: pointer;"><fa-icon icon="trash-alt" (click)="removeMediaFromArr(i, media?.customInd)" title="Ukloni"></fa-icon></span>
+                                                                        </div>
+                                                                        <img [src]="media?.src_name" [alt]="media?.alt_text || 'slika'" style="width: 100%;">
+                                                                    </div>
+                                                                </ng-container>
                                                             </div>
                                                         </ng-container>
                                                     </div>
@@ -154,7 +196,7 @@
                             </div>
                         </div>
                     </ng-container>
-                    <!-- Modal -->
+                    <!-- DELETE Modal -->
                     <div class="modal fade" id="deleteListModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
                         <div class="modal-dialog">
                         <div class="modal-content">
@@ -189,30 +231,33 @@
                                         {{itemTd.value}}
                                     </ng-container>
                                     <ng-container *ngIf="itemTd.type === tdIconType">
-                                        <fa-icon [icon]="itemTd.value === 0? 'toggle-off': 'toggle-on'"></fa-icon>
+                                        <fa-icon [icon]="itemTd.value === 0? 'toggle-off': 'toggle-on'" style="font-size: 18px"></fa-icon>
                                     </ng-container>
                                     <ng-container *ngIf="itemTd.type === tdImageType">
-                                        <ng-container *ngIf="true">
-                                            <img 
-                                                *ngIf="itemTd.value?.length > 0" 
-                                                [src]="itemTd.value" 
-                                                [alt]="'slika'" 
-                                                class="media-mini" 
-                                                (click)="showFullMedia([itemTd.value])"
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#showFullMediaModal"
-                                            >
-                                            <span *ngIf="!itemTd.value?.length || itemTd.value?.length < 1">Nema slike</span>
-                                        </ng-container>
-                                        <ng-container *ngIf="false">
-                                            <span 
-                                                *ngIf="itemTd.value?.length > 0" 
-                                                (click)="showFullMedia(itemTd.value)"
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#showFullMediaModal"
-                                            >Vidi sve slike</span>
-                                            <span *ngIf="!itemTd.value?.length || itemTd.value?.length < 1">Nema slika</span>
-                                        </ng-container>                                        
+                                        <img 
+                                            *ngIf="itemTd.value?.length > 0" 
+                                            [src]="itemTd.value" 
+                                            [alt]="'slika'" 
+                                            class="media-mini" 
+                                            (click)="showFullMedia([itemTd.value])"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#showFullMediaModal"
+                                        >
+                                        <span *ngIf="!itemTd.value?.length || itemTd.value?.length < 1">Nema slike</span>
+                                    </ng-container>
+                                    <ng-container *ngIf="itemTd.type === tbGalleryType">
+                                        <span
+                                            (click)="showFullMedia(itemTd.value)" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#showFullMediaModal"
+                                            [ngStyle]="{
+                                                fontSize: '18px', 
+                                                cursor: itemTd.value?.length > 0? 'pointer' : 'not-allowed'
+                                            }"
+                                            [title]="itemTd.value?.length > 0? 'Sve slike' : 'Nema slika' "
+                                        >
+                                            <fa-icon [icon]="'images'"></fa-icon>
+                                        </span>
                                     </ng-container>
                                 </td>
                                 <td>
@@ -231,6 +276,24 @@
     </div>
 </div>
 <!-- Container-fluid Ends-->
+
+<!-- additionalTxt MODAL-->
+<div class="modal fade" id="additionalTxtModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalLabel">Dodatno objašnjenje</h5>
+                <button type="button" class="btn-close"data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {{additionalTxt}}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Zatvori</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!--PICK MEDIA-->
 <div class="modal fade" id="pickMediaModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">

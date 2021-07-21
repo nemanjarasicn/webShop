@@ -1,6 +1,6 @@
 <ng-container *ngIf="tbTr !== undefined">
     <app-list
-        [title]="'Kategorija'"
+        [title]="'Kategorije'"
         [addNewTitle]="'Nova kategorija'"
         [tbTh]="tbTh"
         [tbTrDummy]="tbTr"
@@ -9,6 +9,7 @@
         (triggerInsert)="insertFunction($event)"
         (triggerUpdate)="updateFunction($event)"
         (triggerDelete)="deleteFunction($event)"
+        (triggerDeleteMediaLink)="deleteMediaLink($event)"
     >
     </app-list>
 </ng-container>

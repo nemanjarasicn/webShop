@@ -6,7 +6,7 @@
     <select [id]="'id_' + key" [formControlName]="key" class="form-select">
         <option selected value=""></option>
         <ng-container *ngIf="options?.length > 0 && options[0] !== null">
-            <option *ngFor="let item of options" [value]="item.id">{{item.name}}</option>
+            <option *ngFor="let item of options" [value]="item.value">{{item.label}}</option>
         </ng-container>
     </select>
 </ng-container>

@@ -21,9 +21,9 @@
 
 $(window).on('scroll', function() {
     if ($(this).scrollTop() > 600) {
-        $('.tap-top').fadeIn();
+        $('.tap-top')?.fadeIn();
     } else {
-        $('.tap-top').fadeOut();
+        $('.tap-top')?.fadeOut();
     }
 });
 $('.tap-top').click( function() {

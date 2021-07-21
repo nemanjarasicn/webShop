@@ -3,6 +3,6 @@
         <img [src]="activeImage" alt="puna velicina slike">
     </div>
     <div class="mini-images-container">
-        <img *ngFor="let src of showMediaArr" [src]="src" alt="mala slika" (click)="setActiveImage(src)">
+        <img *ngFor="let src of showMediaArr" [src]="src?.src_name || src" alt="mala slika" (click)="setActiveImage(src?.src_name || src)">
     </div>
 </div>            

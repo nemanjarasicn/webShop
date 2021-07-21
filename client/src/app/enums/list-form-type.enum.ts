@@ -5,5 +5,6 @@ export enum ListFormType {
     TEXTAREA,
     CHECKBOX,
     DATE,
-    SINGLE_MEDIA
+    SINGLE_MEDIA,
+    GALLERY
 }
