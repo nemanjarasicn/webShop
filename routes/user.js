@@ -39,19 +39,19 @@ exports.__esModule = true;
 exports.user_endpoint = void 0;
 var mysql_1 = require("./db/mysql");
 var _TB_NAME = "`user`";
-var makeSession = function (req, user_id) {
-    var hour = 3600000;
-    req.session.cookie.expires = new Date(Date.now() + hour);
-    req.session.cookie.maxAge = hour;
+var setSession = function (req, user_id, time) {
+    req.session.cookie.expires = new Date(Date.now() + time);
+    req.session.cookie.maxAge = time;
     req.session.logged = true;
     req.session.userid = user_id;
 };
+var makeSession = function (req, user_id) {
+    var hour = 3600000;
+    setSession(req, user_id, hour);
+};
 var saveMe = function (req, user_id) {
     var year = Number(3600000 * 24 * 365);
-    req.session.cookie.expires = new Date(Date.now() + year);
-    req.session.cookie.maxAge = year;
-    req.session.logged = true;
-    req.session.userid = user_id;
+    setSession(req, user_id, year);
 };
 var getUserData = function (user_id) { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
@@ -66,6 +66,17 @@ var getUserData = function (user_id) { return __awaiter(void 0, void 0, void 0, 
             })];
     });
 }); };
+var logout = function (req) {
+    return new Promise(function (res, rej) {
+        req.session.destroy(function (err) {
+            if (err) {
+                console.log(err);
+                return rej(false);
+            }
+            res(true);
+        });
+    });
+};
 var login = function (params, req) { return __awaiter(void 0, void 0, void 0, function () {
     var sql, queryParams, user;
     return __generator(this, function (_a) {
@@ -103,8 +114,9 @@ function user_endpoint(req, res) {
                     switch (_a) {
                         case 'isAlreadyLogged': return [3 /*break*/, 1];
                         case 'login': return [3 /*break*/, 5];
+                        case 'logout': return [3 /*break*/, 7];
                     }
-                    return [3 /*break*/, 7];
+                    return [3 /*break*/, 9];
                 case 1:
                     if (!(req.session.userid !== undefined && req.session.logged === true)) return [3 /*break*/, 3];
                     return [4 /*yield*/, getUserData(req.session.cookie.userid || req.session.userid)];
@@ -116,16 +128,21 @@ function user_endpoint(req, res) {
                     _b.label = 4;
                 case 4:
                     res.status(200);
-                    return [3 /*break*/, 8];
+                    return [3 /*break*/, 10];
                 case 5: return [4 /*yield*/, login(req.body, req)];
                 case 6:
                     returnValue = _b.sent();
                     res.status(200);
-                    return [3 /*break*/, 8];
-                case 7:
-                    res.status(404);
-                    return [3 /*break*/, 8];
+                    return [3 /*break*/, 10];
+                case 7: return [4 /*yield*/, logout(req)];
                 case 8:
+                    returnValue = _b.sent();
+                    res.status(200);
+                    return [3 /*break*/, 10];
+                case 9:
+                    res.status(404);
+                    return [3 /*break*/, 10];
+                case 10:
                     res.send(returnValue);
                     return [2 /*return*/];
             }

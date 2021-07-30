@@ -32,15 +32,19 @@
               "src/styles.scss",
               "src/assets/static-css/css/jsgrid.css",
               "src/assets/static-css/css/admin.css",
+              "src/assets/static-css/css/animate.css",
+              "node_modules/slick-carousel/slick/slick.scss",
+              "node_modules/slick-carousel/slick/slick-theme.scss",
               "node_modules/datatables.net-bs4/css/dataTables.bootstrap4.min.css"
             ],
             "scripts": [
               "node_modules/jquery/dist/jquery.slim.min.js",
               "node_modules/popper.js/dist/umd/popper.min.js",
               "node_modules/bootstrap/dist/js/bootstrap.min.js",
-              "src/assets/static-js/admin-script.js",
               "node_modules/datatables.net/js/jquery.dataTables.js",
               "node_modules/datatables.net-bs4/js/dataTables.bootstrap4.min.js",
+              "src/assets/static-js/admin-script.js",
+              "node_modules/slick-carousel/slick/slick.min.js",
               "node_modules/chart.js/dist/chart.js"
             ]
           },

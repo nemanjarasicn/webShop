@@ -1,0 +1,27 @@
+.pro-group{
+    .gallery{
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: row;
+        justify-content: space-evenly;
+        align-items: center;
+        img{
+            margin: 3px
+        }
+    }
+}
+.qty-minus{
+    &::before{
+        content: unset !important;
+    }
+}
+.qty-plus{
+    &::before{
+        content: unset !important;
+    }
+}
+.gallery{
+    img{
+        width: 100px;
+    }
+}

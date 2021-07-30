@@ -1,0 +1,29 @@
+.top-header{
+    a,h6{
+        color: #fff !important;
+        text-align: center;
+    }
+}
+.menu-right{
+    ul{
+        li{
+            color: #000;
+            cursor: pointer;
+            margin-left: 15px !important;
+            a{
+                color: #000;
+            }
+        }
+        font-size: 24px;
+        .cart-item{
+            font-size: 12px !important;
+        }
+    }
+    .mobile-cart{
+        background-color: unset !important;
+        .item-count-contain{
+            background-color: #f73838 !important;
+            color: #fff !important;
+        }
+    }
+}

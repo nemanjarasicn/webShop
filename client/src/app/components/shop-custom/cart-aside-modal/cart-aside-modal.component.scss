@@ -1,0 +1,14 @@
+.buttons{
+  display: flex;
+  flex-direction: column;
+}
+.qty-minus{
+  &::before{
+    content: unset !important;
+  }
+}
+.qty-plus{
+  &::before{
+    content: unset !important;
+  }
+}

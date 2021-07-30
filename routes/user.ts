@@ -3,20 +3,21 @@ import { pool } from './db/mysql'
 
 const _TB_NAME = "`user`"
 
-const makeSession = (req, user_id: number) =>{
-    const hour = 3600000
-    req.session.cookie.expires = new Date(Date.now() + hour)
-    req.session.cookie.maxAge = hour
+const setSession = (req, user_id: number, time: number): void =>{
+    req.session.cookie.expires = new Date(Date.now() + time)
+    req.session.cookie.maxAge = time
     req.session.logged = true
     req.session.userid = user_id
 }
 
+const makeSession = (req, user_id: number) =>{
+    const hour = 3600000
+    setSession(req, user_id, hour)
+}
+
 const saveMe = (req, user_id: number) =>{
     const year = Number(3600000 * 24 * 365)
-    req.session.cookie.expires = new Date(Date.now() + year)
-    req.session.cookie.maxAge = year
-    req.session.logged = true
-    req.session.userid = user_id
+    setSession(req, user_id, year)
 }
 
 const getUserData = async (user_id: number) =>{
@@ -26,6 +27,18 @@ const getUserData = async (user_id: number) =>{
          pool.query(sql, queryParams, function (error, results, fields) {
             if(error) rej(false)
             res(JSON.parse(JSON.stringify([true, results[0]] || [false, null])))
+        });
+    })
+}
+
+const logout = (req): Promise<boolean> => {
+    return new Promise ((res, rej)=>{
+        req.session.destroy((err) => {
+            if(err) {
+                console.log(err);
+                return rej(false)
+            }
+            res(true)
         });
     })
 }
@@ -63,6 +76,10 @@ export async function user_endpoint(req, res){
             returnValue = await login(req.body, req);
             res.status(200);
             break;
+        case 'logout':
+            returnValue = await logout(req);
+            res.status(200);
+        break
 
         default:  res.status(404); break;
     }

@@ -1,4 +1,4 @@
-<ng-container *ngIf="isLoggedIn !== undefined">
+<ng-container *ngIf="isLoggedIn !== undefined && checkedLogged">
     <app-login *ngIf="!isLoggedIn" (triggerIsLogin)="isLogedinChange($event)"></app-login>
     <ng-container *ngIf="isLoggedIn">
         <div class="page-wrapper">

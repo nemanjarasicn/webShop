@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject, of } from 'rxjs'
 import { User } from '../interfaces/user.interface'
-import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
-import { Router, CanActivate, ActivatedRouteSnapshot,RouterStateSnapshot, UrlTree, CanActivateChild } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { Router, ActivatedRouteSnapshot,RouterStateSnapshot, CanActivateChild } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -11,20 +11,27 @@ export class AdminService implements CanActivateChild {
   constructor(private http:HttpClient, private router:Router) {}
   
   private user$: BehaviorSubject<User> = new BehaviorSubject(null)
-  private user: User
+  private logged$: BehaviorSubject<boolean> = new BehaviorSubject(false)
+  private canActivateChild$: BehaviorSubject<boolean> = new BehaviorSubject(false)
   private isMenuOpend$: BehaviorSubject<boolean> = new BehaviorSubject(false)
 
   setUser(value: User): void{
-    this.user = value
+    if (value === undefined || value === null || value?.rule_id !== 1) this.canActivateChild$.next(false)
+    else this.canActivateChild$.next(true)
+
     this.user$.next(value)
+  }
+
+  setLogged(val: boolean): void{
+    this.logged$.next(val)
   }
 
   subscribeUser(): Observable<User | null>{
     return this.user$
   }
-
-  getUser(): User{
-    return this.user
+  
+  subscribeLogged(): Observable<boolean>{
+    return this.logged$
   }
 
   login(params: {
@@ -39,11 +46,21 @@ export class AdminService implements CanActivateChild {
       )
   }
 
-  isAlreadyLogged(): Observable<[boolean, User | null]>{
+  logout(): Promise<boolean>{
+    return this.http.post<boolean>(
+      '/api/user/logout',
+      {headers: {'content-type': 'application/json'}}      
+    ).toPromise()
+  }
+
+  isAlreadyLogged(): Promise<void>{
     return this.http.post<[boolean, User | null]>(
       '/api/user/isAlreadyLogged',
       {headers: {'content-type': 'application/json'}}      
-    )
+    ).toPromise().then(res=>{
+      this.setUser(res[1])
+      this.setLogged(res[0])
+    })
   }
 
   getIsMenuOpened(): Observable<boolean>{
@@ -57,9 +74,11 @@ export class AdminService implements CanActivateChild {
   canActivateChild(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
-  ): boolean{
-      const tmp: User = this.getUser()
-      if (tmp === undefined || tmp.rule_id !== 1) return false;
-      return true;
+  ): Promise<boolean>{
+    return new Promise((res, rej)=>{
+      this.canActivateChild$.subscribe((isItTrue)=>{
+        res(isItTrue)
+      })
+    })     
   }
 }

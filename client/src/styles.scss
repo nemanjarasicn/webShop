@@ -2,3 +2,10 @@
 .pull-right{
     float: right
 }
+
+.slick-prev::before {
+    color: #f73838 !important;
+}
+.slick-next::before {
+    color: #f73838 !important;
+}

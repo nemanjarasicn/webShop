@@ -1,0 +1,16 @@
+.assessment-count{
+    text-align: center;
+    font-size: small;
+}
+.input-group{
+    display: grid !important;
+    grid-template-columns: auto 1fr auto auto;
+    button, input{
+        position: relative !important;
+    }
+    .btn-check{
+        &::before{
+            content: unset !important;
+        }
+    }
+}

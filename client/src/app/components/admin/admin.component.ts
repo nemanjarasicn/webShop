@@ -1,32 +1,35 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AdminService } from 'src/app/services/admin.service'
 import { User } from 'src/app/interfaces/user.interface'
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-admin',
   templateUrl: './admin.component.html',
   styleUrls: ['./admin.component.scss']
 })
-export class AdminComponent implements OnInit {
+export class AdminComponent implements OnInit, OnDestroy {
   isLoggedIn!: boolean 
+  checkedLogged: boolean = false
   isMenuOpened: boolean = false
   user!: User | null
+  subscribe1: Subscription
+  subscribe2: Subscription
   constructor(private adminService: AdminService) { }
 
   ngOnInit(): void {
-    //first check JwT
-    this.adminService.isAlreadyLogged().subscribe((res:[boolean, User | null]) =>{
-      if(res[0] && res[1] !== null){
-        this.isLoggedIn = true
-        this.adminService.setUser(res[1])
-      }else this.isLoggedIn = false
+    this.subscribe1 = this.adminService.subscribeUser().subscribe((val: User | null) => this.user = val)
+    this.subscribe2 =  this.adminService.subscribeLogged().subscribe((val: boolean) => this.isLoggedIn = val)
+    
+    this.adminService.isAlreadyLogged().then(()=>{
+      this.checkedLogged = true
     })
+    
 
     this.adminService.getIsMenuOpened().subscribe((val: boolean)=>{
       this.isMenuOpened = val
     })
 
-    this.adminService.subscribeUser().subscribe((val: User | null) => this.user = val)
   }
 
   isLogedinChange($event: boolean):void {
@@ -37,4 +40,8 @@ export class AdminComponent implements OnInit {
     this.adminService.setIsMenuOpened(!this.isMenuOpened)
   }
 
+  ngOnDestroy(): void{
+    this.subscribe1?.unsubscribe()
+    this.subscribe2?.unsubscribe()
+  }
 }

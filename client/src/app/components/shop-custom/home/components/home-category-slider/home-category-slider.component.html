@@ -1,0 +1,35 @@
+<!--rounded category start-->
+<section *ngIf="slides.length > 0" class="rounded-category vagitable-category section-mt-space">
+    <div class="container">
+       <div class="row">
+          <div class="col">
+             <ngx-slick-carousel class="carousel"
+                #slickModal="slick-carousel"
+                [config]="slideConfig" 
+                (init)="slickInit($event)"
+                (breakpoint)="breakpoint($event)"
+                (afterChange)="afterChange($event)"
+                (beforeChange)="beforeChange($event)"
+             >
+             <ng-container *ngFor="let slide of slides">
+               <div ngxSlickItem>
+                  <div style="width: 100%; display: inline-block;">
+                     <div class="category-contain">
+                        <a [routerLink]="['/shop/search', {category_id: slide.id}]" routerLinkActive="router-link-active" tabindex="0">
+                           <div class="img-wrapper" [ngStyle]="{'background-image': 'url( '+ slide.img +')'}"></div>
+                           <div>
+                              <div class="btn-rounded">
+                                 {{slide.name}}
+                              </div>
+                           </div>
+                        </a>
+                     </div>
+                  </div>
+               </div>
+             </ng-container>
+             </ngx-slick-carousel>
+          </div>
+       </div>
+    </div>
+ </section>
+ <!--rounded category end-->

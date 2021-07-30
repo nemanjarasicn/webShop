@@ -44,15 +44,17 @@ var _TB_NAME_CATEGORY = "`product_category`";
 var _TB_NAME_CATEGORY_MEDIA = "`category_media`";
 var _TB_NAME_MEDIA = "`media`";
 var _TB_NAME_DISCOUNT = "`discount`";
+var _TB_NAME_ASESSMENT = "`product_assessment`";
 //categories
 var getAllParentCategories = function () {
     return new Promise(function (res, rej) {
-        var sql = "SELECT `id` as `value`, `name` as `label` FROM " + _TB_NAME_CATEGORY + " WHERE `parent_cat` IS NULL";
-        mysql_1.pool.query(sql, function (error, results, fields) {
-            if (error)
-                rej(false);
-            else
-                res(JSON.parse(JSON.stringify(results || [])));
+        var sql = "SELECT `id` as `value`, `name` as `label` FROM " + _TB_NAME_CATEGORY; //+ " WHERE `parent_cat` IS NULL" 
+        mysql_1.pool.query(sql, function (error, results) {
+            if (error) {
+                console.log(error);
+                return rej(false);
+            }
+            res(JSON.parse(JSON.stringify(results || [])));
         });
     });
 };
@@ -63,10 +65,54 @@ var getAllCategories = function () {
             " LEFT JOIN " + _TB_NAME_CATEGORY_MEDIA + " `cm` ON `cm`.`category_id` = `c`.`id`" +
             " LEFT JOIN " + _TB_NAME_MEDIA + " `m` on `m`.`id` = `cm`.`media_id`";
         mysql_1.pool.query(sql, function (error, results, fields) {
-            if (error)
-                rej(false);
-            else
-                res(JSON.parse(JSON.stringify(results || [])));
+            if (error) {
+                console.log(error);
+                return rej(false);
+            }
+            res(JSON.parse(JSON.stringify(results || [])));
+        });
+    });
+};
+var getAllCategoriesMenu = function () {
+    return new Promise(function (res, rej) {
+        var sql = "SELECT `c`.`id`, `c`.`name` as `label`, (`c`.`parent_cat` IS NOT NULL) AS parent, `c`.`featured`, `m`.`src_name` as `img_src`, `m`.`alt_text` " +
+            " FROM " + _TB_NAME_CATEGORY + "  `c` " +
+            " LEFT JOIN " + _TB_NAME_CATEGORY_MEDIA + " `cm` ON `cm`.`category_id` = `c`.`id`" +
+            " LEFT JOIN " + _TB_NAME_MEDIA + " `m` on `m`.`id` = `cm`.`media_id`" +
+            " ORDER BY `c`.`parent_cat`, `c`.`featured` DESC";
+        mysql_1.pool.query(sql, function (error, results, fields) {
+            if (error) {
+                console.log(error);
+                return rej(false);
+            }
+            res(JSON.parse(JSON.stringify(results || [])));
+        });
+    });
+};
+var getAllParentCategoriesView = function () {
+    return new Promise(function (res, rej) {
+        var sql = "SELECT `id`, `name` as `label` FROM " + _TB_NAME_CATEGORY + " WHERE `parent_cat` IS NULL ORDER BY `featured` DESC";
+        mysql_1.pool.query(sql, function (error, results, fields) {
+            if (error) {
+                console.log(error);
+                return rej(false);
+            }
+            res(JSON.parse(JSON.stringify(results || [])));
+        });
+    });
+};
+var getCategoriesWithImg = function () {
+    return new Promise(function (res, rej) {
+        var sql = "SELECT `c`.`id`, `c`.`name` as `label`, `m`.`src_name` as `img_src`, `m`.`alt_text` FROM " + _TB_NAME_CATEGORY + "  `c` " +
+            " LEFT JOIN " + _TB_NAME_CATEGORY_MEDIA + " `cm` ON `cm`.`category_id` = `c`.`id`" +
+            " LEFT JOIN " + _TB_NAME_MEDIA + " `m` on `m`.`id` = `cm`.`media_id`" +
+            " WHERE `m`.`src_name` IS NOT NULL ORDER BY `c`.`parent_cat`, `c`.`featured` DESC LIMIT 12";
+        mysql_1.pool.query(sql, function (error, results, fields) {
+            if (error) {
+                console.log(error);
+                return rej(false);
+            }
+            res(JSON.parse(JSON.stringify(results || [])));
         });
     });
 };
@@ -77,8 +123,10 @@ var getSingleCategory = function (id) {
             var sql = "SELECT `c`.`name`, `c`.`featured`, `c`.`parent_cat` FROM " + _TB_NAME_CATEGORY + "  `c`  WHERE `c`.`id` = ? ";
             var queryParams = [id];
             mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
-                if (error)
+                if (error) {
+                    console.log(error);
                     return rej(false);
+                }
                 completeResponse = JSON.parse(JSON.stringify(results[0] || null));
                 resIN(true);
             });
@@ -104,21 +152,57 @@ var deleteCategory = function (id) {
                 case 0:
                     sql = "DELETE FROM " + _TB_NAME_CATEGORY_MEDIA + " WHERE `category_id` = ? ";
                     queryParams = [id];
-                    return [4 /*yield*/, mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
-                            if (error)
-                                return rej(false);
+                    return [4 /*yield*/, new Promise(function (resIN, rejIN) {
+                            mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
+                                if (error) {
+                                    console.log(error);
+                                    return rej(false);
+                                }
+                                resIN(true);
+                            });
                         })];
                 case 1:
                     _a.sent();
-                    sql = "DELETE FROM " + _TB_NAME_CATEGORY + " WHERE `id` = ? ";
+                    sql = "UPDATE " + _TB_NAME_CATEGORY + " SET `parent_cat` = NULL WHERE `id` = ? ";
                     queryParams = [id];
-                    return [4 /*yield*/, mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
-                            if (error)
-                                return rej(false);
+                    return [4 /*yield*/, new Promise(function (resIN, rejIN) {
+                            mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
+                                if (error) {
+                                    console.log(error);
+                                    return rej(false);
+                                }
+                                resIN(true);
+                            });
                         })];
                 case 2:
                     _a.sent();
-                    res(JSON.parse(JSON.stringify(true)));
+                    sql = "UPDATE " + _TB_NAME_PRODUCTS + " SET `product_category_id` = NULL WHERE `product_category_id` = ? ";
+                    queryParams = [id];
+                    return [4 /*yield*/, new Promise(function (resIN, rejIN) {
+                            mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
+                                if (error) {
+                                    console.log(error);
+                                    return rej(false);
+                                }
+                                resIN(true);
+                            });
+                        })];
+                case 3:
+                    _a.sent();
+                    sql = "DELETE FROM " + _TB_NAME_CATEGORY + " WHERE `id` = ? ";
+                    queryParams = [id];
+                    return [4 /*yield*/, new Promise(function (resIN, rejIN) {
+                            mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
+                                if (error) {
+                                    console.log(error);
+                                    return rej(false);
+                                }
+                                resIN(true);
+                            });
+                        })];
+                case 4:
+                    _a.sent();
+                    res(true);
                     return [2 /*return*/];
             }
         });
@@ -220,7 +304,7 @@ var updateCategory = function (params) {
                 case 2:
                     if ((_a.sent()) === false)
                         return [2 /*return*/, rej(false)];
-                    res(JSON.parse(JSON.stringify(true)));
+                    res(true);
                     return [2 /*return*/];
             }
         });
@@ -248,7 +332,7 @@ var insertCategory = function (params) {
                             return [2 /*return*/, rej(false)];
                         _b.label = 2;
                     case 2:
-                        res(JSON.parse(JSON.stringify(true)));
+                        res(true);
                         return [2 /*return*/];
                 }
             });
@@ -281,16 +365,33 @@ var getSingleDiscount = function (id) {
     });
 };
 var deleteDiscount = function (id) {
-    return new Promise(function (res, rej) {
-        var sql = "DELETE FROM " + _TB_NAME_DISCOUNT + " WHERE `id` = ? ";
-        var queryParams = [id];
-        mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
-            if (error)
-                rej(false);
-            else
-                res(JSON.parse(JSON.stringify(true)));
+    return new Promise(function (res, rej) { return __awaiter(void 0, void 0, void 0, function () {
+        var sql, queryParams;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    sql = "UPDATE " + _TB_NAME_PRODUCTS + " SET `discount_id` = NULL WHERE `discount_id` = ?";
+                    queryParams = [id];
+                    return [4 /*yield*/, new Promise(function (resIN, rejIN) {
+                            mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
+                                if (error)
+                                    return rej(false);
+                                resIN(true);
+                            });
+                        })];
+                case 1:
+                    _a.sent();
+                    sql = "DELETE FROM " + _TB_NAME_DISCOUNT + " WHERE `id` = ? ";
+                    queryParams = [id];
+                    mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
+                        if (error)
+                            return rej(false);
+                        res(true);
+                    });
+                    return [2 /*return*/];
+            }
         });
-    });
+    }); });
 };
 var updateDiscount = function (params) {
     return new Promise(function (res, rej) {
@@ -298,9 +399,8 @@ var updateDiscount = function (params) {
         var queryParams = [params.name, params.percentage_value, params.start_at, params.end_at, params.promo_code, params.id];
         mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
             if (error)
-                rej(false);
-            else
-                res(JSON.parse(JSON.stringify(true)));
+                return rej(false);
+            res(true);
         });
     });
 };
@@ -309,45 +409,67 @@ var insertDiscount = function (params) {
         var sql = "INSERT INTO " + _TB_NAME_DISCOUNT + " (`name`, `percentage_value`, `start_at`, `end_at`, `promo_code`) VALUES ( ?, ?, ?, ?, ? )";
         var queryParams = [params.name, +params.percentage_value, params.start_at, params.end_at, params.promo_code];
         mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
-            if (error)
-                rej(false);
-            res(JSON.parse(JSON.stringify(true)));
+            if (error) {
+                console.log(error);
+                return rej(false);
+            }
+            res(true);
+        });
+    });
+};
+var getAllActiveDiscounts = function () {
+    return new Promise(function (res, rej) {
+        var sql = "SELECT `id`, `name`, `percentage_value`,DATE_FORMAT(`start_at`, \"%d %m %Y\") AS `start_at`, DATE_FORMAT(`end_at`, \"%d %m %Y\") AS `end_at`, `promo_code` FROM " +
+            _TB_NAME_DISCOUNT + " WHERE (`start_at` IS NULL AND `end_at` IS NULL) OR (NOW() BETWEEN `start_at` AND `end_at`) AND `promo_code` IS NOT NULL ";
+        mysql_1.pool.query(sql, function (error, results, fields) {
+            if (error) {
+                console.log(error);
+                return rej(false);
+            }
+            res(JSON.parse(JSON.stringify(results)));
         });
     });
 };
 //products
-var getAllProducts = function () {
+var getAllProducts = function (custom) {
     return new Promise(function (res, rej) { return __awaiter(void 0, void 0, void 0, function () {
-        var completeResponse, sql, queryParams, tmp, i_1, _i, tmp_1, row;
+        var completeResponse, sql, queryParams, tmp, i_1, _i, tmp_1, row, assesssment;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     sql = "SELECT `p`.`id`, `m`.`src_name` as `image`, `p`.`name`, `c`.`name` as `category`, `p`.`price`, " +
                         " CONCAT( IFNULL(`d`.`name`, \"Nema popusta\"), \"( \", IFNULL(`d`.`percentage_value`, \" \"), \" % )\" ) as `discount`, " +
                         " ROUND((`p`.`price` * ((100 - IFNULL(`d`.`percentage_value`, 0)) / 100)), 2) as `new_price`, `p`.`active` FROM " + _TB_NAME_PRODUCTS + " `p`" +
-                        " INNER JOIN `product_category` `c` ON `c`.`id` = `p`.`product_category_id`" +
+                        " LEFT JOIN " + _TB_NAME_CATEGORY + " `c` ON `c`.`id` = `p`.`product_category_id`" +
                         " LEFT JOIN " + _TB_NAME_DISCOUNT + " `d` on `d`.`id` = `p`.`discount_id` " +
                         " LEFT JOIN " + _TB_NAME_PRODUCTS_MEDIA + " `pm` ON `pm`.`product_id` = `p`.`id` AND `pm`.`main` = ? " +
-                        " LEFT JOIN " + _TB_NAME_MEDIA + " `m` ON `m`.`id` = `pm`.`media_id`";
+                        " LEFT JOIN " + _TB_NAME_MEDIA + " `m` ON `m`.`id` = `pm`.`media_id` ";
                     queryParams = [1];
                     return [4 /*yield*/, new Promise(function (resIN, rejIN) {
-                            mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
-                                if (error)
+                            mysql_1.pool.query((custom === null || custom === void 0 ? void 0 : custom.customSql) || sql, (custom === null || custom === void 0 ? void 0 : custom.customParams) || queryParams, function (error, results, fields) {
+                                if (error) {
+                                    console.log(error);
                                     return rej(false);
+                                }
                                 completeResponse = JSON.parse(JSON.stringify(results));
                                 resIN(true);
                             });
                         })];
                 case 1:
                     _a.sent();
-                    if (!((completeResponse === null || completeResponse === void 0 ? void 0 : completeResponse.length) > 0)) return [3 /*break*/, 5];
+                    if (!((completeResponse === null || completeResponse === void 0 ? void 0 : completeResponse.length) > 0)) return [3 /*break*/, 6];
                     tmp = completeResponse;
                     i_1 = 0;
                     _i = 0, tmp_1 = tmp;
                     _a.label = 2;
                 case 2:
-                    if (!(_i < tmp_1.length)) return [3 /*break*/, 5];
+                    if (!(_i < tmp_1.length)) return [3 /*break*/, 6];
                     row = tmp_1[_i];
+                    return [4 /*yield*/, getAssessmentForProduct(row['id'])];
+                case 3:
+                    assesssment = _a.sent();
+                    completeResponse[i_1].assesssment = assesssment;
+                    //set gallery
                     sql = "SELECT `m`.`src_name` FROM " + _TB_NAME_MEDIA + " `m` " +
                         " INNER JOIN " + _TB_NAME_PRODUCTS_MEDIA + " `pm` ON `pm`.`media_id` = `m`.`id` " +
                         " WHERE `pm`.`product_id` = ? ORDER BY `pm`.`main` DESC";
@@ -360,14 +482,14 @@ var getAllProducts = function () {
                                 resIN(true);
                             });
                         })];
-                case 3:
+                case 4:
                     _a.sent();
                     i_1++;
-                    _a.label = 4;
-                case 4:
+                    _a.label = 5;
+                case 5:
                     _i++;
                     return [3 /*break*/, 2];
-                case 5:
+                case 6:
                     res(completeResponse);
                     return [2 /*return*/];
             }
@@ -389,23 +511,26 @@ var getAllProductDiscounts = function () {
     return new Promise(function (res, rej) {
         var sql = "SELECT `id` as 'value', `name` as 'label' FROM " + _TB_NAME_DISCOUNT;
         mysql_1.pool.query(sql, function (error, results, fields) {
-            if (error)
-                rej(false);
-            else
-                res(JSON.parse(JSON.stringify(results || [])));
+            if (error) {
+                console.log(error);
+                return rej(false);
+            }
+            res(JSON.parse(JSON.stringify(results || [])));
         });
     });
 };
-var getSingleProduct = function (id) {
+var getSingleProduct = function (id, custom) {
     return new Promise(function (res, rej) {
         var completeResponse;
         //take all info from `product` table
         new Promise(function (resIN, rejIN) {
             var sql = "SELECT * FROM " + _TB_NAME_PRODUCTS + " WHERE `id` = ?";
             var queryParams = [id];
-            mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
-                if (error)
+            mysql_1.pool.query((custom === null || custom === void 0 ? void 0 : custom.customSql) || sql, (custom === null || custom === void 0 ? void 0 : custom.customParams) || queryParams, function (error, results, fields) {
+                if (error) {
+                    console.log(error);
                     return rej(false);
+                }
                 completeResponse = JSON.parse(JSON.stringify(results[0] || null));
                 resIN(true);
             });
@@ -417,8 +542,10 @@ var getSingleProduct = function (id) {
                 " WHERE `pm`.`product_id` = ? AND `pm`.`main` = ?";
             var queryParams = [id, 1];
             mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
-                if (error)
+                if (error) {
+                    console.log(error);
                     return rej(false);
+                }
                 completeResponse.image = results;
             });
         })
@@ -429,8 +556,10 @@ var getSingleProduct = function (id) {
                 " WHERE `pm`.`product_id` = ? AND `pm`.`main` IS NULL";
             var queryParams = [id];
             mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
-                if (error)
+                if (error) {
+                    console.log(error);
                     return rej(false);
+                }
                 completeResponse.gallery = results;
                 res(completeResponse);
             });
@@ -447,8 +576,10 @@ var deleteProduct = function (id) {
                     queryParams = [id];
                     return [4 /*yield*/, new Promise(function (resIN, rejIN) {
                             mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
-                                if (error)
+                                if (error) {
+                                    console.log(error);
                                     return rej(false);
+                                }
                                 resIN(true);
                             });
                         })];
@@ -458,14 +589,16 @@ var deleteProduct = function (id) {
                     queryParams = [id];
                     return [4 /*yield*/, new Promise(function (resIN, rejIN) {
                             mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
-                                if (error)
+                                if (error) {
+                                    console.log(error);
                                     return rej(false);
+                                }
                                 resIN(true);
                             });
                         })];
                 case 2:
                     _a.sent();
-                    res(JSON.parse(JSON.stringify(true)));
+                    res(true);
                     return [2 /*return*/];
             }
         });
@@ -537,6 +670,69 @@ var updateProductMedia = function (prod_id, image) {
         });
     }); });
 };
+var getAllProductsCustom = function (type, ids) {
+    return new Promise(function (res, rej) { return __awaiter(void 0, void 0, void 0, function () {
+        var limit, allTypes, products;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    limit = 15;
+                    allTypes = [
+                        {
+                            customSql: "SELECT `p`.`id`, `m`.`src_name` as `image`, `p`.`name`, `p`.`price`, " +
+                                " `d`.`percentage_value` as `discount`, ROUND((`p`.`price` * ((100 - IFNULL(`d`.`percentage_value`, 0)) / 100)), 2) as `new_price` FROM " + _TB_NAME_PRODUCTS + " `p`" +
+                                " LEFT JOIN " + _TB_NAME_DISCOUNT + " `d` on `d`.`id` = `p`.`discount_id` " +
+                                " LEFT JOIN " + _TB_NAME_PRODUCTS_MEDIA + " `pm` ON `pm`.`product_id` = `p`.`id` AND `pm`.`main` = ? " +
+                                " LEFT JOIN " + _TB_NAME_MEDIA + " `m` ON `m`.`id` = `pm`.`media_id` " +
+                                " WHERE `p`.`active` = ? LIMIT ?",
+                            customParams: [1, 1, limit]
+                        },
+                        {
+                            customSql: "SELECT `p`.`id`, `m`.`src_name` as `image`, `m`.`alt_text`, `p`.`name`, `p`.`price`, " +
+                                " `d`.`percentage_value` as `discount`, ROUND((`p`.`price` * ((100 - IFNULL(`d`.`percentage_value`, 0)) / 100)), 2) as `new_price` FROM " + _TB_NAME_PRODUCTS + " `p`" +
+                                " LEFT JOIN " + _TB_NAME_DISCOUNT + " `d` on `d`.`id` = `p`.`discount_id` " +
+                                " LEFT JOIN " + _TB_NAME_PRODUCTS_MEDIA + " `pm` ON `pm`.`product_id` = `p`.`id` AND `pm`.`main` = ? " +
+                                " LEFT JOIN " + _TB_NAME_MEDIA + " `m` ON `m`.`id` = `pm`.`media_id` " +
+                                " WHERE `p`.`id` IN (?)",
+                            customParams: [1, (ids === null || ids === void 0 ? void 0 : ids.length) < 1 ? null : ids]
+                        }
+                    ];
+                    return [4 /*yield*/, getAllProducts(allTypes[type])];
+                case 1:
+                    products = _a.sent();
+                    res(products);
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+};
+var getSingleProductCustom = function (product_id, type) {
+    return new Promise(function (res, rej) { return __awaiter(void 0, void 0, void 0, function () {
+        var allTypes, products, assesssment;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    allTypes = [{
+                            customSql: "SELECT `p`.`id`, `p`.`name`, `p`.`price`, `p`.`description`, `c`.`name` as `category`, " +
+                                " `d`.`percentage_value` as `discount`, ROUND((`p`.`price` * ((100 - IFNULL(`d`.`percentage_value`, 0)) / 100)), 2) as `new_price` FROM " + _TB_NAME_PRODUCTS + " `p`" +
+                                " LEFT JOIN " + _TB_NAME_CATEGORY + " `c` on `c`.`id` = `p`.`product_category_id` " +
+                                " LEFT JOIN " + _TB_NAME_DISCOUNT + " `d` on `d`.`id` = `p`.`discount_id` " +
+                                " WHERE `p`.`id` = ?",
+                            customParams: [product_id]
+                        }];
+                    return [4 /*yield*/, getSingleProduct(product_id, allTypes[type])];
+                case 1:
+                    products = _a.sent();
+                    return [4 /*yield*/, getAssessmentForProduct(product_id)];
+                case 2:
+                    assesssment = _a.sent();
+                    products.assesssment = assesssment;
+                    res(products);
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+};
 var updateProduct = function (params) {
     return new Promise(function (res, rej) { return __awaiter(void 0, void 0, void 0, function () {
         var sql, queryParams;
@@ -572,7 +768,7 @@ var updateProduct = function (params) {
                 case 2:
                     if ((_a.sent()) === false)
                         return [2 /*return*/, rej(false)];
-                    res(JSON.parse(JSON.stringify(true)));
+                    res(true);
                     return [2 /*return*/];
             }
         });
@@ -614,12 +810,40 @@ var insertProduct = function (params) {
                             return [2 /*return*/, rej(false)];
                         _b.label = 2;
                     case 2:
-                        res(JSON.parse(JSON.stringify(true)));
+                        res(true);
                         return [2 /*return*/];
                 }
             });
         }); });
     });
+};
+//assessment
+var getAssessmentForProduct = function (id) {
+    return new Promise(function (res, rej) { return __awaiter(void 0, void 0, void 0, function () {
+        var query, queryParams, data;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    query = "SELECT COUNT(`id`) as `num`, SUM(IFNULL(`assessment`, 0)) as `sum` FROM " + _TB_NAME_ASESSMENT + " WHERE `product_id` = ?";
+                    queryParams = [id];
+                    return [4 /*yield*/, new Promise(function (resIN, rejIN) {
+                            mysql_1.pool.query(query, queryParams, function (error, results, fields) {
+                                if (error) {
+                                    console.log(error);
+                                    return rej(false);
+                                }
+                                resIN(JSON.parse(JSON.stringify(results))[0]);
+                            });
+                        })];
+                case 1:
+                    data = _a.sent();
+                    if (data['num'] > 0)
+                        return [2 /*return*/, res(data['sum'] / data['num'])];
+                    res('Nema ocene');
+                    return [2 /*return*/];
+            }
+        });
+    }); });
 };
 function products_endpoint(req, res) {
     return __awaiter(this, void 0, void 0, function () {
@@ -640,125 +864,161 @@ function products_endpoint(req, res) {
                         case 'delete_category': return [3 /*break*/, 9];
                         case 'single_category': return [3 /*break*/, 11];
                         case 'delete_cat_media': return [3 /*break*/, 13];
-                        case 'all_discounts': return [3 /*break*/, 15];
-                        case 'insert_discount': return [3 /*break*/, 17];
-                        case 'update_discount': return [3 /*break*/, 19];
-                        case 'delete_discount': return [3 /*break*/, 21];
-                        case 'single_discount': return [3 /*break*/, 23];
-                        case 'all_products': return [3 /*break*/, 25];
-                        case 'all_product_discounts': return [3 /*break*/, 27];
-                        case 'all_product_categories': return [3 /*break*/, 29];
-                        case 'insert_product': return [3 /*break*/, 31];
-                        case 'update_product': return [3 /*break*/, 33];
-                        case 'delete_product': return [3 /*break*/, 35];
-                        case 'single_product': return [3 /*break*/, 37];
-                        case 'delete_prod_media': return [3 /*break*/, 39];
+                        case 'all_parent_categories_view': return [3 /*break*/, 15];
+                        case 'all_categories_menu': return [3 /*break*/, 17];
+                        case 'all_categories_with_img': return [3 /*break*/, 19];
+                        case 'all_discounts': return [3 /*break*/, 21];
+                        case 'insert_discount': return [3 /*break*/, 23];
+                        case 'update_discount': return [3 /*break*/, 25];
+                        case 'delete_discount': return [3 /*break*/, 27];
+                        case 'single_discount': return [3 /*break*/, 29];
+                        case 'get_all_active_discounts': return [3 /*break*/, 31];
+                        case 'all_products': return [3 /*break*/, 33];
+                        case 'all_product_discounts': return [3 /*break*/, 35];
+                        case 'all_product_categories': return [3 /*break*/, 37];
+                        case 'insert_product': return [3 /*break*/, 39];
+                        case 'update_product': return [3 /*break*/, 41];
+                        case 'delete_product': return [3 /*break*/, 43];
+                        case 'single_product': return [3 /*break*/, 45];
+                        case 'delete_prod_media': return [3 /*break*/, 47];
+                        case 'get_all_products_custom': return [3 /*break*/, 49];
+                        case 'get_single_product_custom': return [3 /*break*/, 51];
                     }
-                    return [3 /*break*/, 41];
+                    return [3 /*break*/, 53];
                 case 1: return [4 /*yield*/, getAllParentCategories()];
                 case 2:
                     returnValue = _b.sent();
                     res.status(200);
-                    return [3 /*break*/, 42];
+                    return [3 /*break*/, 54];
                 case 3: return [4 /*yield*/, getAllCategories()];
                 case 4:
                     returnValue = _b.sent();
                     res.status(200);
-                    return [3 /*break*/, 42];
+                    return [3 /*break*/, 54];
                 case 5: return [4 /*yield*/, insertCategory(params)];
                 case 6:
                     returnValue = _b.sent();
                     res.status(200);
-                    return [3 /*break*/, 42];
+                    return [3 /*break*/, 54];
                 case 7: return [4 /*yield*/, updateCategory(params)];
                 case 8:
                     returnValue = _b.sent();
                     res.status(200);
-                    return [3 /*break*/, 42];
+                    return [3 /*break*/, 54];
                 case 9: return [4 /*yield*/, deleteCategory(params.id)];
                 case 10:
                     returnValue = _b.sent();
                     res.status(200);
-                    return [3 /*break*/, 42];
+                    return [3 /*break*/, 54];
                 case 11: return [4 /*yield*/, getSingleCategory(params.id)];
                 case 12:
                     returnValue = _b.sent();
                     res.status(200);
-                    return [3 /*break*/, 42];
+                    return [3 /*break*/, 54];
                 case 13: return [4 /*yield*/, deleteCategoryMeida(params.cat_id, params.media_id)];
                 case 14:
                     returnValue = _b.sent();
                     res.status(200);
-                    return [3 /*break*/, 42];
-                case 15: return [4 /*yield*/, getAllDiscounts()];
+                    _b.label = 15;
+                case 15: return [4 /*yield*/, getAllParentCategoriesView()];
                 case 16:
                     returnValue = _b.sent();
                     res.status(200);
-                    return [3 /*break*/, 42];
-                case 17: return [4 /*yield*/, insertDiscount(params)];
+                    return [3 /*break*/, 54];
+                case 17: return [4 /*yield*/, getAllCategoriesMenu()];
                 case 18:
                     returnValue = _b.sent();
                     res.status(200);
-                    return [3 /*break*/, 42];
-                case 19: return [4 /*yield*/, updateDiscount(params)];
+                    return [3 /*break*/, 54];
+                case 19: return [4 /*yield*/, getCategoriesWithImg()];
                 case 20:
                     returnValue = _b.sent();
                     res.status(200);
-                    return [3 /*break*/, 42];
-                case 21: return [4 /*yield*/, deleteDiscount(params.id)];
+                    return [3 /*break*/, 54];
+                case 21: return [4 /*yield*/, getAllDiscounts()];
                 case 22:
                     returnValue = _b.sent();
                     res.status(200);
-                    return [3 /*break*/, 42];
-                case 23: return [4 /*yield*/, getSingleDiscount(params.id)];
+                    return [3 /*break*/, 54];
+                case 23: return [4 /*yield*/, insertDiscount(params)];
                 case 24:
                     returnValue = _b.sent();
                     res.status(200);
-                    return [3 /*break*/, 42];
-                case 25: return [4 /*yield*/, getAllProducts()];
+                    return [3 /*break*/, 54];
+                case 25: return [4 /*yield*/, updateDiscount(params)];
                 case 26:
                     returnValue = _b.sent();
                     res.status(200);
-                    return [3 /*break*/, 42];
-                case 27: return [4 /*yield*/, getAllProductDiscounts()];
+                    return [3 /*break*/, 54];
+                case 27: return [4 /*yield*/, deleteDiscount(params.id)];
                 case 28:
                     returnValue = _b.sent();
                     res.status(200);
-                    return [3 /*break*/, 42];
-                case 29: return [4 /*yield*/, getAllProductCategories()];
+                    return [3 /*break*/, 54];
+                case 29: return [4 /*yield*/, getSingleDiscount(params.id)];
                 case 30:
                     returnValue = _b.sent();
                     res.status(200);
-                    return [3 /*break*/, 42];
-                case 31: return [4 /*yield*/, insertProduct(params)];
+                    return [3 /*break*/, 54];
+                case 31: return [4 /*yield*/, getAllActiveDiscounts()];
                 case 32:
                     returnValue = _b.sent();
                     res.status(200);
-                    return [3 /*break*/, 42];
-                case 33: return [4 /*yield*/, updateProduct(params)];
+                    return [3 /*break*/, 54];
+                case 33: return [4 /*yield*/, getAllProducts()];
                 case 34:
                     returnValue = _b.sent();
                     res.status(200);
-                    return [3 /*break*/, 42];
-                case 35: return [4 /*yield*/, deleteProduct(params.id)];
+                    return [3 /*break*/, 54];
+                case 35: return [4 /*yield*/, getAllProductDiscounts()];
                 case 36:
                     returnValue = _b.sent();
                     res.status(200);
-                    return [3 /*break*/, 42];
-                case 37: return [4 /*yield*/, getSingleProduct(params.id)];
+                    return [3 /*break*/, 54];
+                case 37: return [4 /*yield*/, getAllProductCategories()];
                 case 38:
                     returnValue = _b.sent();
                     res.status(200);
-                    return [3 /*break*/, 42];
-                case 39: return [4 /*yield*/, deleteProductMedia(params.prod_id, params.media_id)];
+                    return [3 /*break*/, 54];
+                case 39: return [4 /*yield*/, insertProduct(params)];
                 case 40:
                     returnValue = _b.sent();
                     res.status(200);
-                    return [3 /*break*/, 42];
-                case 41:
-                    res.status(404);
-                    return [3 /*break*/, 42];
+                    return [3 /*break*/, 54];
+                case 41: return [4 /*yield*/, updateProduct(params)];
                 case 42:
+                    returnValue = _b.sent();
+                    res.status(200);
+                    return [3 /*break*/, 54];
+                case 43: return [4 /*yield*/, deleteProduct(params.id)];
+                case 44:
+                    returnValue = _b.sent();
+                    res.status(200);
+                    return [3 /*break*/, 54];
+                case 45: return [4 /*yield*/, getSingleProduct(params.id)];
+                case 46:
+                    returnValue = _b.sent();
+                    res.status(200);
+                    return [3 /*break*/, 54];
+                case 47: return [4 /*yield*/, deleteProductMedia(params.prod_id, params.media_id)];
+                case 48:
+                    returnValue = _b.sent();
+                    res.status(200);
+                    return [3 /*break*/, 54];
+                case 49: return [4 /*yield*/, getAllProductsCustom(params.type, params === null || params === void 0 ? void 0 : params.ids)];
+                case 50:
+                    returnValue = _b.sent();
+                    res.status(200);
+                    return [3 /*break*/, 54];
+                case 51: return [4 /*yield*/, getSingleProductCustom(params.id, params.type)];
+                case 52:
+                    returnValue = _b.sent();
+                    res.status(200);
+                    return [3 /*break*/, 54];
+                case 53:
+                    res.status(404);
+                    return [3 /*break*/, 54];
+                case 54:
                     res.send(returnValue);
                     return [2 /*return*/];
             }

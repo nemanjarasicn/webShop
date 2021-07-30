@@ -15,11 +15,11 @@
     });
 })(jQuery);
 
-/*$('.loader-wrapper').fadeOut('slow', function() {
+/*$('.loader-wrapper')?.fadeOut('slow', function() {
     $(this).remove();
 });*/
 
-$(window).on('scroll', function() {
+/*$(window).on('scroll', function() {
     if ($(this).scrollTop() > 600) {
         $('.tap-top')?.fadeIn();
     } else {
@@ -31,7 +31,7 @@ $('.tap-top').click( function() {
         scrollTop: 0
     }, 600);
     return false;
-});
+});*/
 
 function toggleFullScreen() {
     if ((document.fullScreenElement && document.fullScreenElement !== null) ||

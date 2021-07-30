@@ -6,15 +6,19 @@ const _TB_NAME_CATEGORY = "`product_category`"
 const _TB_NAME_CATEGORY_MEDIA = "`category_media`"
 const _TB_NAME_MEDIA = "`media`"
 const _TB_NAME_DISCOUNT = "`discount`"
+const _TB_NAME_ASSESSMENT = "`product_assessment`"
 
 //categories
 const getAllParentCategories = () =>{
     return new Promise((res, rej)=>{
-        const sql = "SELECT `id` as `value`, `name` as `label` FROM " + _TB_NAME_CATEGORY + " WHERE `parent_cat` IS NULL" 
+        const sql = "SELECT `id` as `value`, `name` as `label` FROM " + _TB_NAME_CATEGORY //+ " WHERE `parent_cat` IS NULL" 
 
-        pool.query(sql, function (error, results, fields) {
-            if(error) rej(false)
-            else res(JSON.parse(JSON.stringify(results || [])))
+        pool.query(sql, function (error, results) {
+            if(error){
+                console.log(error)
+                return rej(false)
+            } 
+            res(JSON.parse(JSON.stringify(results || [])))
         });
     })
 }
@@ -27,9 +31,61 @@ const getAllCategories = () =>{
         " LEFT JOIN " + _TB_NAME_MEDIA + " `m` on `m`.`id` = `cm`.`media_id`" 
         
         pool.query(sql, function (error, results, fields) {
-            if(error) rej(false)
-            else res(JSON.parse(JSON.stringify(results || [])))
+            if(error){
+                console.log(error)
+                return rej(false)
+            } 
+            res(JSON.parse(JSON.stringify(results || [])))
         });
+    })
+}
+
+const getAllCategoriesMenu = () =>{
+    return new Promise((res, rej)=>{
+        const sql = "SELECT `c`.`id`, `c`.`name` as `label`, (`c`.`parent_cat` IS NOT NULL) AS parent, `c`.`featured`, `m`.`src_name` as `img_src`, `m`.`alt_text` " +
+        " FROM " + _TB_NAME_CATEGORY  + "  `c` " +
+        " LEFT JOIN " + _TB_NAME_CATEGORY_MEDIA + " `cm` ON `cm`.`category_id` = `c`.`id`" +
+        " LEFT JOIN " + _TB_NAME_MEDIA + " `m` on `m`.`id` = `cm`.`media_id`" +
+        " ORDER BY `c`.`parent_cat`, `c`.`featured` DESC"
+        
+        pool.query(sql, function (error, results, fields) {
+            if(error){
+                console.log(error)
+                return rej(false)
+            } 
+            res(JSON.parse(JSON.stringify(results || [])))
+        })
+    })
+}
+
+const getAllParentCategoriesView = () =>{
+    return new Promise((res, rej)=>{
+        const sql = "SELECT `id`, `name` as `label` FROM " + _TB_NAME_CATEGORY + " WHERE `parent_cat` IS NULL ORDER BY `featured` DESC" 
+
+        pool.query(sql, function (error, results, fields) {
+            if(error){
+                console.log(error)
+                return rej(false)
+            } 
+            res(JSON.parse(JSON.stringify(results || [])))
+        })
+    })
+}
+
+const getCategoriesWithImg = () => {
+    return new Promise((res, rej)=>{
+        const sql = "SELECT `c`.`id`, `c`.`name` as `label`, `m`.`src_name` as `img_src`, `m`.`alt_text` FROM " + _TB_NAME_CATEGORY  + "  `c` " +
+        " LEFT JOIN " + _TB_NAME_CATEGORY_MEDIA + " `cm` ON `cm`.`category_id` = `c`.`id`" +
+        " LEFT JOIN " + _TB_NAME_MEDIA + " `m` on `m`.`id` = `cm`.`media_id`" +
+        " WHERE `m`.`src_name` IS NOT NULL ORDER BY `c`.`parent_cat`, `c`.`featured` DESC LIMIT 12"
+        
+        pool.query(sql, function (error, results, fields) {
+            if(error){
+                console.log(error)
+                return rej(false)
+            } 
+            res(JSON.parse(JSON.stringify(results || [])))
+        })
     })
 }
 
@@ -43,7 +99,10 @@ const getSingleCategory = (id: number) => {
             const queryParams = [id]
     
             pool.query(sql, queryParams, function (error, results, fields) {
-                if(error)return rej(false)
+                if(error){
+                    console.log(error)
+                    return rej(false)
+                } 
                 completeResponse = JSON.parse(JSON.stringify(results[0] || null))
 
                 resIN(true)
@@ -69,21 +128,57 @@ const deleteCategory = (id: number): Promise<boolean> => {
     return new Promise(async (res, rej)=>{
         let sql = "DELETE FROM " + _TB_NAME_CATEGORY_MEDIA + " WHERE `category_id` = ? "
         let queryParams = [id]
-        await pool.query(sql, queryParams, function (error, results, fields) {
-            if(error) return rej(false)
+        await new Promise((resIN, rejIN)=>{
+            pool.query(sql, queryParams, function (error, results, fields) {
+                if(error) {
+                    console.log(error)
+                    return rej(false)
+                }
+                resIN(true)
+            })
         });
+
+        sql = "UPDATE " + _TB_NAME_CATEGORY + " SET `parent_cat` = NULL WHERE `id` = ? "
+        queryParams = [id]
+        await new Promise((resIN, rejIN)=>{
+            pool.query(sql, queryParams, function (error, results, fields) {
+                if(error) {
+                    console.log(error)
+                    return rej(false)
+                }
+                resIN(true)
+            })
+        })
+
+        sql = "UPDATE " + _TB_NAME_PRODUCTS + " SET `product_category_id` = NULL WHERE `product_category_id` = ? "
+        queryParams = [id]
+        await new Promise((resIN, rejIN)=>{
+            pool.query(sql, queryParams, function (error, results, fields) {
+                if(error) {
+                    console.log(error)
+                    return rej(false)
+                }
+                resIN(true)
+            })
+        })
 
         sql = "DELETE FROM " + _TB_NAME_CATEGORY + " WHERE `id` = ? "
         queryParams = [id]
-        await pool.query(sql, queryParams, function (error, results, fields) {
-            if(error) return rej(false)
-        });
+        await new Promise((resIN, rejIN)=>{
+            pool.query(sql, queryParams, function (error, results, fields) {
+                if(error) {
+                    console.log(error)
+                    return rej(false)
+                }
+                resIN(true)
+            })
+        })
 
-        res(JSON.parse(JSON.stringify(true)))
+        res(true)
     })
 }
 
-const deleteCategoryMeida = (cat_id: number, media_id: number): Promise<boolean>=>{
+const deleteCategoryMedia = (cat_id: number, media_id: number): Promise<boolean>=>{
     return new Promise(async (res, rej) => {
         const sql = "DELETE FROM " + _TB_NAME_CATEGORY_MEDIA + " WHERE `category_id` = ? AND `media_id` = ?"
             const queryParams = [cat_id, media_id]
@@ -138,7 +233,7 @@ const updateCategory = (params: {name: string, featured: boolean | null, parent_
 
         if(await updateCategoryMedia(params.id, params.image) === false) return rej(false)
 
-        res(JSON.parse(JSON.stringify(true)))
+        res(true)
     })
 }
 
@@ -153,11 +248,11 @@ const insertCategory = (params: {name: string, featured: boolean | null, parent_
             });
         }).then(async (result)=>{
             //insert media
-            if((result !== null || result !== undefined) && params.image?.length > 0){
+            if((result !== null || true) && params.image?.length > 0){
                 if(await updateCategoryMedia(+result, params.image) === false) return rej(false)
             }
 
-            res(JSON.parse(JSON.stringify(true)))
+            res(true)
         })
     })
 }
@@ -189,14 +284,22 @@ const getSingleDiscount = (id: number) => {
 }
 
 const deleteDiscount = (id: number) => {
-    return new Promise((res, rej)=>{
-        const sql = "DELETE FROM " + _TB_NAME_DISCOUNT + " WHERE `id` = ? "
-        const queryParams = [id]
-
+    return new Promise(async (res, rej)=>{
+        let sql = "UPDATE " + _TB_NAME_PRODUCTS + " SET `discount_id` = NULL WHERE `discount_id` = ?"
+        let queryParams = [id]
+        await new Promise((resIN, rejIN)=>{
+            pool.query(sql, queryParams, function (error, results, fields) {
+                if(error) return rej(false)
+                resIN(true)
+            })
+        })
+        
+        sql = "DELETE FROM " + _TB_NAME_DISCOUNT + " WHERE `id` = ? "
+        queryParams = [id]
         pool.query(sql, queryParams, function (error, results, fields) {
-            if(error) rej(false)
-            else res(JSON.parse(JSON.stringify(true)))
-        });
+            if(error) return rej(false)
+            res(true)
+        })
     })
 }
 
@@ -206,9 +309,9 @@ const updateDiscount = (params: {name: string, percentage_value: number, start_a
         const queryParams = [params.name, params.percentage_value, params.start_at, params.end_at, params.promo_code, params.id]
 
         pool.query(sql, queryParams, function (error, results, fields) {
-            if(error) rej(false)
-            else res(JSON.parse(JSON.stringify(true)))
-        });
+            if(error) return rej(false)
+            res(true)
+        })
     })
 }
 
@@ -218,29 +321,50 @@ const insertDiscount = (params: {name: string, percentage_value: string, start_a
         const queryParams = [params.name, +params.percentage_value, params.start_at, params.end_at, params.promo_code]
 
         pool.query(sql, queryParams, function (error, results, fields) {
-            if(error) rej(false)
-            res(JSON.parse(JSON.stringify(true)))
-        });
+            if(error){
+                console.log(error)
+                return rej(false)
+           } 
+            res(true)
+        })
+    })
+}
+
+const getAllActiveDiscounts = () =>{
+    return new Promise((res, rej)=>{
+        const sql = "SELECT `id`, `name`, `percentage_value`,DATE_FORMAT(`start_at`, \"%d %m %Y\") AS `start_at`, DATE_FORMAT(`end_at`, \"%d %m %Y\") AS `end_at`, `promo_code` FROM " +
+         _TB_NAME_DISCOUNT + " WHERE (`start_at` IS NULL AND `end_at` IS NULL) OR (NOW() BETWEEN `start_at` AND `end_at`) AND `promo_code` IS NOT NULL " 
+
+        pool.query(sql, function (error, results, fields) {
+            if(error){
+                console.log(error)
+                return rej(false)
+           } 
+            res(JSON.parse(JSON.stringify(results)))
+        })
     })
 }
 
 //products
-const getAllProducts = () =>{
+const getAllProducts = (custom? :{customSql: string, customParams: any[]}) =>{
     return new Promise(async (res, rej)=>{
         let completeResponse
 
         let sql = "SELECT `p`.`id`, `m`.`src_name` as `image`, `p`.`name`, `c`.`name` as `category`, `p`.`price`, " +
         " CONCAT( IFNULL(`d`.`name`, \"Nema popusta\"), \"( \", IFNULL(`d`.`percentage_value`, \" \"), \" % )\" ) as `discount`, " +
         " ROUND((`p`.`price` * ((100 - IFNULL(`d`.`percentage_value`, 0)) / 100)), 2) as `new_price`, `p`.`active` FROM " + _TB_NAME_PRODUCTS + " `p`" +
-        " INNER JOIN `product_category` `c` ON `c`.`id` = `p`.`product_category_id`" +
+        " LEFT JOIN " + _TB_NAME_CATEGORY + " `c` ON `c`.`id` = `p`.`product_category_id`" +
         " LEFT JOIN " + _TB_NAME_DISCOUNT + " `d` on `d`.`id` = `p`.`discount_id` " +
         " LEFT JOIN " + _TB_NAME_PRODUCTS_MEDIA + " `pm` ON `pm`.`product_id` = `p`.`id` AND `pm`.`main` = ? " +
-        " LEFT JOIN " + _TB_NAME_MEDIA + " `m` ON `m`.`id` = `pm`.`media_id`"
+        " LEFT JOIN " + _TB_NAME_MEDIA + " `m` ON `m`.`id` = `pm`.`media_id` "
         let queryParams = [1]
 
         await new Promise((resIN, rejIN)=>{
-            pool.query(sql, queryParams, function (error, results, fields) {
-               if(error) return rej(false)
+            pool.query(custom?.customSql || sql, custom?.customParams || queryParams, function (error, results, fields) {
+               if(error){
+                    console.log(error)
+                    return rej(false)
+               } 
    
                completeResponse = JSON.parse(JSON.stringify(results))
                resIN(true)
@@ -252,6 +376,10 @@ const getAllProducts = () =>{
 
             let i = 0
             for(let row of tmp){
+                //set assessment
+                completeResponse[i].assesssment = await getAssessmentForProduct(row['id'])
+
+                //set gallery
                 sql = "SELECT `m`.`src_name` FROM " + _TB_NAME_MEDIA + " `m` "+
                 " INNER JOIN " + _TB_NAME_PRODUCTS_MEDIA + " `pm` ON `pm`.`media_id` = `m`.`id` " +
                 " WHERE `pm`.`product_id` = ? ORDER BY `pm`.`main` DESC"                
@@ -290,13 +418,16 @@ const getAllProductDiscounts = () => {
         const sql = "SELECT `id` as 'value', `name` as 'label' FROM " + _TB_NAME_DISCOUNT
         
         pool.query(sql, function (error, results, fields) {
-            if(error) rej(false)
-            else res(JSON.parse(JSON.stringify(results || [])))
+            if(error){
+                console.log(error)
+                return rej(false)
+            } 
+            res(JSON.parse(JSON.stringify(results || [])))
         });
     })
 }
 
-const getSingleProduct = (id: number) => {
+const getSingleProduct = (id: number, custom? :{customSql: string, customParams: any[]}) => {
     return new Promise((res, rej)=>{
         let completeResponse
 
@@ -305,8 +436,11 @@ const getSingleProduct = (id: number) => {
             const sql = "SELECT * FROM " + _TB_NAME_PRODUCTS + " WHERE `id` = ?"
             const queryParams = [id]
     
-            pool.query(sql, queryParams, function (error, results, fields) {
-                if(error)return rej(false)
+            pool.query(custom?.customSql || sql, custom?.customParams || queryParams, function (error, results, fields) {
+                if(error){
+                    console.log(error)
+                    return rej(false)
+                } 
                 completeResponse = JSON.parse(JSON.stringify(results[0] || null))
 
                 resIN(true)
@@ -320,10 +454,13 @@ const getSingleProduct = (id: number) => {
             const queryParams = [id, 1]
 
             pool.query(sql, queryParams, function (error, results, fields) {
-                if(error) return rej(false)
+                if(error){
+                    console.log(error)
+                    return rej(false)
+                } 
                 
                 completeResponse.image = results
-            });            
+            })
         })
         .then(result => {
             //take images (gallery)
@@ -333,11 +470,14 @@ const getSingleProduct = (id: number) => {
             const queryParams = [id]
 
             pool.query(sql, queryParams, function (error, results, fields) {
-                if(error) return rej(false)
+                if(error){
+                    console.log(error)
+                    return rej(false)
+                } 
                 
                 completeResponse.gallery = results
                 res(completeResponse)
-            });            
+            });
         })
     })
 }
@@ -348,7 +488,10 @@ const deleteProduct = (id: number): Promise<boolean> => {
         let queryParams = [id]
         await new Promise((resIN, rejIN)=>{
             pool.query(sql, queryParams, function (error, results, fields) {
-                if(error) return rej(false)
+                if(error){
+                    console.log(error)
+                    return rej(false)
+                } 
                 resIN(true)
             })
         })
@@ -357,12 +500,15 @@ const deleteProduct = (id: number): Promise<boolean> => {
         queryParams = [id]        
         await new Promise((resIN,rejIN)=>{
             pool.query(sql, queryParams, function (error, results, fields) {
-                if(error) return rej(false)            
+                if(error){
+                    console.log(error)
+                    return rej(false)
+                }      
                 resIN(true)
             });
         })
 
-        res(JSON.parse(JSON.stringify(true)))
+        res(true)
     })
 }
 
@@ -407,6 +553,62 @@ const updateProductMedia = (prod_id: number, image: {id: number, src_name: strin
     })
 }
 
+const getAllProductsCustom = (type: number, ids?: number[]) =>{
+    return new Promise(async (res, rej) => {
+        /* TYPES
+         * 0: BEST ASSESSMENT
+         * 1: WISHLIST, CART
+         */
+        const limit = 15
+        const allTypes = [
+            {
+                customSql: "SELECT `p`.`id`, `m`.`src_name` as `image`, `p`.`name`, `p`.`price`, " +
+                " `d`.`percentage_value` as `discount`, ROUND((`p`.`price` * ((100 - IFNULL(`d`.`percentage_value`, 0)) / 100)), 2) as `new_price` FROM " + _TB_NAME_PRODUCTS + " `p`" +
+                " LEFT JOIN " + _TB_NAME_DISCOUNT + " `d` on `d`.`id` = `p`.`discount_id` " +
+                " LEFT JOIN " + _TB_NAME_PRODUCTS_MEDIA + " `pm` ON `pm`.`product_id` = `p`.`id` AND `pm`.`main` = ? " +
+                " LEFT JOIN " + _TB_NAME_MEDIA + " `m` ON `m`.`id` = `pm`.`media_id` " +
+                " WHERE `p`.`active` = ? LIMIT ?",
+
+                customParams: [1, 1, limit]
+            },
+            {
+                customSql: "SELECT `p`.`id`, `m`.`src_name` as `image`, `m`.`alt_text`, `p`.`name`, `p`.`price`, " +
+                " `d`.`percentage_value` as `discount`, ROUND((`p`.`price` * ((100 - IFNULL(`d`.`percentage_value`, 0)) / 100)), 2) as `new_price` FROM " + _TB_NAME_PRODUCTS + " `p`" +
+                " LEFT JOIN " + _TB_NAME_DISCOUNT + " `d` on `d`.`id` = `p`.`discount_id` " +
+                " LEFT JOIN " + _TB_NAME_PRODUCTS_MEDIA + " `pm` ON `pm`.`product_id` = `p`.`id` AND `pm`.`main` = ? " +
+                " LEFT JOIN " + _TB_NAME_MEDIA + " `m` ON `m`.`id` = `pm`.`media_id` " +
+                " WHERE `p`.`id` IN (?)",
+
+                customParams: [1, ids?.length < 1? null: ids]
+            }
+        ]
+        
+        const products = await getAllProducts(allTypes[type])        
+        res(products)
+    })
+}
+
+const getSingleProductCustom = (product_id: number, type: number) =>{
+    return new Promise(async (res, rej) => {
+        /* TYPES
+         * 0: BASIC
+         */
+        const allTypes = [{
+            customSql: "SELECT `p`.`id`, `p`.`name`, `p`.`price`, `p`.`description`, `c`.`name` as `category`, " +
+            " `d`.`percentage_value` as `discount`, ROUND((`p`.`price` * ((100 - IFNULL(`d`.`percentage_value`, 0)) / 100)), 2) as `new_price` FROM " + _TB_NAME_PRODUCTS + " `p`" +
+            " LEFT JOIN " + _TB_NAME_CATEGORY + " `c` on `c`.`id` = `p`.`product_category_id` " +
+            " LEFT JOIN " + _TB_NAME_DISCOUNT + " `d` on `d`.`id` = `p`.`discount_id` " +
+            " WHERE `p`.`id` = ?",
+
+            customParams: [product_id]
+        }]
+        
+        const products: any = await getSingleProduct(product_id, allTypes[type])
+        products.assesssment = await getAssessmentForProduct(product_id)
+        res(products)
+    })
+}
+
 const updateProduct = (params: {
     id: number, 
     name: string, 
@@ -447,7 +649,7 @@ const updateProduct = (params: {
 
         if(await updateProductMedia(params.id, params.image) === false) return rej(false)
 
-        res(JSON.parse(JSON.stringify(true)))
+        res(true)
     })
 }
 
@@ -488,12 +690,34 @@ const insertProduct = (params: {
             });
         }).then(async (result)=>{
             //insert media
-            if((result !== null || result !== undefined) && params.image?.length > 0){
+            if((result !== null || true) && params.image?.length > 0){
                 if(await updateProductMedia(+result, params.image) === false) return rej(false)                
             }
 
-            res(JSON.parse(JSON.stringify(true)))
+            res(true)
         })
+    })
+}
+
+//assessment
+const getAssessmentForProduct = (id: number): Promise<number | string> =>{
+    return new Promise(async (res, rej)=>{
+        const query = "SELECT COUNT(`id`) as `num`, SUM(IFNULL(`assessment`, 0)) as `sum` FROM " + _TB_NAME_ASSESSMENT + " WHERE `product_id` = ?"
+        const queryParams = [id]
+
+        const data = await new Promise((resIN, rejIN) => {
+            pool.query(query, queryParams, function (error, results, fields) {
+                if(error){
+                    console.log(error)
+                    return rej(false)
+                } 
+
+                resIN(JSON.parse(JSON.stringify(results))[0])
+            });
+        })
+        
+        if(data['num'] > 0)return res(data['sum'] / data['num'])        
+        res('Nema ocene')
     })
 }
 
@@ -530,9 +754,21 @@ export async function products_endpoint(req, res){
             res.status(200)
             break;
         case 'delete_cat_media':
-            returnValue = await deleteCategoryMeida(params.cat_id, params.media_id)
+            returnValue = await deleteCategoryMedia(params.cat_id, params.media_id)
             res.status(200)
-        break
+            break
+        case 'all_parent_categories_view':
+            returnValue = await getAllParentCategoriesView()
+            res.status(200)
+            break
+        case 'all_categories_menu':
+            returnValue = await getAllCategoriesMenu()
+            res.status(200)
+            break
+        case 'all_categories_with_img':
+            returnValue = await getCategoriesWithImg()
+            res.status(200)
+            break
         //discounts
         case 'all_discounts':            
             returnValue = await getAllDiscounts()
@@ -554,6 +790,10 @@ export async function products_endpoint(req, res){
             returnValue = await getSingleDiscount(params.id)
             res.status(200)
             break;
+        case 'get_all_active_discounts':
+            returnValue = await getAllActiveDiscounts()
+            res.status(200)
+            break
         //products
         case 'all_products':            
             returnValue = await getAllProducts()
@@ -587,6 +827,14 @@ export async function products_endpoint(req, res){
             returnValue = await deleteProductMedia(params.prod_id, params.media_id)
             res.status(200)
         break
+        case 'get_all_products_custom': 
+            returnValue = await getAllProductsCustom(params.type, params?.ids)
+            res.status(200)
+            break
+        case 'get_single_product_custom': 
+            returnValue = await getSingleProductCustom(params.id, params.type)
+            res.status(200)
+            break
         default:  res.status(404); break;
     }
 

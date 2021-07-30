@@ -1,0 +1,73 @@
+<!-- footer start -->
+<footer>
+   <div class="footer1 ">
+      <div class="container">
+         <div class="row">
+            <div class="col-12">
+               <div class="footer-main">
+                  <div class="footer-box">
+                     <div class="footer-title mobile-title">
+                        <h5>O nama</h5>
+                     </div>
+                     <div class="footer-contant">
+                        <div class="footer-logo">
+                           <a href="index.html">
+                              <img src="/assets/images/logo.svg" class="img-fluid" alt="logo">
+                           </a>
+                        </div>
+                        <p>Portal BesplatnaDostava.rs je veb sajt koji pruža besplatnu uslugu dostave za teritoriju grada Kruševca i okoline. Mi smo jedinstven portal na ovom području i naš zadatak je da u što kraćem vremenskom periodu dostavimo naručene artikle na vašu kućnu adresu.</p>
+                        <ul class="sosiyal">
+                           <li><a href="https://www.facebook.com/" target="_blank"><fa-icon [icon]="['fab','facebook-f']"></fa-icon></a></li>
+                           <li><a href="https://www.instagram.com/" target="_blank"><fa-icon [icon]="['fab','instagram']"></fa-icon></a></li>
+                        </ul>
+                     </div>
+                  </div>
+                  <div class="footer-box" style="max-width: 20%;">
+                     <div class="footer-title">
+                        <h5>Brzi linkovi</h5>
+                     </div>
+                     <div class="footer-contant">
+                        <ul>
+                           <li><a [routerLink]="['/shop/home']" routerLinkActive="router-link-active" > Naslovna</a></li>
+                           <li><a [routerLink]="['/shop/search']" routerLinkActive="router-link-active" > Pretraga</a></li>
+                           <li><a [routerLink]="['/shop/bundles']" routerLinkActive="router-link-active" > Akcije</a></li>
+                           <li><a [routerLink]="['/shop/discounts']" routerLinkActive="router-link-active" > Popusti</a></li>
+                           <li><a [routerLink]="['/shop/blog']" routerLinkActive="router-link-active" > Magazin</a></li>
+                        </ul>
+                     </div>
+                  </div>
+                  <div class="footer-box" style="max-width: 40%;">
+                     <div class="footer-title">
+                        <h5>Kontakt informacije</h5>
+                     </div>
+                     <div class="footer-contant">
+                        <ul class="contact-list">
+                           <li><fa-icon icon="phone"></fa-icon> Broj telefona za naručivanje: <span>064 05 05 064</span></li>
+                           <li><fa-icon icon="envelope-open"></fa-icon> E-mail adresa: <a href="mailto:info@besplatnadostava.rs">info@besplatnadostava.rs</a></li>
+                           <li><fa-icon icon="envelope-open"></fa-icon> Reklamacije: <a href="mailto:reklamacije@besplatnadostava.rs">reklamacije@besplatnadostava.rs</a></li>
+                        </ul>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="subfooter footer-border">
+      <div class="container">
+         <div class="row">
+            <div class="col-xl-6 col-md-8 col-sm-12">
+               <div class="footer-left">
+                  <p>{{curYear}} Copy Right by {{copyRightOwner}}</p>
+               </div>
+            </div>
+            <div class="col-xl-6 col-md-4 col-sm-12">
+               <div class="footer-right">
+                <p>Powerd by {{poweredByName}} and developed by {{developedByName}}</p>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</footer>
+<!-- footer end -->

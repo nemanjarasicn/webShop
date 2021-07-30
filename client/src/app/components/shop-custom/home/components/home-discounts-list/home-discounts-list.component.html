@@ -1,0 +1,31 @@
+<!--payment offer start -->
+<section class="section-pt-space" *ngIf="discounts?.length > 0">
+    <div class="custom-container">
+       <div class="row">
+          <div class="col">
+             <ngx-slick-carousel class="carousel"
+                #slickModal="slick-carousel"
+                [config]="slideConfig" 
+                (init)="slickInit($event)"
+                (breakpoint)="breakpoint($event)"
+                (afterChange)="afterChange($event)"
+                (beforeChange)="beforeChange($event)"
+             >
+                   <div ngxSlickItem *ngFor="let discount of discounts">
+                      <div class="paymant-offer-mian">
+                         <div>
+                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
+                            <h2>%{{discount.percentage_value}}</h2>
+                            <h3>{{discount.name}}</h3>
+                            <h4 *ngIf="discount?.start_at && discount?.end_at">{{discount.start_at}} - {{discount.end_at}}</h4>
+                            <div *ngIf="discount?.promo_code" class="payment-cod">kod <span> &nbsp; : &nbsp; {{discount.promo_code}}</span></div>
+                            <a *ngIf="!discount?.promo_code" class="btn-rounded" [routerLink]="['/shop/search', {discount_id: discount.id}]" routerLinkActive="router-link-active">Pogledaj</a>
+                         </div>
+                      </div>
+                   </div>
+             </ngx-slick-carousel>
+          </div>
+       </div>
+    </div>
+ </section>
+ <!--payment offer end-->
