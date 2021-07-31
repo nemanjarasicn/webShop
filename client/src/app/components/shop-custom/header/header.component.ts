@@ -25,12 +25,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-   document.addEventListener('scroll', () => {
+   document.addEventListener('scroll', function(): void {
       if ($(this).scrollTop() > 400){
-        $('header').addClass('sticky');
+        $('#stickyheader').addClass('sticky');
       }
       else{
-        $('header').removeClass('sticky');
+        $('#stickyheader').removeClass('sticky');
       }
     });
 

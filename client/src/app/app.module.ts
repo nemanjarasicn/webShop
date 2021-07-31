@@ -1,14 +1,14 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { AdminModule } from './modules/admin/admin.module'
-import { ShopModule } from './modules/shop/shop.module'
+import { AdminModule } from './modules/admin/admin.module';
+import { ShopModule } from './modules/shop/shop.module';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
 
 @NgModule({
   declarations: [
-    AppComponent,
+    AppComponent
   ],
   imports: [
     BrowserModule,
@@ -20,6 +20,6 @@ import { AppComponent } from './app.component';
   bootstrap: [AppComponent]
 })
 export class AppModule {
- 
+
 }
-  
+

@@ -1,0 +1,57 @@
+<div class="product-box">
+  <div class="product-imgbox">
+    <div class="product-front">
+      <a [routerLink]="['/shop/product', {id: product.id}]" routerLinkActive="router-link-active">
+        <img [src]="product?.image || 'assets/images/noimg.png'" class="img-fluid" [alt]="product.name">
+      </a>
+    </div>
+    <div class="product-icon">
+      <a href="javascript:void(0)"  class="add-to-wish tooltip-left" title="Dodaj u listu želja" (click)="addToWishlist()">
+        <fa-icon icon="heart"></fa-icon>
+      </a>
+      <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#quick-view" class="tooltip-left" title="Brzi pregled" (click)="setProductQV()">
+        <fa-icon icon="eye"></fa-icon>
+      </a>
+      <!--<a href="compare.html" class="tooltip-left" data-tippy-content="Compare">
+         <i  data-feather="refresh-cw"></i>
+      </a>-->
+    </div>
+    <div class="on-sale4" *ngIf="product?.discount">
+      Na popustu
+    </div>
+    <div *ngIf="product?.discount" class="new-label1">{{product.discount}}%</div>
+  </div>
+  <div class="product-detail detail-center1">
+    <ul class="rating-star">
+      <fa-icon icon="star" [ngStyle]="{'color': +product?.assessment?.sum === 1? 'yellow': '#ddd'}"></fa-icon>
+      <fa-icon icon="star" [ngStyle]="{'color': +product?.assessment?.sum === 2? 'yellow': '#ddd'}"></fa-icon>
+      <fa-icon icon="star" [ngStyle]="{'color': +product?.assessment?.sum === 3? 'yellow': '#ddd'}"></fa-icon>
+      <fa-icon icon="star" [ngStyle]="{'color': +product?.assessment?.sum === 4? 'yellow': '#ddd'}"></fa-icon>
+      <fa-icon icon="star" [ngStyle]="{'color': +product?.assessment?.sum === 5? 'yellow': '#ddd'}"></fa-icon>
+    </ul>
+    <span class="assessment-count">broj ocena: {{product?.assessment?.num || 0}}</span>
+    <a [routerLink]="['/shop/product', {id: product.id}]" routerLinkActive="router-link-active">
+      <h6>{{product.name}}</h6>
+    </a>
+    <span class="detail-price">{{product?.new_price || product.price}} din.<span *ngIf="product?.new_price && product?.new_price !== product.price" style="text-decoration:line-through">{{product.price}} din.</span></span>
+  </div>
+  <div class="addtocart_btn">
+    <button class="add-button add_cart tooltip-top" data-tippy-content="Dodaj u korpu" (click)="add()">
+      Dodaj u korpu
+    </button>
+    <div class="qty-box cart_qty" [class.open]="isItOpen">
+      <div class="input-group">
+        <button type="button" class="btn quantity-left-minus" style="border-radius: unset;"  data-field="" (click)="minusQty()">
+          <fa-icon icon="minus"></fa-icon>
+        </button>
+        <input type="text" name="quantity" class="form-control input-number qty-input" [value]="qty" [readOnly]="true">
+        <button type="button" class="btn quantity-right-plus" data-field="" (click)="plusQty()">
+          <fa-icon icon="plus"></fa-icon>
+        </button>
+        <button class="btn-check-custom" type="button" (click)="confirmAdd()">
+          <fa-icon icon="check"></fa-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

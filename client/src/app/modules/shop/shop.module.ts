@@ -20,6 +20,9 @@ import { WishlistAsideModalComponent } from '../../components/shop-custom/wishli
 import { AccountAsideModalComponent } from '../../components/shop-custom/account-aside-modal/account-aside-modal.component';
 import { CartAsideModalComponent } from '../../components/shop-custom/cart-aside-modal/cart-aside-modal.component';
 import { QuickViewProductComponent } from '../../components/shop-custom/quick-view-product/quick-view-product.component';
+import { AsideModalSingleProductComponent } from '../../components/shop-custom/aside-modal-single-product/aside-modal-single-product.component';
+import { AsideModalPricingComponent } from '../../components/shop-custom/aside-modal-pricing/aside-modal-pricing.component';
+import { ListSingleProductComponent } from '../../components/shop-custom/home/components/list-single-product/list-single-product.component';
 import {
   faPhone, faAt, faClock, faAngleRight, faBars, faSearch, faUser, faShoppingCart,
   faEye, faPlus, faMinus, faCheck,  faTimes, faTrashAlt, faEdit, faCartPlus,  faHeart,
@@ -47,6 +50,7 @@ import { WishlistAsideModalService } from 'src/app/services/wishlist-aside-modal
     HomeImageGroup2Component,
     HomeImageGroup1Component,
     HomeProductListComponent,
+    ListSingleProductComponent,
     HomeDiscountsListComponent,
     HomeCategorySliderComponent,
     QuickViewProductComponent,
@@ -54,7 +58,9 @@ import { WishlistAsideModalService } from 'src/app/services/wishlist-aside-modal
     ProductAsideModalComponent,
     WishlistAsideModalComponent,
     AccountAsideModalComponent,
-    CartAsideModalComponent
+    CartAsideModalComponent,
+    AsideModalSingleProductComponent,
+    AsideModalPricingComponent
   ],
   imports: [
     AppRoutingModule,

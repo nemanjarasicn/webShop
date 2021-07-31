@@ -44,7 +44,7 @@ var _TB_NAME_CATEGORY = "`product_category`";
 var _TB_NAME_CATEGORY_MEDIA = "`category_media`";
 var _TB_NAME_MEDIA = "`media`";
 var _TB_NAME_DISCOUNT = "`discount`";
-var _TB_NAME_ASESSMENT = "`product_assessment`";
+var _TB_NAME_ASSESSMENT = "`product_assessment`";
 //categories
 var getAllParentCategories = function () {
     return new Promise(function (res, rej) {
@@ -208,7 +208,7 @@ var deleteCategory = function (id) {
         });
     }); });
 };
-var deleteCategoryMeida = function (cat_id, media_id) {
+var deleteCategoryMedia = function (cat_id, media_id) {
     return new Promise(function (res, rej) { return __awaiter(void 0, void 0, void 0, function () {
         var sql, queryParams;
         return __generator(this, function (_a) {
@@ -325,7 +325,7 @@ var insertCategory = function (params) {
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        if (!((result !== null || result !== undefined) && ((_a = params.image) === null || _a === void 0 ? void 0 : _a.length) > 0)) return [3 /*break*/, 2];
+                        if (!((result !== null || true) && ((_a = params.image) === null || _a === void 0 ? void 0 : _a.length) > 0)) return [3 /*break*/, 2];
                         return [4 /*yield*/, updateCategoryMedia(+result, params.image)];
                     case 1:
                         if ((_b.sent()) === false)
@@ -433,9 +433,9 @@ var getAllActiveDiscounts = function () {
 //products
 var getAllProducts = function (custom) {
     return new Promise(function (res, rej) { return __awaiter(void 0, void 0, void 0, function () {
-        var completeResponse, sql, queryParams, tmp, i_1, _i, tmp_1, row, assesssment;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+        var completeResponse, sql, queryParams, tmp, i_1, _i, tmp_1, row, _a;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
                 case 0:
                     sql = "SELECT `p`.`id`, `m`.`src_name` as `image`, `p`.`name`, `c`.`name` as `category`, `p`.`price`, " +
                         " CONCAT( IFNULL(`d`.`name`, \"Nema popusta\"), \"( \", IFNULL(`d`.`percentage_value`, \" \"), \" % )\" ) as `discount`, " +
@@ -456,19 +456,23 @@ var getAllProducts = function (custom) {
                             });
                         })];
                 case 1:
-                    _a.sent();
+                    _b.sent();
                     if (!((completeResponse === null || completeResponse === void 0 ? void 0 : completeResponse.length) > 0)) return [3 /*break*/, 6];
                     tmp = completeResponse;
                     i_1 = 0;
                     _i = 0, tmp_1 = tmp;
-                    _a.label = 2;
+                    _b.label = 2;
                 case 2:
                     if (!(_i < tmp_1.length)) return [3 /*break*/, 6];
                     row = tmp_1[_i];
-                    return [4 /*yield*/, getAssessmentForProduct(row['id'])];
+                    //set assessment
+                    _a = completeResponse[i_1];
+                    return [4 /*yield*/, getAssessmentForProduct(row['id'])
+                        //set gallery
+                    ];
                 case 3:
-                    assesssment = _a.sent();
-                    completeResponse[i_1].assesssment = assesssment;
+                    //set assessment
+                    _a.assesssment = _b.sent();
                     //set gallery
                     sql = "SELECT `m`.`src_name` FROM " + _TB_NAME_MEDIA + " `m` " +
                         " INNER JOIN " + _TB_NAME_PRODUCTS_MEDIA + " `pm` ON `pm`.`media_id` = `m`.`id` " +
@@ -483,9 +487,9 @@ var getAllProducts = function (custom) {
                             });
                         })];
                 case 4:
-                    _a.sent();
+                    _b.sent();
                     i_1++;
-                    _a.label = 5;
+                    _b.label = 5;
                 case 5:
                     _i++;
                     return [3 /*break*/, 2];
@@ -708,9 +712,9 @@ var getAllProductsCustom = function (type, ids) {
 };
 var getSingleProductCustom = function (product_id, type) {
     return new Promise(function (res, rej) { return __awaiter(void 0, void 0, void 0, function () {
-        var allTypes, products, assesssment;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+        var allTypes, products, _a;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
                 case 0:
                     allTypes = [{
                             customSql: "SELECT `p`.`id`, `p`.`name`, `p`.`price`, `p`.`description`, `c`.`name` as `category`, " +
@@ -722,11 +726,11 @@ var getSingleProductCustom = function (product_id, type) {
                         }];
                     return [4 /*yield*/, getSingleProduct(product_id, allTypes[type])];
                 case 1:
-                    products = _a.sent();
+                    products = _b.sent();
+                    _a = products;
                     return [4 /*yield*/, getAssessmentForProduct(product_id)];
                 case 2:
-                    assesssment = _a.sent();
-                    products.assesssment = assesssment;
+                    _a.assesssment = _b.sent();
                     res(products);
                     return [2 /*return*/];
             }
@@ -803,7 +807,7 @@ var insertProduct = function (params) {
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        if (!((result !== null || result !== undefined) && ((_a = params.image) === null || _a === void 0 ? void 0 : _a.length) > 0)) return [3 /*break*/, 2];
+                        if (!((result !== null || true) && ((_a = params.image) === null || _a === void 0 ? void 0 : _a.length) > 0)) return [3 /*break*/, 2];
                         return [4 /*yield*/, updateProductMedia(+result, params.image)];
                     case 1:
                         if ((_b.sent()) === false)
@@ -824,7 +828,7 @@ var getAssessmentForProduct = function (id) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    query = "SELECT COUNT(`id`) as `num`, SUM(IFNULL(`assessment`, 0)) as `sum` FROM " + _TB_NAME_ASESSMENT + " WHERE `product_id` = ?";
+                    query = "SELECT COUNT(`id`) as `num`, SUM(IFNULL(`assessment`, 0)) as `sum` FROM " + _TB_NAME_ASSESSMENT + " WHERE `product_id` = ?";
                     queryParams = [id];
                     return [4 /*yield*/, new Promise(function (resIN, rejIN) {
                             mysql_1.pool.query(query, queryParams, function (error, results, fields) {
@@ -915,11 +919,11 @@ function products_endpoint(req, res) {
                     returnValue = _b.sent();
                     res.status(200);
                     return [3 /*break*/, 54];
-                case 13: return [4 /*yield*/, deleteCategoryMeida(params.cat_id, params.media_id)];
+                case 13: return [4 /*yield*/, deleteCategoryMedia(params.cat_id, params.media_id)];
                 case 14:
                     returnValue = _b.sent();
                     res.status(200);
-                    _b.label = 15;
+                    return [3 /*break*/, 54];
                 case 15: return [4 /*yield*/, getAllParentCategoriesView()];
                 case 16:
                     returnValue = _b.sent();

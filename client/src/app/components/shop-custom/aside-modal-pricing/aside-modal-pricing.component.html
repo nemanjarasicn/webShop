@@ -1,0 +1,20 @@
+<li>
+  <small>Minimum za dostavu: 800 RSD</small>
+</li>
+<li>
+  Ukupno proizvodi: <span>{{productsSum}} RSD</span>
+</li>
+<li>
+  Za dostavu: <span>{{!!shipping? shipping + ' RSD': 'Besplatno'}}</span>
+</li>
+<li>
+  <div class="total">
+    Ukupno: <span>{{shipping + productsSum}} RSD</span>
+  </div>
+</li>
+<li *ngIf="type === asideModalTypes.CART">
+  <div class="buttons">
+    <a [routerLink]="['shop/cart_view']" routerLinkActive="$router_link-active$" class="btn btn-solid btn-sm">Vidi korpu</a>
+    <a [routerLink]="['/shop/cart_checkout']" routerLinkActive="$router_link-active$" class="mt-3 btn btn-solid btn-sm ">Završi kupovinu</a>
+  </div>
+</li>

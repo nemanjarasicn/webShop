@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {BehaviorSubject, Observable} from 'rxjs';
-import {ProductCart} from '../interfaces/product';
+import {ProductAsideModal} from '../interfaces/product';
 import {localStorageNames} from '../constants/localStorageNames';
 import {ProductsService} from './products.service';
 
@@ -9,13 +9,15 @@ import {ProductsService} from './products.service';
 })
 export class CartAsideProductService {
   private modalActive$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  private cartProducts$: BehaviorSubject<ProductCart[]> = new BehaviorSubject<ProductCart[]>([]);
+  private cartProducts$: BehaviorSubject<ProductAsideModal[]> = new BehaviorSubject<ProductAsideModal[]>([]);
   private cartProductsCount$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
-  constructor(private productService: ProductsService) { }
+  constructor(private productService: ProductsService) {
+    this.refreshCart();
+  }
 
   refreshCart(): void{
     const IDsFromStorage = JSON.parse(localStorage[localStorageNames.cart] || [] ) as number[];
-    this.productService.getAllProductByCustom(1, IDsFromStorage).then((prods: ProductCart[]) => {
+    this.productService.getAllProductByCustom(1, IDsFromStorage).then((prods: ProductAsideModal[]) => {
       this.cartProducts$.next(prods);
       this.cartProductsCount$.next(prods.length);
     });
@@ -33,7 +35,7 @@ export class CartAsideProductService {
     this.modalActive$.next(value);
   }
 
-  subscribeProductsForCart(): Observable<ProductCart[]>{
+  subscribeProductsForCart(): Observable<ProductAsideModal[]>{
     return this.cartProducts$;
   }
 

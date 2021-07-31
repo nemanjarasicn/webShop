@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { ProductWishlist } from '../interfaces/product';
+import {ProductAsideModal} from '../interfaces/product';
 import { ProductsService } from './products.service';
 import {localStorageNames} from '../constants/localStorageNames';
 
@@ -10,7 +10,7 @@ import {localStorageNames} from '../constants/localStorageNames';
 export class WishlistAsideModalService {
 
   private modalActive$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  private wishlistProducts$: BehaviorSubject<ProductWishlist[]> = new BehaviorSubject<ProductWishlist[]>([]);
+  private wishlistProducts$: BehaviorSubject<ProductAsideModal[]> = new BehaviorSubject<ProductAsideModal[]>([]);
   private wishlistProductsCount$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
 
   constructor(private productService: ProductsService) {
@@ -31,16 +31,15 @@ export class WishlistAsideModalService {
     this.modalActive$.next(value);
   }
 
-  subscribeProductsForWishlist(): Observable<ProductWishlist[]>{
+  subscribeProductsForWishlist(): Observable<ProductAsideModal[]>{
     return this.wishlistProducts$;
   }
 
   refreshProductsWishlist(): void{
     // get from storage and update observable
     const IDsFromStorage = JSON.parse(localStorage[localStorageNames.wishlist] || null) as number[];
-    // @ts-ignore
-    this.productService.getAllProductByCustom(1, IDsFromStorage).then((prods: ProductWishlist[]) => {
-      // @ts-ignore
+
+    this.productService.getAllProductByCustom(1, IDsFromStorage).then((prods: ProductAsideModal[]) => {
       this.wishlistProducts$.next(prods);
       this.wishlistProductsCount$.next(prods.length);
     });

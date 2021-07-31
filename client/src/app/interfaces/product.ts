@@ -40,28 +40,13 @@ export interface ProductSingle{
     }[];
 }
 
-export interface ProductWishlist{
-    id: number;
-    name: string;
-    image: {
-        id: number,
-        src_name: string,
-        alt_text?: string
-    };
-    price: number;
-    new_price?: number;
-    discount?: number;
-}
-
-export interface ProductCart{
+export interface ProductAsideModal{
   id: number;
-  name: string;
-  image: {
-    id: number,
-    src_name: string,
-    alt_text?: string
-  };
-  price: number;
   new_price?: number;
-  discount?: number;
+  price: number;
+  name: string;
+  image: string;
+  alt_text?: string;
+  discount: number;
+  qty?: number;
 }

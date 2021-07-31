@@ -1,0 +1,12 @@
+.input-group{
+  display: grid !important;
+  grid-template-columns: auto 1fr auto auto;
+  button, input{
+    position: relative !important;
+  }
+  .btn-check-custom{
+    &::before{
+      content: unset !important;
+    }
+  }
+}

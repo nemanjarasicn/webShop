@@ -1,74 +1,31 @@
 <!-- Add to wishlist bar -->
 <div id="wishlist_side" class="add_to_cart right" [class.open-side]="openWishlistModal">
-    <a href="javascript:void(0)" class="overlay" (click)="closeWishlist()"></a>
-    <div class="cart-inner">
-       <div class="cart_top">
-          <h3>Moja lista želja</h3>
-          <div class="close-cart">
-             <a href="javascript:void(0)" (click)="closeWishlist()">
-                <fa-icon icon="times"></fa-icon>
-             </a>
-          </div>
-       </div>
-       <div class="cart_media">
-          <ul class="cart_product">
-             <li *ngFor="let product of products">
-                <div class="media">
-                   <a [routerLink]="['/shop/product', {id: product.id}]" routerLinkActive="router-link-active" >
-                      <img [alt]="product?.alt_text || 'slika proizvoda, ' + product.name" class="me-3" [src]="product.image">
-                   </a>
-                   <div class="media-body">
-                    <a [routerLink]="['/shop/product', {id: product.id}]" routerLinkActive="router-link-active" >
-                         <h4>{{product.name}}</h4>
-                      </a>
-                      <h6>
-                        {{product?.new_price || product.price}} RSD<span *ngIf="product?.new_price !== product.price && product?.discount">{{product.price}}</span>
-                      </h6>
-                      <form class="addit-box">
-                         <div class="qty-box">
-                            <div class="input-group">
-                               <button class="qty-minus" (click)="minus(product.id)" type="button">
-                                    <fa-icon icon="minus"></fa-icon>
-                               </button>
-                               <input class="form-control" type="number" value="1" [id]="'productInput' + product.id" />
-                               <button class="qty-plus" (click)="plus(product.id)" type="button">
-                                   <fa-icon icon="plus"></fa-icon>
-                               </button>
-                            </div>
-                         </div>
-                        <div class="pro-add">
-                          <a href="javascript:void(0)" (click)="trash(product.id)">
-                            <fa-icon icon="trash-alt"></fa-icon>
-                          </a>
-                          <!--<a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#edit-product" (click)="edit(product.id)">
-                             <fa-icon icon="edit"></fa-icon>
-                          </a>-->
-                          <a href="javascript:void(0)" (click)="addToCart(product.id)" class="float-end">
-                             <fa-icon icon="cart-plus"></fa-icon>
-                           </a>
-                         </div>
-                        </form>
-                   </div>
-                </div>
-             </li>
-          </ul>
-          <ul class="cart_total">
-              <li>
-                <small>Minimum za dostavu: 800 RSD</small>
-              </li>
-             <li>
-                Ukupno proizvodi: <span>{{productsSum}} RSD</span>
-             </li>
-             <li>
-               Za dostavu: <span>{{!!shipping? shipping + ' RSD': 'Besplatno'}}</span>
-             </li>
-             <li>
-                <div class="total">
-                   Ukupno: <span>{{productsSumEnd}} RSD</span>
-                </div>
-             </li>
-          </ul>
-       </div>
+  <a href="javascript:void(0)" class="overlay" (click)="closeWishlist()"></a>
+  <div class="cart-inner">
+    <div class="cart_top">
+      <h3>Moja lista želja</h3>
+      <div class="close-cart">
+        <a href="javascript:void(0)" (click)="closeWishlist()">
+          <fa-icon icon="times"></fa-icon>
+        </a>
+      </div>
     </div>
- </div>
- <!-- Add to wishlist bar -->
+    <div class="cart_media">
+      <ul class="cart_product">
+        <li *ngFor="let product of products">
+          <app-aside-modal-single-product
+            [product]="product"
+            (triggerEdit)="catchEditEmit($event)"
+            (triggerTrash)="catchTrashEmit($event)"
+            (triggerAddToCart)="catchTrashEmit($event)"
+            [type]="asideModalType.CART"
+          ></app-aside-modal-single-product>
+        </li>
+      </ul>
+      <ul class="cart_total">
+        <app-aside-modal-pricing [productsSum]="productsSum" [type]="asideModalType.WHISLLIST"></app-aside-modal-pricing>
+      </ul>
+    </div>
+  </div>
+</div>
+<!-- Add to wishlist bar -->

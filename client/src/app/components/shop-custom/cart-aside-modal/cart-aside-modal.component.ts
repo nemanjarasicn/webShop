@@ -1,8 +1,8 @@
-import {Component, Inject, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Subscription} from 'rxjs';
 import {CartAsideProductService} from '../../../services/cart-aside-product.service';
-import {ProductCart} from '../../../interfaces/product';
-import {DOCUMENT} from '@angular/common';
+import {ProductAsideModal} from '../../../interfaces/product';
+import {AsideModalTypes} from '../../../enums/aside-modal-types.enum';
 
 @Component({
   selector: 'app-cart-aside-modal',
@@ -14,11 +14,12 @@ export class CartAsideModalComponent implements OnInit, OnDestroy {
   productsSumEnd = 0 as number;
   shipping = 0 as number;
   toggleModal = false as boolean;
-  products: ProductCart[];
+  products: ProductAsideModal[];
+  asideModalType = AsideModalTypes;
 
   subscription1: Subscription;
   subscription2: Subscription;
-  constructor(@Inject(DOCUMENT) private document: Document, private cartAPService: CartAsideProductService) { }
+  constructor(private cartAPService: CartAsideProductService) { }
 
   ngOnInit(): void {
     this.subscription1 = this.cartAPService.subscribeToggleModal().subscribe((res) => {
@@ -45,30 +46,15 @@ export class CartAsideModalComponent implements OnInit, OnDestroy {
     this.toggleModal = false;
   }
 
-  ngOnDestroy(): void {
-    this.subscription1?.unsubscribe();
-    this.subscription2?.unsubscribe();
-  }
-
-  minus(productID: number): void{
-    const ele = this.document.getElementById('productInput' + productID) as HTMLInputElement;
-    ele.value = +ele.value < 2 ? ele.value : `${+ele.value - 1}`;
-  }
-
-  plus(productID: number): void{
-    const ele = this.document.getElementById('productInput' + productID) as HTMLInputElement;
-    ele.value = `${+ele.value + 1}`;
-  }
-
-  trash(productID: number): void{
+  catchTrashEmit(productID: number): void{
     this.cartAPService.removeProductFromCart(productID);
   }
 
-  edit(productID: number): void{
-
+  catchEditEmit(productID: number): void{
   }
 
-  addToCart(productID: number): void{
-
+  ngOnDestroy(): void {
+    this.subscription1?.unsubscribe();
+    this.subscription2?.unsubscribe();
   }
 }
