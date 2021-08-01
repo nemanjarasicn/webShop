@@ -10,69 +10,69 @@ import { Media, MediaPick, MediaTrTd } from '../interfaces/media';
 })
 export class MediaService {
 
-  private api_path: string = '/api/medias/'
-  private medias$: BehaviorSubject<MediaTrTd[]> = new BehaviorSubject(undefined)
-  private showFullMediaActive$: BehaviorSubject<string[]> = new BehaviorSubject(undefined)
+  private endpoint = '/api/medias/';
+  private medias$: BehaviorSubject<MediaTrTd[]> = new BehaviorSubject(undefined);
+  private showFullMediaActive$: BehaviorSubject<string[]> = new BehaviorSubject(undefined);
 
   constructor(private http: HttpClient) { }
 
   subscribeAll(): Observable<MediaTrTd[]>{
-    return this.medias$
+    return this.medias$;
   }
 
   refreshAll(): Promise<any> {
     return this.http.post<MediaTrTd[]>(
-      this.api_path + 'all',
+      this.endpoint + 'all',
       {headers: {'content-type': 'application/json'}}
-    ).toPromise().then((result)=>{
-      this.medias$.next(result)
-    })
+    ).toPromise().then((result) => {
+      this.medias$.next(result);
+    });
   }
 
   insert(params: Media): Observable<boolean>{
-    let formData = new FormData()
+    const formData = new FormData();
 
     for (const key in params) {
       if (Object.prototype.hasOwnProperty.call(params, key)) {
         const element = params[key];
-        formData.append(key, element)        
+        formData.append(key, element);
       }
     }
 
     return this.http.post<boolean>(
-      this.api_path + 'insert',
+      this.endpoint + 'insert',
       formData
-    )
+    );
   }
 
   delete(id: number): Observable<boolean>{
     const params = {
       id,
-    }
+    };
     return this.http.post<boolean>(
-      this.api_path +  'delete',
+      this.endpoint +  'delete',
       params,
       {headers: {'content-type': 'application/json'}}
-    )
+    );
   }
 
   getTypes(): Observable<{id: number, label: string}[]>{
     return this.http.post<{id: number, label: string}[]>(
-      this.api_path + 'getTypes',
+      this.endpoint + 'getTypes',
       {},
       {headers: {'content-type': 'application/json'}}
-    )
+    );
   }
 
   getPickAll(): Promise<MediaPick[]>{
-    return this.http.post<MediaPick[]>(this.api_path +  'pickAll', {headers: {'content-type': 'application/json'}}).toPromise()
+    return this.http.post<MediaPick[]>(this.endpoint +  'pickAll', {headers: {'content-type': 'application/json'}}).toPromise();
   }
 
   showFullMediaActiveArr(): Observable<string[]>{
-    return this.showFullMediaActive$
+    return this.showFullMediaActive$;
   }
-  
+
   setShowFullMediaActiveArr(srcArr: string[]): void{
-    this.showFullMediaActive$.next(srcArr)
+    this.showFullMediaActive$.next(srcArr);
   }
 }

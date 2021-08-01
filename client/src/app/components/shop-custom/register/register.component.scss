@@ -1,0 +1,19 @@
+.frm-required-star{
+  color: red;
+  padding-left: 5px;
+}
+form{
+  input.ng-invalid.ng-touched{
+      border-color: #dc3545;
+    & + .invalid-feedback{
+
+      display: block !important;
+    }
+  }
+  input.ng-valid{
+      border-color: #198754;
+    & + .invalid-feedback{
+      display: none !important;
+    }
+  }
+}

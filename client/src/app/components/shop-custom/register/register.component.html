@@ -1,0 +1,69 @@
+<!-- breadcrumb start -->
+<div class="breadcrumb-main ">
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <div class="breadcrumb-contain">
+          <div>
+            <h2>Registracija</h2>
+            <ul>
+              <li><a [routerLink]="['/shop']" routerLinkActive="$router_link-active$">Naslovna</a></li>
+              <li><fa-icon icon="angle-double-right"></fa-icon></li>
+              <li><a href="javascript:void(0)">Registrajina</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- breadcrumb End -->
+
+<!--section start-->
+<section class="login-page section-big-py-space b-g-light">
+  <div class="custom-container">
+    <div class="row">
+      <div class="col-lg-4 offset-lg-4">
+        <div class="theme-card">
+          <h3 class="text-center">Kreiraj nalog</h3>
+          <ng-container *ngIf="registerForm">
+            <form class="theme-form needs-validation" [formGroup]="registerForm" (ngSubmit)="submit()">
+              <div class="row">
+                <div
+                  *ngFor="let item of formConst"
+                  class="col-12 form-group has-validation"
+                >
+                  <ng-container *ngIf="item.type === formTypes.TEXT">
+                    <label [for]="item.name + '_id'">{{item.label}} <span *ngIf="item?.required" class="frm-required-star">*</span></label>
+                    <input type="text" class="form-control" [id]="item.name + '_id'" [placeholder]="item.placeholder" [required]="item?.required || false" [formControlName]="item.name">
+                    <div class="invalid-feedback">
+                      {{item.invalideFeedback}}
+                    </div>
+                  </ng-container>
+                  <ng-container *ngIf="item.type === formTypes.PASSWORD">
+                    <label [for]="item.name + '_id'">{{item.label}} <span *ngIf="item?.required" class="frm-required-star">*</span></label>
+                    <input type="password" class="form-control" [id]="item.name + '_id'" [placeholder]="item.placeholder" [required]="item?.required || false" [formControlName]="item.name">
+                    <div class="invalid-feedback">
+                      {{item.invalideFeedback}}
+                    </div>
+                  </ng-container>
+                  <ng-container *ngIf="item.type === formTypes.EMAIL">
+                    <label [for]="item.name + '_id'">{{item.label}} <span *ngIf="item?.required" class="frm-required-star">*</span></label>
+                    <input type="email" class="form-control" [id]="item.name + '_id'" [placeholder]="item.placeholder" [required]="item?.required || false" [formControlName]="item.name">
+                    <div class="invalid-feedback">
+                      {{item.invalideFeedback}}
+                    </div>
+                  </ng-container>
+                </div>
+              </div>
+              <div class="col-12">
+                <button class="btn btn-primary" type="submit" [disabled]="!registerForm.valid || !registerForm.touched">Potvrdi</button>
+              </div>
+            </form>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!--Section ends-->

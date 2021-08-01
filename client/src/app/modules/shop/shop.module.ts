@@ -26,7 +26,7 @@ import { ListSingleProductComponent } from '../../components/shop-custom/home/co
 import {
   faPhone, faAt, faClock, faAngleRight, faBars, faSearch, faUser, faShoppingCart,
   faEye, faPlus, faMinus, faCheck,  faTimes, faTrashAlt, faEdit, faCartPlus,  faHeart,
-  faStar, faArrowDown, faMapMarker,  faEnvelopeOpen, faEnvelopeOpenText, faFax
+  faStar, faArrowDown, faMapMarker,  faEnvelopeOpen, faEnvelopeOpenText, faFax, faAngleDoubleRight
 } from '@fortawesome/free-solid-svg-icons';
 import { faFacebookF, faInstagram } from '@fortawesome/free-brands-svg-icons';
 import { FaIconLibrary, FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -35,6 +35,10 @@ import { AppRoutingModule } from 'src/app/app-routing.module';
 import {QuickViewProductService} from '../../services/quick-view-product.service';
 import { ProductsService } from 'src/app/services/products.service';
 import { WishlistAsideModalService } from 'src/app/services/wishlist-aside-modal.service';
+import {AccountAsideModalService} from '../../services/account-aside-modal.service';
+import {CartAsideProductService} from '../../services/cart-aside-product.service';
+import {RegisterComponent} from '../../components/shop-custom/register/register.component';
+import {ReactiveFormsModule} from "@angular/forms";
 
 
 @NgModule({
@@ -60,15 +64,17 @@ import { WishlistAsideModalService } from 'src/app/services/wishlist-aside-modal
     AccountAsideModalComponent,
     CartAsideModalComponent,
     AsideModalSingleProductComponent,
-    AsideModalPricingComponent
+    AsideModalPricingComponent,
+    RegisterComponent
   ],
   imports: [
     AppRoutingModule,
     CommonModule,
     FontAwesomeModule,
-    SlickCarouselModule
+    SlickCarouselModule,
+    ReactiveFormsModule
   ],
-  providers: [QuickViewProductService, ProductsService, WishlistAsideModalService]
+  providers: [QuickViewProductService, ProductsService, WishlistAsideModalService, AccountAsideModalService, CartAsideProductService]
 })
 export class ShopModule {
   constructor(library: FaIconLibrary) {
@@ -76,7 +82,7 @@ export class ShopModule {
     library.addIcons(
       faClock, faAt, faPhone, faAngleRight, faBars, faSearch, faUser, faPlus, faTimes, faMinus,
       faShoppingCart, faTrashAlt, faEdit, faHeart, faEye, faEnvelopeOpenText, faCheck, faStar,
-      faArrowDown, faMapMarker, faEnvelopeOpen, faFax, faFacebookF, faInstagram, faCartPlus
+      faArrowDown, faMapMarker, faEnvelopeOpen, faFax, faFacebookF, faInstagram, faCartPlus, faAngleDoubleRight
     );
   }
 }

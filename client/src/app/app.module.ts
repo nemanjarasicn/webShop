@@ -5,7 +5,6 @@ import { ShopModule } from './modules/shop/shop.module';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
-
 @NgModule({
   declarations: [
     AppComponent

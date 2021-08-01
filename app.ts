@@ -22,6 +22,7 @@ import { user_endpoint } from './routes/user'
 import { products_endpoint } from './routes/products'
 import { locations_endpoint } from './routes/locations'
 import { medias_endpoint } from './routes/media';
+import { customers_endpoint } from './routes/customers';
 
 const  app = express();
 
@@ -32,7 +33,7 @@ let sesssionOpt = {
   cookie:{
     path: '/', 
     httpOnly: true, 
-    secure: app.get('env') === 'production'? true : false, 
+    secure: app.get('env') === 'production',
     maxAge: null, 
     sameSite: true
   }
@@ -71,7 +72,7 @@ app.post(endpoint_start + 'user/:action', user_endpoint)
 app.post(endpoint_start + 'products/:action', products_endpoint)
 app.post(endpoint_start + 'locations/:action',  locations_endpoint)
 app.post(endpoint_start + 'medias/:action', media_uploader.single('file'), medias_endpoint)
-
+app.post(endpoint_start + 'customers/:action',  customers_endpoint)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

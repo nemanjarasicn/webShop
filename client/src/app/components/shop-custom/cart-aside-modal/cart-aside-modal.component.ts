@@ -43,7 +43,7 @@ export class CartAsideModalComponent implements OnInit, OnDestroy {
   }
 
   closeCartModal(): void{
-    this.toggleModal = false;
+    this.cartAPService.setToggleModal(false)
   }
 
   catchTrashEmit(productID: number): void{

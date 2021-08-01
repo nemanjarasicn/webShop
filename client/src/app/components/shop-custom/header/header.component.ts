@@ -5,6 +5,7 @@ import { ProductsService } from 'src/app/services/products.service';
 import { WishlistAsideModalService } from 'src/app/services/wishlist-aside-modal.service';
 import { Subscription } from 'rxjs';
 import {CartAsideProductService} from '../../../services/cart-aside-product.service';
+import {AccountAsideModalService} from '../../../services/account-aside-modal.service';
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
@@ -21,7 +22,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   constructor(
     private productService: ProductsService,
     private wishlistAMService: WishlistAsideModalService,
-    private cartAPService: CartAsideProductService
+    private cartAPService: CartAsideProductService,
+    private accountAMService: AccountAsideModalService
   ) { }
 
   ngOnInit(): void {
@@ -58,12 +60,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
     $('.nav-slide').css('left', '-410px');
   }
 
-  open(eleID: string): void {
-    document.getElementById(eleID).classList.add('open-side');
+  toggleAccountModal(): void {
+    this.accountAMService.setToggleModal(true);
   }
-  close(eleID: string): void {
-    document.getElementById(eleID).classList.remove('open-side');
-  }
+
   mobileBackClick(): void{
     $('.sm-horizontal').css('right', '-410px');
   }
