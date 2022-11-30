@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ListTableTh } from 'src/app/interfaces/list-table-th';
 import { ProductsService } from 'src/app/services/products.service';
-import { Discount } from 'src/app/interfaces/discount'
+import { Discount } from 'src/app/interfaces/discount';
 import { ListForm } from 'src/app/interfaces/list-form';
 import { ListFormType } from 'src/app/enums/list-form-type.enum';
 import { ListService } from 'src/app/services/list.service';
@@ -13,20 +13,21 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./discounts.component.scss']
 })
 export class DiscountsComponent implements OnInit, OnDestroy {
-  subscription: Subscription
-  
-  toastActive : boolean = false
-  toastText: string = ''
-  
-  //for now must be the same order like SELECT query
+  subscription: Subscription;
+
+  toastActive = false;
+  toastText = '';
+
+  // for now must be the same order like SELECT query
   tbTh: Array<ListTableTh> =  [
     {title: 'Naziv'},
     {title: 'Vrednost (%)'},
     {title: 'Vazi od'},
     {title: 'Vazi do'},
-    {title: 'Promo kod'}
-  ]
-  tbTr!: Array<Discount>
+    {title: 'Promo kod'},
+    {title: 'Opis'}
+  ];
+  tbTr!: Array<Discount>;
   form: ListForm[] = [
     {
       key: 'name',
@@ -41,7 +42,7 @@ export class DiscountsComponent implements OnInit, OnDestroy {
       label: 'Vrednost (%)',
       placeholder: 'Vrednost (%)',
       required: true,
-      validationPatern: /^\d+$/,
+      validationPattern: /^\d+$/,
       validationMaxLength: 3,
       validationMax: 100,
       validationMin: 1
@@ -63,75 +64,81 @@ export class DiscountsComponent implements OnInit, OnDestroy {
       type: ListFormType.INPUT_TEXT,
       label: 'Promo kod',
       placeholder: 'Promo kod'
-    }    
-  ]
+    },
+    {
+      key: 'description',
+      type: ListFormType.TEXTAREA,
+      label: 'Opis',
+      placeholder: 'Opis'
+    }
+  ];
   constructor(private productsService: ProductsService, private listService: ListService) {}
 
   ngOnInit(): void {
-    this.productsService.refreshAllDiscounts().then(()=>{
-      this.subscription = this.productsService.subscribeDiscounts().subscribe((arr: Array<Discount>)=>{
-        this.tbTr = (arr)? arr : []
-        this.listService.setTrTd(this.tbTr)
-      })
-    })
+    this.productsService.refreshAllDiscounts().then(() => {
+      this.subscription = this.productsService.subscribeDiscounts().subscribe((arr: Array<Discount>) => {
+        this.tbTr = (arr) ? arr : [];
+        this.listService.setTrTd(this.tbTr);
+      });
+    });
 
   }
-  
+
 
   private refrash(): void{
-    this.productsService.refreshAllDiscounts()
+    this.productsService.refreshAllDiscounts();
   }
 
   insertFunction(params: Discount): void{
-    this.productsService.insertDiscount(params).subscribe((res: boolean)=>{
-      if(res){
-        this.toastText = 'Uspešno uneta novi popust / akcija!'
-        this.refrash()
+    this.productsService.insertDiscount(params).subscribe((res: boolean) => {
+      if (res){
+        this.toastText = 'Uspešno uneta novi popust / akcija!';
+        this.refrash();
       }
-      else this.toastText = 'Neuspešno uneta novi popust / akcija! Molimo vas pokušajte kasnije.'
+      else { this.toastText = 'Neuspešno uneta novi popust / akcija! Molimo vas pokušajte kasnije.'; }
 
-      this.toastActive = true
-      this.hideToast()
-    })
+      this.toastActive = true;
+      this.hideToast();
+    });
   }
 
   updateFunction(params: [number, Discount]): void{
-    this.productsService.updateDiscount(params).subscribe((res: boolean)=>{
-      if(res){
-        this.toastText = 'Uspešno izmenjen popust / akcija!'
-        this.refrash()
-      } 
-      else this.toastText = 'Neuspešno izmenjen popust / akcija! Molimo vas pokušajte kasnije.'
+    this.productsService.updateDiscount(params).subscribe((res: boolean) => {
+      if (res){
+        this.toastText = 'Uspešno izmenjen popust / akcija!';
+        this.refrash();
+      }
+      else { this.toastText = 'Neuspešno izmenjen popust / akcija! Molimo vas pokušajte kasnije.'; }
 
-      this.toastActive = true
-      this.hideToast()
-    })
+      this.toastActive = true;
+      this.hideToast();
+    });
   }
 
   deleteFunction(id: number): void{
-    this.productsService.deleteDiscount(id).subscribe((res: boolean)=>{
-      if(res){
-        this.toastText = 'Uspešno obrisan popust / akcija!'
-        this.refrash()
-      } 
-      else this.toastText = 'Neuspešno obrisan popust / akcija! Molimo vas pokušajte kasnije.'
+    this.productsService.deleteDiscount(id).subscribe((res: boolean) => {
+      if (res){
+        this.toastText = 'Uspešno obrisan popust / akcija!';
+        this.refrash();
+      }
+      else { this.toastText = 'Neuspešno obrisan popust / akcija! Molimo vas pokušajte kasnije.'; }
 
-      this.toastActive = true
-      this.hideToast()
-    })
+      this.toastActive = true;
+      this.hideToast();
+    });
   }
 
-  private hideToast(){
-    setTimeout(()=>this.toastActive = false, 3000)
+  private hideToast(): void{
+    setTimeout(() => this.toastActive = false, 3000);
   }
 
   prepareEdit(id: number): void{
-    this.productsService.getSingleDiscount(id).toPromise().then((arr: Discount)=>{
-        this.listService.setSingleItem(arr)
-    })
+    this.productsService.getSingleDiscount(id).toPromise().then((arr: Discount) => {
+        this.listService.setSingleItem(arr);
+    });
   }
 
   ngOnDestroy(): void{
-    this.subscription.unsubscribe()
+    this.subscription.unsubscribe();
   }
 }

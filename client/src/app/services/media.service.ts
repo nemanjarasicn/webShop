@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { param } from 'jquery';
 import { BehaviorSubject } from 'rxjs';
 import { Observable } from 'rxjs';
 import { Media, MediaPick, MediaTrTd } from '../interfaces/media';

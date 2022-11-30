@@ -5,7 +5,7 @@ import { ListForm } from 'src/app/interfaces/list-form';
 import { ListFormType } from 'src/app/enums/list-form-type.enum';
 import { ListService } from 'src/app/services/list.service';
 import { Subscription } from 'rxjs';
-import { ProductSingle, ProductTbTr } from 'src/app/interfaces/product'
+import { ProductSingle, ProductTbTr } from 'src/app/interfaces/product';
 import { Category } from 'src/app/interfaces/category';
 
 @Component({
@@ -15,12 +15,11 @@ import { Category } from 'src/app/interfaces/category';
 })
 export class ProductsComponent implements OnInit, OnDestroy {
 
-  toastActive : boolean = false
-  toastText: string = ''
+  toastActive = false;
+  toastText = '';
 
-  //for now must be the same order like SELECT query
+  // for now must be the same order like SELECT query
   tbTh: Array<ListTableTh> =  [
-    {title: 'Glavna slika'},
     {title: 'Naziv'},
     {title: 'Kategorija'},
     {title: 'Originalna cena'},
@@ -28,15 +27,11 @@ export class ProductsComponent implements OnInit, OnDestroy {
     {title: 'Cena sa popustom'},
     {title: 'Aktivan'},
     {title: 'Ocena'},
+    {title: 'Glavna slika'},
     {title: 'Galerija'}
-  ]
-  tbTr!: Array<ProductTbTr>
+  ];
+  tbTr!: Array<ProductTbTr>;
   form: ListForm[] = [
-    {
-      key: 'image',
-      type: ListFormType.SINGLE_MEDIA,
-      label: 'Dodaj glavnu sliku',
-    },
     {
       key: 'name',
       type: ListFormType.INPUT_TEXT,
@@ -100,103 +95,108 @@ export class ProductsComponent implements OnInit, OnDestroy {
       placeholder: 'Popust/Akcija',
     },
     {
+      key: 'image',
+      type: ListFormType.SINGLE_MEDIA,
+      label: 'Dodaj glavnu sliku',
+    },
+    {
       key: 'gallery',
       type: ListFormType.GALLERY,
       label: 'Galerija',
-    },    
-  ]
+    },
+  ];
 
-  subscription1: Subscription
+  subscription1: Subscription;
   constructor(private productsService: ProductsService, private listService: ListService) {}
 
   ngOnInit(): void {
-    
-    //get categories
-    this.productsService.subscribeProductCategories().then((arr: {label: string, value: string}[])=>{
-      if(arr) this.form[2].options = arr
-    })
-    
-    //get doscounts
-    this.productsService.subscribeProductDiscounts().then((arr: {label: string, value: string}[])=>{
-      if(arr) this.form[10].options = arr
-    })
-    
-    this.productsService.refreshAllProducts().then(()=>{
-      this.subscription1 = this.productsService.subscribeProducts().subscribe((arr: Array<ProductTbTr>)=>{
-        this.tbTr = (arr)? arr : []
-        this.listService.setTrTd(this.tbTr)
-      })
-    })
+
+    // get categories
+    this.productsService.subscribeProductCategories().then((arr: {label: string, value: string}[]) => {
+      if (arr) { this.form[2].options = arr; }
+    });
+
+    // get doscounts
+    this.productsService.subscribeProductDiscounts().then((arr: {label: string, value: string}[]) => {
+      if (arr) { this.form[10].options = arr; }
+    });
+
+    this.productsService.refreshAllProducts().then(() => {
+      this.subscription1 = this.productsService.subscribeProducts().subscribe((arr: Array<ProductTbTr>) => {
+        this.tbTr = (arr) ? arr : [];
+        this.listService.setTrTd(this.tbTr);
+      });
+    });
   }
 
   private refrash(): void{
-    this.productsService.refreshAllProducts()
+    this.productsService.refreshAllProducts();
   }
 
   insertFunction(params: ProductSingle): void{
-    this.productsService.insertProduct(params).subscribe((res: boolean)=>{
-      if(res){
-        this.toastText = 'Uspešno uneta nov proizvod!'
-        this.refrash()
+    this.productsService.insertProduct(params).subscribe((res: boolean) => {
+      if (res){
+        this.toastText = 'Uspešno uneta nov proizvod!';
+        this.refrash();
       }
-      else this.toastText = 'Neuspešno uneta nov proizvod! Molimo vas pokušajte kasnije.'
+      else { this.toastText = 'Neuspešno uneta nov proizvod! Molimo vas pokušajte kasnije.'; }
 
-      this.toastActive = true
-      this.hideToast()
-    })
+      this.toastActive = true;
+      this.hideToast();
+    });
   }
 
   updateFunction(params: [number, ProductSingle]): void{
-    this.productsService.updateProduct(params).subscribe((res: boolean)=>{
-      if(res){
-        this.toastText = 'Uspešno izmenjen proizvod!'
-        this.refrash()
-      } 
-      else this.toastText = 'Neuspešno izmenjen proizvod! Molimo vas pokušajte kasnije.'
+    this.productsService.updateProduct(params).subscribe((res: boolean) => {
+      if (res){
+        this.toastText = 'Uspešno izmenjen proizvod!';
+        this.refrash();
+      }
+      else { this.toastText = 'Neuspešno izmenjen proizvod! Molimo vas pokušajte kasnije.'; }
 
-      this.toastActive = true
-      this.hideToast()
-    })
+      this.toastActive = true;
+      this.hideToast();
+    });
   }
 
   deleteFunction(id: number): void{
-    this.productsService.deleteProduct(id).subscribe((res: boolean)=>{
-      if(res){
-        this.toastText = 'Uspešno obrisan proizvod!'
-        this.refrash()
-      } 
-      else this.toastText = 'Neuspešno obrisan proizvod! Molimo vas pokušajte kasnije.'
+    this.productsService.deleteProduct(id).subscribe((res: boolean) => {
+      if (res){
+        this.toastText = 'Uspešno obrisan proizvod!';
+        this.refrash();
+      }
+      else { this.toastText = 'Neuspešno obrisan proizvod! Molimo vas pokušajte kasnije.'; }
 
-      this.toastActive = true
-      this.hideToast()
-    })
+      this.toastActive = true;
+      this.hideToast();
+    });
   }
 
-  private hideToast(){
-    setTimeout(()=>this.toastActive = false, 3000)
+  private hideToast(): void{
+    setTimeout(() => this.toastActive = false, 3000);
   }
 
   prepareEdit(id: number): void{
-    this.productsService.getSingleProducts(id).toPromise().then((arr: ProductSingle)=>{
-        this.listService.setSingleItem(arr)
-    })
+    this.productsService.getSingleProducts(id).then((arr: ProductSingle) => {
+        this.listService.setSingleItem(arr);
+    });
   }
-  
+
   deleteMediaLink($event: {item_id: number, media_id: number}): void{
     this.productsService.deleteProductMedia($event.item_id, $event.media_id).then(res => {
-      if(res){
-        this.toastText = 'Uspešno obrisana slika proizvoda!'
-        this.refrash()
+      if (res){
+        this.toastText = 'Uspešno obrisana slika proizvoda!';
+        this.refrash();
       }
-      else this.toastText = 'Neuspešno obrisana slika proizvoda! Molimo vas pokušajte kasnije.'
+      else { this.toastText = 'Neuspešno obrisana slika proizvoda! Molimo vas pokušajte kasnije.'; }
 
-      this.toastActive = true
-      this.hideToast()
-    })
+      this.toastActive = true;
+      this.hideToast();
+    });
   }
 
   ngOnDestroy(): void{
-    this.subscription1.unsubscribe()
+    this.subscription1.unsubscribe();
   }
 
 }

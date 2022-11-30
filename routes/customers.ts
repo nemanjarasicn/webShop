@@ -1,7 +1,5 @@
-const register = (): Promise<boolean | {msg?: string, done: boolean}> => {
-    return new Promise(async (res, rej) => {
+const register = async () => {
 
-    })
 }
 
 export async function customers_endpoint(req, res){

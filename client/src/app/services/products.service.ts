@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { Category, CategoryBasic, CategoryMenu } from '../interfaces/category';
 import { Discount } from '../interfaces/discount';
 import {ProductAsideModal, ProductSingle, ProductTbTr} from '../interfaces/product';
+import {ProductEnumSingle} from '../../../../routes/enums/product-enum';
 
 @Injectable({
   providedIn: 'root'
@@ -87,10 +88,10 @@ export class ProductsService {
     );
   }
 
-  deleteCategoryMedia(cat_id: number, media_id: number): Promise<boolean>{
+  deleteCategoryMedia(catId: number, mediaId: number): Promise<boolean>{
     const params = {
-      cat_id,
-      media_id
+      cat_id: catId,
+      media_id: mediaId
     };
     return this.http.post<boolean>(
       this.endpoint + 'delete_cat_media',
@@ -184,15 +185,15 @@ export class ProductsService {
     });
   }
 
-  getSingleProducts(id: number): Observable<ProductSingle>{
+  getSingleProducts(id: number): Promise<ProductSingle>{
     const params = {
-      id
+      id,
     };
     return this.http.post<ProductSingle>(
       this.endpoint + 'single_product',
       params,
       {headers: {'content-type': 'application/json'}}
-    );
+    ).toPromise();
   }
 
   insertProduct(params: ProductSingle): Observable<boolean>{
@@ -227,10 +228,10 @@ export class ProductsService {
     );
   }
 
-  deleteProductMedia(prod_id: number, media_id: number): Promise<boolean>{
+  deleteProductMedia(prodId: number, mediaId: number): Promise<boolean>{
     const params = {
-      prod_id,
-      media_id
+      prod_id: prodId,
+      media_id: mediaId
     };
     return this.http.post<boolean>(
       this.endpoint + 'delete_prod_media',
@@ -268,11 +269,10 @@ export class ProductsService {
     ).toPromise();
   }
 
-  getAllProductByCustom(type: number, ids?: number[]): Promise<ProductSingle[] | ProductAsideModal[]>{
-
+  getAllProductByCustom(type?: number, param?: any): Promise<ProductSingle[] | ProductAsideModal[]>{
     const params = {
       type,
-      ids
+      ...param
     };
     return this.http.post<ProductSingle[] | ProductAsideModal[]>(
       this.endpoint + 'get_all_products_custom',
@@ -281,7 +281,7 @@ export class ProductsService {
     ).toPromise();
   }
 
-  getSingleProductsCustom(id: number, type: number = 0): Promise<ProductSingle>{
+  getSingleProductCustom(id: number, type = ProductEnumSingle.BASIC): Promise<ProductSingle>{
     const params = {
       id,
       type,
@@ -289,6 +289,14 @@ export class ProductsService {
 
     return this.http.post<ProductSingle>(
       this.endpoint + 'get_single_product_custom',
+      params,
+      {headers: {'content-type': 'application/json'}}
+    ).toPromise();
+  }
+
+  getTogetherSingle_Relater(params: {id: number}): Promise<{single: ProductSingle, related: ProductSingle[]}>{
+    return this.http.post<{single: ProductSingle, related: ProductSingle[]}>(
+      this.endpoint + 'get_together_single_related',
       params,
       {headers: {'content-type': 'application/json'}}
     ).toPromise();

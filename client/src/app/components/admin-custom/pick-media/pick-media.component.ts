@@ -15,27 +15,27 @@ export class PickMediaComponent implements OnInit, OnDestroy {
 
   constructor(private mediaService: MediaService, private listService: ListService) { }
 
-  images: MediaPick[]
-  selectedImg!: PickMedia | null
-  subscription: Subscription
+  images: MediaPick[];
+  selectedImg!: PickMedia | null;
+  subscription: Subscription;
 
   ngOnInit(): void {
-    this.subscription = this.listService.subscribePickMedia().subscribe(res=>{
-      this.selectedImg = res
-    })
+    this.subscription = this.listService.subscribePickMedia().subscribe(res => {
+      this.selectedImg = res;
+    });
 
-    this.mediaService.getPickAll().then(res =>{
-      this.images = res
-    })
+    this.mediaService.getPickAll().then(res => {
+      this.images = res;
+    });
   }
 
   pickImage(image): void{
-    this.selectedImg = image
-    this.listService.setPickMedia(this.selectedImg)
+    this.selectedImg = image;
+    this.listService.setPickMedia(this.selectedImg);
   }
 
   ngOnDestroy(): void{
-    this.subscription.unsubscribe()
+    this.subscription.unsubscribe();
   }
 
 }

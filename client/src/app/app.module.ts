@@ -4,6 +4,7 @@ import { AdminModule } from './modules/admin/admin.module';
 import { ShopModule } from './modules/shop/shop.module';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import {StorageService} from './services/storage.service';
 
 @NgModule({
   declarations: [
@@ -15,10 +16,9 @@ import { AppComponent } from './app.component';
     AdminModule,
     ShopModule
   ],
-  providers: [],
+  providers: [StorageService],
   bootstrap: [AppComponent]
 })
 export class AppModule {
 
 }
-

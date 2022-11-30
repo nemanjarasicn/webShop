@@ -1,0 +1,95 @@
+<section class="cart-section section-big-py-space b-g-light CartPreview">
+  <h1>Pregled korpe</h1>
+  <div class="custom-container">
+    <div class="row">
+      <div class="col-sm-12">
+        <table class="table cart-table table-responsive-xs">
+          <thead>
+          <tr class="table-head">
+            <th scope="col" *ngFor="let th of ths">{{th}}</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let product of products">
+            <td>
+              <a [routerLink]="['/shop/product', {id: product.id}]" routerLinkActive="router-link-active">
+                <img [src]="product?.image || 'assets/images/noimg.png'" [alt]="product?.alt_text || product.name" />
+              </a>
+            </td>
+            <td>
+              <a [routerLink]="['/shop/product', {id: product.id}]" routerLinkActive="router-link-active">{{product.name}}</a>
+              <div class="mobile-cart-content">
+                <div class="col-xs-3">
+                  <div class="qty-box">
+                    <div class="input-group">
+                      <input type="text" name="quantity" readonly class="form-control input-number" [value]="product.qty">
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xs-3">
+                  <h2 class="td-color">{{product?.new_price || product.price}} RSD</h2>
+                  <del *ngIf="product?.new_price !== product.price">{{product.price}} RSD</del>
+                </div>
+                <div class="col-xs-3">
+                  <h2 class="td-color">
+                    <span (click)="removeProductFromCart(product.id)" class="icon">
+                      <fa-icon icon="trash-alt" title="Ukloni"></fa-icon>
+                    </span>
+                  </h2>
+                </div>
+              </div>
+            </td>
+            <td>
+              <h2 class="td-color">{{product?.new_price || product.price}} RSD</h2>
+              <del *ngIf="product?.new_price !== product.price">{{product.price}} RSD</del>
+            </td>
+            <td>
+              <div class="qty-box">
+                <div class="input-group">
+                  <input type="text" name="quantity" readonly class="form-control input-number" [value]="product.qty">
+                </div>
+              </div>
+            </td>
+            <td>
+              <span (click)="removeProductFromCart(product.id)" class="icon">
+                <fa-icon icon="trash-alt" title="Ukloni"></fa-icon>
+              </span>
+            </td>
+            <td>
+              <h2 class="td-color">{{(product?.new_price || product.price) * product.qty}} RSD</h2>
+            </td>
+          </tr>
+        </table>
+
+        <table class="table cart-table table-responsive-md">
+          <tfoot>
+          <tr>
+            <td>Ukupna cena proizvoda:</td>
+            <td>
+              <h2>{{productsSum}} RSD</h2>
+            </td>
+          </tr>
+          <tr>
+            <td>Dostava:</td>
+            <td>
+              <h2>{{!!shipping? shipping + ' RSD': 'Besplatno'}}</h2>
+            </td>
+          </tr>
+          <tr>
+            <td>Ukupna cena:</td>
+            <td>
+              <h2>{{cartTotal}} RSD</h2>
+            </td>
+          </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+    <div class="row cart-buttons">
+      <div class="col-12">
+        <a [routerLink]="['/shop/']" routerLinkActive="$router_link-active$" class="btn btn-normal">Nastavi sa kupovinom</a>
+        <a [routerLink]="['/shop/cart-checkout']" routerLinkActive="$router_link-active$" class="btn btn-normal ms-3">Završi kupovinu</a>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,17 @@
+.CartPreview {
+
+  h1 {
+    font-size: 24px;
+    margin: 25px 0;
+    text-align: center;
+  }
+
+  .icon {
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      color: red;
+    }
+  }
+}

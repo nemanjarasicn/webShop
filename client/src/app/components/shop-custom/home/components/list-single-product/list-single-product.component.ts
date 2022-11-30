@@ -3,6 +3,7 @@ import {ProductSingle} from '../../../../../interfaces/product';
 import {QuickViewProductService} from '../../../../../services/quick-view-product.service';
 import {WishlistAsideModalService} from '../../../../../services/wishlist-aside-modal.service';
 import {CartAsideProductService} from '../../../../../services/cart-aside-product.service';
+import {NotificationService} from '../../../../../services/notification.service';
 
 @Component({
   selector: 'app-list-single-product',
@@ -11,12 +12,12 @@ import {CartAsideProductService} from '../../../../../services/cart-aside-produc
 })
 export class ListSingleProductComponent implements OnInit {
   @Input() product: ProductSingle;
-  isItOpen = false as boolean;
-  qty = 1 as number;
+  isItOpen = false;
+  qty = 1;
   constructor(
     private qvProductService: QuickViewProductService,
     private wishlistAMService: WishlistAsideModalService,
-    private cartAMService: CartAsideProductService
+    private cartAMService: CartAsideProductService,
   ) { }
 
   ngOnInit(): void {
@@ -37,9 +38,12 @@ export class ListSingleProductComponent implements OnInit {
   }
 
   confirmAdd(): void{
-    console.log(this.product.id);
-    this.cartAMService.setNewToCart(this.product.id);
+    this.cartAMService.setNewToCart({productID: this.product.id, qty: this.qty});
+
+    this.qty = 1;
+    this.isItOpen = false;
   }
+
   setProductQV(): void{
     this.qvProductService.setProduct(this.product.id);
   }

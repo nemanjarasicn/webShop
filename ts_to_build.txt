@@ -2,4 +2,15 @@
 ./routes/user.ts
 ./routes/products.ts
 ./routes/media.ts
+./routes/blog.ts
 ./routes/customers.ts
+./routes/jwt/jwt.ts
+./routes/interfaces/user.interface.ts
+./routes/interfaces/blog.interface.ts
+./routes/interfaces/product-combinations.interface.ts
+./routes/jwt/jwt.ts
+./routes/productAddOn.ts
+./routes/productCombinations.ts
+./routes/enums/blog-enum.ts
+./routes/enums/product-enum.ts
+

@@ -14,6 +14,7 @@
           <ul class="cart_product">
             <li *ngFor="let product of products">
               <app-aside-modal-single-product
+                (triggerQty)="catchQtyEmit($event)"
                 (triggerTrash)="catchTrashEmit($event)"
                 (triggerEdit)="catchEditEmit($event)"
                 [product]="product"
@@ -22,7 +23,7 @@
             </li>
           </ul>
           <ul class="cart_total">
-            <app-aside-modal-pricing [productsSum]="productsSum" [type]="asideModalType.CART"></app-aside-modal-pricing>
+            <app-aside-modal-pricing [type]="asideModalType.CART"></app-aside-modal-pricing>
           </ul>
        </div>
     </div>

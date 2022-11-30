@@ -38,88 +38,96 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 exports.medias_endpoint = void 0;
 var mysql_1 = require("./db/mysql");
-var _TB_NAME_ = "`media`";
-var _TB_NAME_TYPE_ = "`media_type`";
-var _TB_CATEGORY_MEDIA_ = "`category_media`";
-var _TB_PRODUCT_MEDIA_ = "`product_media`";
-var getAll = function () {
-    return new Promise(function (res, rej) {
-        var sql = "SELECT `m`.`id`, `m`.`name`, `m`.`src_name`, `m`.`src_name` as `image`, `m`.`alt_text`, `mt`.`name` as `type_name` FROM " + _TB_NAME_ + " `m` " +
-            "INNER JOIN " + _TB_NAME_TYPE_ + " `mt` on `mt`.`id` = `m`.`type_id`";
-        mysql_1.pool.query(sql, function (error, results, fields) {
-            if (error)
-                rej(false);
-            res(JSON.parse(JSON.stringify(results || [])));
-        });
+var _TB_NAME_ = "media";
+var _TB_NAME_TYPE_ = "media_type";
+var _TB_CATEGORY_MEDIA_ = "category_media";
+var _TB_PRODUCT_MEDIA_ = "product_media";
+var _TB_MEDIA_COMBINATION = 'product_combination_media';
+var _TB_NAME_BLOG_MEDIA = "blog_media";
+var getAll = function () { return __awaiter(void 0, void 0, void 0, function () {
+    var sql, params;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                sql = "SELECT `m`.??, `m`.??, `m`.??, `m`.?? as ??, `m`.??, `mt`.?? as ?? FROM ?? `m` " +
+                    "INNER JOIN ?? `mt` on `mt`.?? = `m`.??";
+                params = ["id", "name", "src_name", "src_name", "image", "alt_text", "name", "type_name", _TB_NAME_, _TB_NAME_TYPE_, "id", "type_id"];
+                return [4 /*yield*/, mysql_1.execute({ sql: sql, params: params })];
+            case 1: return [2 /*return*/, _a.sent()];
+        }
     });
-};
-var deleteItem = function (id) {
-    return new Promise(function (res, rej) { return __awaiter(void 0, void 0, void 0, function () {
-        var sql, queryParams;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    sql = "DELETE FROM " + _TB_CATEGORY_MEDIA_ + " WHERE `media_id` = ?";
-                    queryParams = [id];
-                    return [4 /*yield*/, mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
-                            if (error)
-                                return rej(false);
-                        })];
-                case 1:
-                    _a.sent();
-                    sql = "DELETE FROM " + _TB_PRODUCT_MEDIA_ + " WHERE `media_id` = ?";
-                    return [4 /*yield*/, mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
-                            if (error)
-                                return rej(false);
-                        })];
-                case 2:
-                    _a.sent();
-                    sql = "DELETE FROM " + _TB_NAME_ + " WHERE `id` = ?";
-                    return [4 /*yield*/, mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
-                            if (error)
-                                return rej(false);
-                        })];
-                case 3:
-                    _a.sent();
-                    res(JSON.parse(JSON.stringify(true)));
-                    return [2 /*return*/];
-            }
-        });
-    }); });
-};
-var insert = function (params, file) {
-    return new Promise(function (res, rej) {
-        var src_name = "assets/media/" + file.filename;
-        var sql = "INSERT INTO " + _TB_NAME_ + " (`name`, `type_id`, `src_name`, `alt_text`) VALUES ( ?, ?, ?, ? )";
-        var queryParams = [params.name, +params.type_id, src_name, params.alt_text];
-        mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
-            if (error)
-                rej(false);
-            res(JSON.parse(JSON.stringify(true)));
-        });
+}); };
+var deleteItem = function (id) { return __awaiter(void 0, void 0, void 0, function () {
+    var sql, queryParams;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                sql = "DELETE FROM " + _TB_CATEGORY_MEDIA_ + " WHERE `media_id` = ?";
+                queryParams = [id];
+                return [4 /*yield*/, mysql_1.execute({ sql: sql, params: queryParams })];
+            case 1:
+                _a.sent();
+                sql = "DELETE FROM ?? WHERE ?? = ?";
+                queryParams = [_TB_PRODUCT_MEDIA_, "media_id", id];
+                return [4 /*yield*/, mysql_1.execute({ sql: sql, params: queryParams })];
+            case 2:
+                _a.sent();
+                sql = "DELETE FROM ?? WHERE ?? = ?";
+                queryParams = [_TB_NAME_BLOG_MEDIA, "media_id", id];
+                return [4 /*yield*/, mysql_1.execute({ sql: sql, params: queryParams })];
+            case 3:
+                _a.sent();
+                sql = "DELETE FROM ?? WHERE ?? = ?";
+                queryParams = [_TB_MEDIA_COMBINATION, "media_id", id];
+                return [4 /*yield*/, mysql_1.execute({ sql: sql, params: queryParams })];
+            case 4:
+                _a.sent();
+                sql = "DELETE FROM ?? WHERE ?? = ?";
+                queryParams = [_TB_NAME_, "id", id];
+                return [4 /*yield*/, mysql_1.execute({ sql: sql, params: queryParams })];
+            case 5:
+                _a.sent();
+                return [2 /*return*/, true];
+        }
     });
-};
-var getTypes = function () {
-    return new Promise(function (res, rej) {
-        var sql = "SELECT `id` as `value`, `name` as `label` FROM " + _TB_NAME_TYPE_;
-        mysql_1.pool.query(sql, function (error, results, fields) {
-            if (error)
-                rej(false);
-            res(JSON.parse(JSON.stringify(results)));
-        });
+}); };
+var insert = function (params, file) { return __awaiter(void 0, void 0, void 0, function () {
+    var src_name, sql, queryParams;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                src_name = "assets/media/" + file.filename;
+                sql = "INSERT INTO ?? (??, ??, ??, ??) VALUES ( ?, ?, ?, ? )";
+                queryParams = [_TB_NAME_, "name", "type_id", "src_name", "alt_text", params.name, +params.type_id, src_name, params.alt_text];
+                return [4 /*yield*/, mysql_1.execute({ sql: sql, params: queryParams })];
+            case 1: return [2 /*return*/, _a.sent()];
+        }
     });
-};
-var getPickAll = function () {
-    return new Promise(function (res, rej) {
-        var sql = "SELECT `id`, `name`, `src_name`, `alt_text` FROM " + _TB_NAME_ + " WHERE `type_id` = ?";
-        var sqlParams = [1];
-        mysql_1.pool.query(sql, sqlParams, function (error, results, fields) {
-            if (error)
-                rej(false);
-            res(JSON.parse(JSON.stringify(results)));
-        });
+}); };
+var getTypes = function () { return __awaiter(void 0, void 0, void 0, function () {
+    var sql, params;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                sql = "SELECT ?? as ??, ?? as ?? FROM ??";
+                params = ["id", "value", "name", "label", _TB_NAME_TYPE_];
+                return [4 /*yield*/, mysql_1.execute({ sql: sql, params: params })];
+            case 1: return [2 /*return*/, _a.sent()];
+        }
     });
-};
+}); };
+var getPickAll = function () { return __awaiter(void 0, void 0, void 0, function () {
+    var sql, params;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                sql = "SELECT ??, ??, ?? ,?? FROM ?? WHERE ?? = ?";
+                params = ["id", "name", "src_name", "alt_text", _TB_NAME_, "type_id", 1];
+                return [4 /*yield*/, mysql_1.execute({ sql: sql, params: params })];
+            case 1: return [2 /*return*/, _a.sent()];
+        }
+    });
+}); };
 function medias_endpoint(req, res) {
     return __awaiter(this, void 0, void 0, function () {
         var action, params, returnValue, _a;

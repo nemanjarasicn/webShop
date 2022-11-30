@@ -1,0 +1,40 @@
+.SingleProduct {
+  padding: 25px 0 50px 0;
+
+  .qty-box {
+    width: 100%;
+  }
+  .slider-right-nav {
+    cursor: pointer;
+  }
+
+  .pro-group {
+
+    .price-container {
+
+    }
+  }
+
+  .size-box {
+
+    li {
+      width: max-content;
+      padding: 8px;
+
+      a {
+
+        fa-icon, .price {
+          color: red;
+          margin-left: 15px;
+        }
+      }
+    }
+  }
+}
+
+.SingleProductRelated {
+
+  .related-product-item {
+    width: 350px;
+  }
+}

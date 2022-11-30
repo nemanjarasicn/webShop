@@ -1,0 +1,30 @@
+<div class="container-fluid mb-3">
+  <div class="row">
+    <div class="col-xs-12">
+      <label for="product">Proizvodi:</label>
+      <select class="form-select" id="product" #productSelect (change)="setSelectedProduct(productSelect.value)">
+        <option value="">Odaberi proizvod...</option>
+        <option *ngFor="let pl of productList" [value]="pl.id">
+          {{pl.title}}
+        </option>
+      </select>
+    </div>
+    <div class="col-xs-12 mt-3">
+      <button class="btn btn-primary" (click)="chooseProduct()" [disabled]="selectedProductID === 0" type="button">Izaberi</button>
+    </div>
+  </div>
+</div>
+
+<ng-container *ngIf="tbTr !== undefined && chosenProductID">
+  <app-list
+    [title]="'Dodaci'"
+    [addNewTitle]="'Novi dodatak'"
+    [tbTh]="tbTh"
+    [form]="form"
+    (triggerInsert)="insertFunction($event)"
+    (triggerDelete)="deleteFunction($event)"
+    (triggerPrepareEdit)="prepareEdit($event)"
+    (triggerUpdate)="updateFunction($event)"
+  >
+  </app-list>
+</ng-container>

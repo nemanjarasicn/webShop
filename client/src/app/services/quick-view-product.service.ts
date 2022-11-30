@@ -16,7 +16,7 @@ export class QuickViewProductService {
   }
 
   setProduct(id: number): void{
-    this.productService.getSingleProductsCustom(id).then(prod => {
+    this.productService.getSingleProductCustom(id).then(prod => {
       this.product$.next(prod);
     });
   }

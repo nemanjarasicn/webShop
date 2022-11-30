@@ -9,3 +9,18 @@
 .slick-next::before {
     color: #f73838 !important;
 }
+
+body {
+  min-height: 1400px;
+}
+
+.qty-minus{
+  &::before{
+    content: unset !important;
+  }
+}
+.qty-plus{
+  &::before{
+    content: unset !important;
+  }
+}

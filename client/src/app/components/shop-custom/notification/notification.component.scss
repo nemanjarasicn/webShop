@@ -1,0 +1,30 @@
+.notification {
+  width: 300px;
+  padding: 20px;
+  max-height: 180px;
+  background-color: white;
+  box-shadow: 0 0 7px 2px rgb(158 158 158 / 20%);
+  margin: 10px;
+  position: fixed;
+  bottom: 0;
+  z-index: 99;
+  transition: all 0.2s;
+
+  &.hide {
+    bottom: -180px
+  }
+
+  .media {
+    display: flex;
+  }
+
+  .btn-close {
+    cursor: pointer;
+    position: absolute;
+    right: 13px;
+    top: 5px;
+    font-size: 14px;
+    z-index: 99;
+    opacity: 1;
+  }
+}

@@ -8,9 +8,9 @@ import { ProductsService } from 'src/app/services/products.service';
   styleUrls: ['./home-category-slider.component.scss']
 })
 export class HomeCategorySliderComponent implements OnInit {
-  categories: CategoryBasic[]
-  title = 'ng-carousel-categories-list';   
-  slides: {id: number, img: string, img_alt: string, name: string}[] = []
+  categories: CategoryBasic[];
+  title = 'ng-carousel-categories-list';
+  slides: {id: number, img: string, img_alt: string, name: string}[] = [];
   slideConfig = {
     slidesToShow: 4,
     slidesToScroll: 1,
@@ -41,28 +41,29 @@ export class HomeCategorySliderComponent implements OnInit {
         }
       }
     ]
-  }
-   
-  slickInit(e) {}
-     
-  breakpoint(e) {}
-     
-  afterChange(e) {}
-     
-  beforeChange(e) {}
+  };
+
+  slickInit(e): void {}
+
+  breakpoint(e): void {}
+
+  afterChange(e): void {}
+
+  beforeChange(e): void {}
+
   constructor(private productService: ProductsService) { }
 
   ngOnInit(): void {
-    this.productService.getCategoriesWithImg().then(cats=>{
-      cats.forEach(cat =>{
+    this.productService.getCategoriesWithImg().then(cats => {
+      cats.forEach(cat => {
         this.slides.push({
           id: cat.id,
-          img: cat.img_src,
-          img_alt: cat.alt_text,
+          img: cat.image.src_name,
+          img_alt: cat.image.alt_text,
           name: cat.label
-        })
-      })
-    })
+        });
+      });
+    });
   }
 
 }

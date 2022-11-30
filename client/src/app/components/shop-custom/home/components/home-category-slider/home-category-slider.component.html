@@ -5,7 +5,7 @@
           <div class="col">
              <ngx-slick-carousel class="carousel"
                 #slickModal="slick-carousel"
-                [config]="slideConfig" 
+                [config]="slideConfig"
                 (init)="slickInit($event)"
                 (breakpoint)="breakpoint($event)"
                 (afterChange)="afterChange($event)"
@@ -16,7 +16,7 @@
                   <div style="width: 100%; display: inline-block;">
                      <div class="category-contain">
                         <a [routerLink]="['/shop/search', {category_id: slide.id}]" routerLinkActive="router-link-active" tabindex="0">
-                           <div class="img-wrapper" [ngStyle]="{'background-image': 'url( '+ slide.img +')'}"></div>
+                           <div class="img-wrapper" [ngStyle]="{'background-image': 'url(\''+ slide.img +'\')'}"></div>
                            <div>
                               <div class="btn-rounded">
                                  {{slide.name}}

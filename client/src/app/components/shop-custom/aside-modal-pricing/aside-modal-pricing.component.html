@@ -1,5 +1,5 @@
 <li>
-  <small>Minimum za dostavu: 800 RSD</small>
+  <small>Minimum za dostavu: {{minShippingPrice}} RSD</small>
 </li>
 <li>
   Ukupno proizvodi: <span>{{productsSum}} RSD</span>
@@ -9,12 +9,26 @@
 </li>
 <li>
   <div class="total">
-    Ukupno: <span>{{shipping + productsSum}} RSD</span>
+    Ukupno: <span>{{cartTotal}} RSD</span>
   </div>
 </li>
 <li *ngIf="type === asideModalTypes.CART">
   <div class="buttons">
-    <a [routerLink]="['shop/cart_view']" routerLinkActive="$router_link-active$" class="btn btn-solid btn-sm">Vidi korpu</a>
-    <a [routerLink]="['/shop/cart_checkout']" routerLinkActive="$router_link-active$" class="mt-3 btn btn-solid btn-sm ">Završi kupovinu</a>
+    <a
+      [routerLink]="['/shop/cart-preview']"
+      routerLinkActive="$router_link-active$"
+      class="mt-3 btn btn-solid btn-sm"
+      (click)="closeCartModal()"
+    >
+      Vidi korpu
+    </a>
+    <a
+      [routerLink]="['/shop/cart-checkout']"
+      routerLinkActive="$router_link-active$"
+      class="mt-3 btn btn-solid btn-sm"
+      (click)="closeCartModal()"
+    >
+      Završi kupovinu
+    </a>
   </div>
 </li>

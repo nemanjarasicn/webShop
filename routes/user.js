@@ -38,67 +38,39 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 exports.user_endpoint = void 0;
 var mysql_1 = require("./db/mysql");
-var _TB_NAME = "`user`";
-var setSession = function (req, user_id, time) {
-    req.session.cookie.expires = new Date(Date.now() + time);
-    req.session.cookie.maxAge = time;
-    req.session.logged = true;
-    req.session.userid = user_id;
-};
-var makeSession = function (req, user_id) {
-    var hour = 3600000;
-    setSession(req, user_id, hour);
-};
-var saveMe = function (req, user_id) {
-    var year = Number(3600000 * 24 * 365);
-    setSession(req, user_id, year);
-};
+var jwt_1 = require("./jwt/jwt");
+var _TB_NAME = "user";
 var getUserData = function (user_id) { return __awaiter(void 0, void 0, void 0, function () {
+    var sql, params;
     return __generator(this, function (_a) {
-        return [2 /*return*/, new Promise(function (res, rej) {
-                var sql = "SELECT `id`, `username`, `firstname`, `lastname`, `rule_id`, `phone`, `email`  FROM " + _TB_NAME + " WHERE `id` = ?";
-                var queryParams = [user_id];
-                mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
-                    if (error)
-                        rej(false);
-                    res(JSON.parse(JSON.stringify([true, results[0]] || [false, null])));
-                });
-            })];
+        sql = "SELECT ??, ??, ??, ??, ??, ??, ??  FROM ?? WHERE ?? = ?";
+        params = ["id", "username", "firstname", "lastname", "rule_id", "phone", "email", _TB_NAME, "id", user_id];
+        return [2 /*return*/, mysql_1.execute({ sql: sql, params: params, single: true })];
     });
 }); };
-var logout = function (req) {
-    return new Promise(function (res, rej) {
-        req.session.destroy(function (err) {
-            if (err) {
-                console.log(err);
-                return rej(false);
-            }
-            res(true);
-        });
-    });
-};
-var login = function (params, req) { return __awaiter(void 0, void 0, void 0, function () {
-    var sql, queryParams, user;
+var login = function (params) { return __awaiter(void 0, void 0, void 0, function () {
+    var sql, queryParams;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                sql = "SELECT `id`, `username`, `firstname`, `lastname`, `rule_id`, `phone`, `email`  FROM " + _TB_NAME + " WHERE `rule_id` = ? AND `username` = ? AND `password` = SHA2(?, 256)";
-                queryParams = [1, params.username, params.password];
-                return [4 /*yield*/, new Promise(function (res, rej) {
-                        mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
-                            if (error)
-                                rej(false);
-                            res(JSON.parse(JSON.stringify(results[0] || false)));
-                        });
-                    })];
-            case 1:
-                user = _a.sent();
-                if (user !== false) {
-                    makeSession(req, user.id);
-                    if (params.save_me)
-                        saveMe(req, user.id);
-                }
-                return [2 /*return*/, user];
+                sql = "SELECT ??, ??, ??, ??, ??, ??, ??  FROM ?? WHERE ?? = ? AND ?? = ? AND ?? = SHA2(?, 256)";
+                queryParams = ["id", "username", "firstname", "lastname", "rule_id", "phone", "email", _TB_NAME, "rule_id", 1, "username", params.username, "password", params.password];
+                return [4 /*yield*/, mysql_1.execute({ sql: sql, params: queryParams, single: true })];
+            case 1: return [2 /*return*/, _a.sent()];
+        }
+    });
+}); };
+var stillLogged = function (req) { return __awaiter(void 0, void 0, void 0, function () {
+    var token, payload;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                token = req.session.jwt;
+                payload = token ? jwt_1.simpleVerifyJWT(token) : false;
+                if (!payload) return [3 /*break*/, 2];
+                return [4 /*yield*/, getUserData(payload.user_id)];
+            case 1: return [2 /*return*/, _a.sent()];
+            case 2: return [2 /*return*/, false];
         }
     });
 }); };
@@ -113,36 +85,31 @@ function user_endpoint(req, res) {
                     _a = action;
                     switch (_a) {
                         case 'isAlreadyLogged': return [3 /*break*/, 1];
-                        case 'login': return [3 /*break*/, 5];
-                        case 'logout': return [3 /*break*/, 7];
+                        case 'login': return [3 /*break*/, 3];
+                        case 'logout': return [3 /*break*/, 5];
                     }
-                    return [3 /*break*/, 9];
-                case 1:
-                    if (!(req.session.userid !== undefined && req.session.logged === true)) return [3 /*break*/, 3];
-                    return [4 /*yield*/, getUserData(req.session.cookie.userid || req.session.userid)];
+                    return [3 /*break*/, 6];
+                case 1: return [4 /*yield*/, stillLogged(req)];
                 case 2:
                     returnValue = _b.sent();
-                    return [3 /*break*/, 4];
-                case 3:
-                    returnValue = [false, null];
-                    _b.label = 4;
+                    res.status(200);
+                    return [3 /*break*/, 7];
+                case 3: return [4 /*yield*/, login(req.body)];
                 case 4:
+                    returnValue = _b.sent();
+                    if (returnValue === null || returnValue === void 0 ? void 0 : returnValue.id)
+                        jwt_1.giveAccess(req, { user_id: returnValue.id });
                     res.status(200);
-                    return [3 /*break*/, 10];
-                case 5: return [4 /*yield*/, login(req.body, req)];
+                    return [3 /*break*/, 7];
+                case 5:
+                    jwt_1.killCookie(req);
+                    returnValue = true;
+                    res.status(200);
+                    return [3 /*break*/, 7];
                 case 6:
-                    returnValue = _b.sent();
-                    res.status(200);
-                    return [3 /*break*/, 10];
-                case 7: return [4 /*yield*/, logout(req)];
-                case 8:
-                    returnValue = _b.sent();
-                    res.status(200);
-                    return [3 /*break*/, 10];
-                case 9:
                     res.status(404);
-                    return [3 /*break*/, 10];
-                case 10:
+                    return [3 /*break*/, 7];
+                case 7:
                     res.send(returnValue);
                     return [2 /*return*/];
             }

@@ -1,79 +1,65 @@
-import { pool } from './db/mysql'
+import { execute } from './db/mysql'
 
-const _TB_NAME_ = "`media`"
-const _TB_NAME_TYPE_ = "`media_type`"
-const _TB_CATEGORY_MEDIA_ = "`category_media`"
-const _TB_PRODUCT_MEDIA_ = "`product_media`"
+const _TB_NAME_ = "media"
+const _TB_NAME_TYPE_ = "media_type"
+const _TB_CATEGORY_MEDIA_ = "category_media"
+const _TB_PRODUCT_MEDIA_ = "product_media"
+const _TB_MEDIA_COMBINATION = 'product_combination_media'
+const _TB_NAME_BLOG_MEDIA = "blog_media"
 
-const getAll = () =>{
-    return new Promise((res, rej)=>{
-        const sql = "SELECT `m`.`id`, `m`.`name`, `m`.`src_name`, `m`.`src_name` as `image`, `m`.`alt_text`, `mt`.`name` as `type_name` FROM " + _TB_NAME_ + " `m` " +
-        "INNER JOIN " + _TB_NAME_TYPE_ + " `mt` on `mt`.`id` = `m`.`type_id`"
-        
-        pool.query(sql, function (error, results, fields) {
-            if(error) rej(false)
-            res(JSON.parse(JSON.stringify(results || [])))
-        });
-    })
+const getAll = async () =>{
+    const sql = "SELECT `m`.??, `m`.??, `m`.??, `m`.?? as ??, `m`.??, `mt`.?? as ?? FROM ?? `m` " +
+    "INNER JOIN ?? `mt` on `mt`.?? = `m`.??"
+    const params = [`id`, `name`, `src_name`, `src_name`, `image`, `alt_text`, `name`, `type_name`, _TB_NAME_, _TB_NAME_TYPE_, `id`, `type_id`]
+
+    return await execute({sql, params})
 }
 
-const deleteItem = (id: number) => {
-    return new Promise(async (res, rej)=>{
-        let sql = "DELETE FROM " + _TB_CATEGORY_MEDIA_  + " WHERE `media_id` = ?"
-        const queryParams = [id]
+const deleteItem = async (id: number): Promise<boolean> => {
+    let sql = "DELETE FROM " + _TB_CATEGORY_MEDIA_  + " WHERE `media_id` = ?"
+    let queryParams = [id] as Array<string | number>
+    await execute({sql, params: queryParams})
 
-        await pool.query(sql, queryParams, function (error, results, fields) {
-            if(error)return rej(false)    
-        })
+    sql ="DELETE FROM ?? WHERE ?? = ?"
+    queryParams = [_TB_PRODUCT_MEDIA_, `media_id`, id]
+    await execute({sql, params: queryParams})
 
-        sql ="DELETE FROM " + _TB_PRODUCT_MEDIA_  + " WHERE `media_id` = ?"
-        await pool.query(sql, queryParams, function (error, results, fields) {
-            if(error)return rej(false)
-        })
+    sql ="DELETE FROM ?? WHERE ?? = ?"
+    queryParams = [_TB_NAME_BLOG_MEDIA, `media_id`, id]
+    await execute({sql, params: queryParams})
 
-        sql ="DELETE FROM " + _TB_NAME_ + " WHERE `id` = ?"
-        await pool.query(sql, queryParams, function (error, results, fields) {
-            if(error)return rej(false)
-        })
+    sql ="DELETE FROM ?? WHERE ?? = ?"
+    queryParams = [_TB_MEDIA_COMBINATION, `media_id`, id]
+    await execute({sql, params: queryParams})
 
-        res(JSON.parse(JSON.stringify(true)))
-    })
+    sql ="DELETE FROM ?? WHERE ?? = ?"
+    queryParams = [_TB_NAME_, `id`, id]
+    await execute({sql, params: queryParams})
+
+    return true
 }
 
-const insert = (params: {name: string, type_id: string, alt_text: string}, file) =>{
-    return new Promise((res, rej)=>{
-        let src_name: string = `assets/media/${file.filename}`
+const insert = async (params: {name: string, type_id: string, alt_text: string}, file) =>{
+    const src_name = `assets/media/${file.filename}`
 
-        const sql = "INSERT INTO " + _TB_NAME_ + " (`name`, `type_id`, `src_name`, `alt_text`) VALUES ( ?, ?, ?, ? )"
-        const queryParams = [params.name, +params.type_id, src_name, params.alt_text]
+    const sql = "INSERT INTO ?? (??, ??, ??, ??) VALUES ( ?, ?, ?, ? )"
+    const queryParams = [_TB_NAME_, `name`, `type_id`, `src_name`, `alt_text`, params.name, +params.type_id, src_name, params.alt_text]
 
-        pool.query(sql, queryParams, function (error, results, fields) {
-            if(error) rej(false)
-            res(JSON.parse(JSON.stringify(true)))
-        });
-    })
+    return await execute({sql, params: queryParams})
 }
 
-const getTypes = () => {
-    return new Promise((res, rej)=>{
-        const sql = "SELECT `id` as `value`, `name` as `label` FROM " + _TB_NAME_TYPE_ 
+const getTypes = async () => {
+    const sql = "SELECT ?? as ??, ?? as ?? FROM ??"
+    const params = [`id`, `value`, `name`, `label`, _TB_NAME_TYPE_]
 
-        pool.query(sql, function (error, results, fields) {
-            if(error) rej(false)
-            res(JSON.parse(JSON.stringify(results)))
-        });
-    })
+    return await execute({sql, params})
 }
 
-const getPickAll = () =>{
-    return new Promise((res, rej)=>{
-        const sql = "SELECT `id`, `name`, `src_name`, `alt_text` FROM " + _TB_NAME_ + " WHERE `type_id` = ?"
-        const sqlParams = [1]
-        pool.query(sql, sqlParams, function (error, results, fields) {
-            if(error) rej(false)
-            res(JSON.parse(JSON.stringify(results)))
-        });
-    })
+const getPickAll = async () =>{
+    const sql = "SELECT ??, ??, ?? ,?? FROM ?? WHERE ?? = ?"
+    const params = [`id`, `name`, `src_name`, `alt_text`, _TB_NAME_, `type_id`, 1]
+
+    return await execute({sql, params})
 }
 
 export async function medias_endpoint(req, res){
@@ -82,7 +68,6 @@ export async function medias_endpoint(req, res){
 
     let returnValue: any = undefined
 
-    //console.log(action, params)
     switch(action){
         case 'all':            
             returnValue = await getAll()
@@ -104,8 +89,7 @@ export async function medias_endpoint(req, res){
             returnValue = await getPickAll()
             res.status(200)
             break;
-
-        default:  res.status(404); break;
+        default: res.status(404); break;
     }
 
     res.send(returnValue)

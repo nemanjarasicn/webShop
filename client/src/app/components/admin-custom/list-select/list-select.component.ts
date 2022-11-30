@@ -10,11 +10,11 @@ import { FormGroup } from '@angular/forms';
 
 
 export class ListSelectComponent implements OnInit {
-  @Input() form: FormGroup;  
-  @Input() label: string
-  @Input() key: string
-  @Input() required: boolean
-  @Input() options!: {label: string, value: string}[]
+  @Input() form: FormGroup;
+  @Input() label: string;
+  @Input() key: string;
+  @Input() required: boolean;
+  @Input() options!: {label: string, value: string}[];
 
   constructor() { }
 

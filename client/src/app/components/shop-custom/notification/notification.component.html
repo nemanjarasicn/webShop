@@ -1,0 +1,11 @@
+<!-- notification product -->
+<div class="notification" [class.hide]="!active" id="dismiss">
+  <span (click)="dismiss()" class="btn-close" aria-hidden="true"></span>
+  <div class="media">
+    <div class="media-body">
+      <h5 class="mt-0 mb-1">Obaveštenje</h5>
+      {{text}}
+    </div>
+  </div>
+</div>
+<!-- notification product -->

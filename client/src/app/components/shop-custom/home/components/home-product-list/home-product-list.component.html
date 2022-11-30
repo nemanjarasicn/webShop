@@ -10,12 +10,12 @@
         <div class="col pr-0">
           <div class="product-slide-6 no-arrow">
             <ngx-slick-carousel class="carousel"
-                                #slickModal="slick-carousel"
-                                [config]="slideConfig"
-                                (init)="slickInit($event)"
-                                (breakpoint)="breakpoint($event)"
-                                (afterChange)="afterChange($event)"
-                                (beforeChange)="beforeChange($event)"
+              #slickModal="slick-carousel"
+              [config]="slideConfig"
+              (init)="slickInit($event)"
+              (breakpoint)="breakpoint($event)"
+              (afterChange)="afterChange($event)"
+              (beforeChange)="beforeChange($event)"
             >
               <div ngxSlickItem *ngFor="let product of products">
                 <app-list-single-product [product]="product"></app-list-single-product>

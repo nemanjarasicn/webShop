@@ -3,26 +3,28 @@
        <div class="row">
           <div class="col-12">
              <div class="navbar-menu row">
-                <div class="category-left col-12" style="width: 100%;"> 
+                <div class="category-left col-12" style="width: 100%;">
                    <div class=" nav-block">
                       <div class="nav-left">
-                         <nav class="navbar" data-bs-toggle="collapse" data-bs-target="#navbarToggleExternalContent">
-                            <button class="navbar-toggler" type="button">
-                               <span class="navbar-icon"><fa-icon icon="arrow-down"></fa-icon></span>
-                            </button>
-                            <h5 class="mb-0 ms-3 text-white title-font">Kupuj po kategorijama</h5>
+                         <nav class="navbar" [class.collapsed]="router.url !== '/shop'" data-bs-toggle="collapse" data-bs-target="#navbarToggleExternalContent">
+                          <fa-icon icon="arrow-down" class="icon-arrow-down"></fa-icon>
+                          <h5 class="mb-0 ms-3 text-white title-font">Kupuj po kategorijama</h5>
                          </nav>
-                         <div class="collapse show nav-desk" id="navbarToggleExternalContent">
+                         <div class="collapse nav-desk" id="navbarToggleExternalContent" [class.show]="router.url === '/shop'">
                             <ul class="nav-cat title-font">
                                 <li *ngFor="let li of categories">
                                     <a [routerLink]="['shop/search', {category_id: li.id}]" class="left-cat-a">
                                         <!--<img *ngIf="li.img_src" [src]="li.img_src" [alt]="'catergory-product, ' + li.label + ' , ' + li.alt_txt">-->
-                                        <div *ngIf="li.img_src" class="cat-img" [ngStyle]="{'background-image': 'url( '+ li.img_src +')'}"></div>
+                                        <div
+                                          *ngIf="li?.image?.src_name"
+                                          class="cat-img"
+                                          [ngStyle]="{'backgroundImage': 'url(\''+ li.image.src_name +'\') '}"
+                                        ></div>
                                         {{li.label}}
                                         <div class="featured " *ngIf="li.featured">
                                             <fa-icon icon="star"></fa-icon>
                                         </div>
-                                    </a>                                    
+                                    </a>
                                 </li>
                             </ul>
                          </div>
@@ -34,7 +36,7 @@
                             <div class="input-group ">
                                <span class="search" (click)="submitSearch()"><fa-icon icon="search"></fa-icon></span>
                                <input type="text" class="form-control" placeholder="Pretraži proizvod">
-                               <select>
+                               <select class="search-all-cats-select">
                                   <option value="">Sve kategorije</option>
                                   <option *ngFor="let opt of parentCategories" [value]="opt.id">{{opt.label}}</option>
                                </select>

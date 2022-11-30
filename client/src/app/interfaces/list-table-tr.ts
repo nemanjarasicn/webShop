@@ -1,6 +1,6 @@
-import { ListTableTd } from "./list-table-td";
+import { ListTableTd } from './list-table-td';
 
 export interface ListTableTr {
-    itemId: number
-    tds: ListTableTd[]
+    itemId: number;
+    tds: ListTableTd[];
 }

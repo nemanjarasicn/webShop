@@ -1,0 +1,15 @@
+<ng-container *ngIf="tbTr !== undefined">
+  <app-list
+    [title]="'Blog'"
+    [addNewTitle]="'Novi blog'"
+    [tbTh]="tbTh"
+    [form]="form"
+    (triggerPrepareEdit)="prepareEdit($event)"
+    (triggerInsert)="insertFunction($event)"
+    (triggerUpdate)="updateFunction($event)"
+    (triggerDelete)="deleteFunction($event)"
+    (triggerDeleteMediaLink)="deleteMediaLink($event)"
+  >
+  </app-list>
+</ng-container>
+<app-toast [toastActive]="toastActive" [toastText]="toastText"></app-toast>

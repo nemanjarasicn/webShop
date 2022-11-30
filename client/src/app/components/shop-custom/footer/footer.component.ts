@@ -6,10 +6,10 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./footer.component.scss']
 })
 export class FooterComponent implements OnInit {
-  curYear: number = new Date().getFullYear()
-  copyRightOwner: string = 'Besplatna dostava Kruševac'
-  poweredByName: string = 'Illusion'
-  developedByName: string = 'Silvertek Studio'
+  curYear: number = new Date().getFullYear();
+  copyRightOwner = 'Besplatna dostava Kruševac';
+  poweredByName = 'Illusion';
+  developedByName = 'Tech Booster';
   constructor() { }
 
   ngOnInit(): void {

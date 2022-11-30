@@ -1,0 +1,71 @@
+<!-- section start -->
+<section class="section-big-py-space blog-page ratio2_3">
+  <div class="custom-container">
+    <div class="row">
+
+      <!--Blog sidebar start-->
+      <div class="col-xl-3 col-lg-4 col-md-5">
+        <div class="blog-sidebar">
+            <div class="theme-card">
+              <h4>Pogledaj opet</h4>
+              <ul class="recent-blog">
+
+                <li *ngFor="let blog of recentBlogs">
+                  <a [routerLink]="['/shop/blog-single', blog.id]" routerLinkActive="$router_link-active$">
+                    <div class="media">
+                      <img
+                        class="img-fluid"
+                        [src]="blog?.image?.src_name || 'assets/images/noimg.png'"
+                        [alt]="blog?.image?.alt_text || blog.title"
+                      >
+                      <div class="media-body align-self-center">
+                        <h6>{{blog.published_date_day}} {{blog.published_date_month_txt}} {{blog.published_date_year}}</h6>
+                      </div>
+                    </div>
+                  </a>
+                </li>
+
+              </ul>
+            </div>
+        </div>
+      </div>
+      <!--Blog sidebar start-->
+
+      <!--Blog List start-->
+      <div class="col-xl-9 col-lg-8 col-md-7 order-sec">
+
+        <div class="row blog-media" *ngFor="let blog of blogs">
+          <div class="col-xl-6 ">
+            <div class="blog-left">
+              <a [routerLink]="['/shop/blog-single', blog.id]" routerLinkActive="$router_link-active$">
+                <img
+                  [src]="blog?.image?.src_name || 'assets/images/noimg.png'"
+                  [alt]="blog?.image?.alt_text || blog.title"
+                  class="img-fluid"
+                >
+              </a>
+              <div class="label-block">
+                <div class="date-label">
+                  {{blog.published_date_day}} {{blog.published_date_month_txt}} {{blog.published_date_year}}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-6 ">
+            <div class="blog-right">
+              <div>
+                <a [routerLink]="['/shop/blog-single', blog.id]" routerLinkActive="$router_link-active$">
+                  <h4>{{blog.title}}</h4>
+                </a>
+                <p>{{blog.short_desc}}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <!--Blog List start-->
+    </div>
+  </div>
+</section>
+<!-- Section ends -->

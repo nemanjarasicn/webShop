@@ -7,5 +7,6 @@ export enum FormTypes {
   RADIOBTN,
   TXTAREA,
   EMAIL,
-  PASSWORD
+  PASSWORD,
+  TEL
 }

@@ -17,13 +17,10 @@
             [product]="product"
             (triggerEdit)="catchEditEmit($event)"
             (triggerTrash)="catchTrashEmit($event)"
-            (triggerAddToCart)="catchTrashEmit($event)"
-            [type]="asideModalType.CART"
+            (triggerAddToCart)="catchAddToCartEmit($event)"
+            [type]="asideModalType.WHISLLIST"
           ></app-aside-modal-single-product>
         </li>
-      </ul>
-      <ul class="cart_total">
-        <app-aside-modal-pricing [productsSum]="productsSum" [type]="asideModalType.WHISLLIST"></app-aside-modal-pricing>
       </ul>
     </div>
   </div>

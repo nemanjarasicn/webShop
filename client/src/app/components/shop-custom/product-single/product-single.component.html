@@ -1,0 +1,287 @@
+<section class="section-big-pt-space b-g-light SingleProduct" *ngIf="product">
+  <div class="collection-wrapper">
+    <div class="custom-container">
+
+      <div class="row">
+        <div class="col-lg-3 col-sm-10 col-xs-12">
+          <div class="product-right-slick">
+
+            <div *ngIf="activeImg?.src && activeImg?.alt">
+              <img
+                [src]="activeImg.src"
+                [alt]="activeImg.alt"
+                [class]="'img-fluid  image_zoom_cls-0'"
+              />
+            </div>
+
+          </div>
+        </div>
+
+        <div class="col-lg-1 col-sm-2 col-xs-12">
+          <div class="row">
+            <div class="col-12 p-0">
+              <div class="slider-right-nav">
+
+                <div>
+                  <img
+                    [src]="product?.image.src_name || 'assets/images/noimg.png'"
+                    [alt]="product?.image.alt_text || product.name"
+                    [class]="'img-fluid  image_zoom_cls-0'"
+                    (click)="setActiveImg(
+                    product?.image.src_name || 'assets/images/noimg.png',
+                    product?.image.alt_text || product.name
+                    )"
+                  />
+                </div>
+                <ng-container *ngIf="product?.gallery.length > 0">
+                  <div *ngFor="let img of product?.gallery; let indexOfelement = index;">
+                    <img
+                      [src]="img?.src_name || 'assets/images/noimg.png'"
+                      [alt]="img?.alt_text || product.name"
+                      [class]="'img-fluid  image_zoom_cls-' + indexOfelement"
+                      (click)="setActiveImg(
+                      img?.src_name || 'assets/images/noimg.png',
+                      img?.alt_text || product.name
+                      )"
+                    />
+                  </div>
+                </ng-container>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="product-right product-description-box ">
+            <div class="pro-group">
+              <h2>{{product.name}}</h2>
+              <ul class="pro-price">
+                <li>{{product?.new_price || product.price}} RSD</li>
+                <ng-container *ngIf="product?.new_price && product?.new_price !== product.price">
+                  <li><span>{{product.price}} RSD</span></li>
+                  <li>{{product?.discount}}%</li>
+                </ng-container>
+              </ul>
+              <div class="revieu-box">
+                <ul>
+                  <app-assessment-stars [assessmentSum]="+product?.assessment?.sum"></app-assessment-stars>
+                </ul>
+                <a href="javascript:void(0)"><span>(broj ocena: {{product?.assessment?.num || 0}})</span></a>
+              </div>
+              <ul class="best-seller">
+                <li *ngIf="product?.featured">
+                  <fa-icon icon="medal"></fa-icon>
+                  Istaknuti proizvod
+                </li>
+                <li *ngIf="product?.product_category_name && product?.product_category_id">
+                  <fa-icon icon="stream"></fa-icon>
+                  <!-- TODO proveri za ovo !!! -->
+                  <a [routerLink]="['/shop/search', product.product_category_id]" routerLinkActive="$router_link-active$">
+                    {{product.product_category_name}}
+                  </a>
+                </li>
+
+              </ul>
+            </div>
+            <div class="pro-group">
+              <div class="product-offer">
+                <h6 class="product-title"><i class="fa fa-tags"></i>Opis</h6>
+                <div class="offer-contain">
+                  <ul>
+                    <li>
+                      <p>
+                        {{product.description}}
+                      </p>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="product-right product-form-box  product-right-exes">
+              <div id="selectSize" class="pro-group addeffect-section product-description border-product mb-0">
+
+                <h6 class="product-title size-text">
+                  <span>Opcije</span>
+                </h6>
+                <div class="size-box">
+                  <ul>
+                    <li *ngFor="let opt of product?.options" (click)="addOptionAddOn(opt.id)">
+                      <a href="javascript:void(0)">
+                        {{opt.name}}
+                        <span class="price">
+                          {{opt.price > 0 ? ' +' + opt.price + ' RSD ' : ' Besplatno '}}
+                        </span>
+                        <fa-icon [icon]="opt?.selected? 'check-circle' : 'plus-circle'"></fa-icon>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+
+                <h6 class="product-title">Količina</h6>
+                <div class="qty-box">
+                  <div class="input-group">
+                    <button class="qty-minus" (click)="minus()">
+                      <fa-icon icon="minus"></fa-icon>
+                    </button>
+                    <input class="qty-adj form-control" readonly type="number" [value]="qty"/>
+                    <button class="qty-plus" (click)="plus()">
+                      <fa-icon icon="plus"></fa-icon>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="price-container">
+                  Ukupno: <span>{{qty * (product?.new_price || product.price) + addOnsPrice}}</span> RSD
+                </div>
+
+                <div class="product-buttons">
+                  <a
+                    href="javascript:void(0)"
+                    id="cartEffect"
+                    class="btn cart-btn btn-normal tooltip-top"
+                    data-tippy-content="Dodaj u korpu"
+                    title="Dodaj u korpu"
+                    (click)="addToCart(product.id)"
+                  >
+                    <fa-icon icon="shopping-cart"></fa-icon>
+                    Dodaj u korpu
+                  </a>
+                  <a
+                    href="javascript:void(0)"
+                    class="btn btn-normal add-to-wish tooltip-top"
+                    data-tippy-content="Dodaj u listu želja"
+                    title="Dodaj u listu želja"
+                    (click)="addToWishlist(product.id)"
+                  >
+                    <fa-icon icon="heart"></fa-icon>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+</section>
+<!-- Section ends -->
+<!-- related products -->
+<section class="section-big-py-space  ratio_asos b-g-light SingleProductRelated">
+  <div class="custom-container">
+    <div class="row">
+      <div class="col-12 product-related">
+        <h2>Povezani proizvodi</h2>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12 product">
+        <div class="product-slide-6 product-m no-arrow">
+
+          <div *ngFor="let product of relatedProducts" class="related-product-item">
+            <div class="product-box">
+              <div class="product-imgbox">
+                <div class="product-front">
+                  <a
+                    [routerLink]="['/shop/product-single/', product.id]"
+                    routerLinkActive="router-link-active"
+                  >
+                    <img
+                      [src]="product?.image.src_name || 'assets/images/noimg.png'"
+                      class="img-fluid"
+                      [alt]="product?.image.alt_text || product.name"
+                    />
+                  </a>
+                </div>
+                <div class="product-back" *ngIf="product?.gallery.length > 1">
+                  <a
+                    [routerLink]="['/shop/product-single/', product.id]"
+                    routerLinkActive="router-link-active"
+                  >
+                    <img
+                      [src]="product.gallery[1].src_name || 'assets/images/noimg.png'"
+                      class="img-fluid"
+                      [alt]="product.gallery[1].alt_text || product.name"
+                    />
+                  </a>
+                </div>
+
+                <div class="product-icon icon-inline">
+                  <button
+                    type="button"
+                    data-bs-toggle="modal"
+                    data-bs-target="#addtocart"
+                    class="tooltip-top"
+                    data-tippy-content="Dodaj proizvod u korpu"
+                    title="Dodaj proizvod u korpu"
+                    (click)="addToCartRelated(product.id, 1)"
+                  >
+                    <fa-icon icon="shopping-cart"></fa-icon>
+                  </button>
+                  <a
+                    href="javascript:void(0)"
+                    class="add-to-wish tooltip-top"
+                    data-tippy-content="Dodaj u listu želja"
+                    title="Dodaj u listu želja"
+                    (click)="addToWishlist(product.id)"
+                  >
+                    <fa-icon icon="heart"></fa-icon>
+                  </a>
+                  <a
+                    href="javascript:void(0)"
+                    data-bs-toggle="modal"
+                    data-bs-target="#quick-view"
+                    class="tooltip-top"
+                    data-tippy-content="Brzi pregled"
+                    title="Brzi pregled"
+                    (click)="setProductQV(product.id)"
+                  >
+                    <fa-icon icon="eye"></fa-icon>
+                  </a>
+                </div>
+
+              </div>
+              <div class="product-detail detail-inline ">
+                <div class="detail-title">
+                  <div class="detail-left">
+                    <div class="rating-star">
+                      <app-assessment-stars [assessmentSum]="+product?.assessment?.sum"></app-assessment-stars>
+                    </div>
+                    <a
+                      [routerLink]="['/shop/product-single/', product.id]"
+                      routerLinkActive="router-link-active"
+                    >
+                      <h6 class="price-title">
+                        {{product.name}}
+                      </h6>
+                    </a>
+                  </div>
+                  <div class="detail-right">
+                    <div class="check-price" *ngIf="product?.new_price && product?.new_price !== product.price">
+                      {{product.price}} RSD
+                    </div>
+                    <div class="price">
+                      <div class="price">
+                        {{
+                          product?.new_price && product.new_price !== product.price ?
+                          product.new_price :
+                          product.price
+                        }} RSD
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- related products -->
+
+<app-quick-view-product></app-quick-view-product>

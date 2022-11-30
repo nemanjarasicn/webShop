@@ -7,35 +7,35 @@ import { PickMedia } from '../interfaces/pick-media';
 })
 export class ListService{
 
-  singleItem$: BehaviorSubject<any> =  new BehaviorSubject(null)
-  trTd$: BehaviorSubject<any> =  new BehaviorSubject(null)
+  singleItem$: BehaviorSubject<any> =  new BehaviorSubject(null);
+  trTd$: BehaviorSubject<any> =  new BehaviorSubject(null);
 
-  //media
-  pickedMedia$: BehaviorSubject<PickMedia> =  new BehaviorSubject(null)
+  // media
+  pickedMedia$: BehaviorSubject<PickMedia> =  new BehaviorSubject(null);
 
   constructor() { }
 
   subscribeSingleItem(): Observable<any>{
-    return this.singleItem$
+    return this.singleItem$;
   }
 
   setSingleItem(value: any): void{
-    this.singleItem$.next(value)
+    this.singleItem$.next(value);
   }
 
   subscribeTrTd(): Observable<any>{
-    return this.trTd$
+    return this.trTd$;
   }
 
   setTrTd(value: any): void{
-    this.trTd$.next(value)
+    this.trTd$.next(value);
   }
 
   subscribePickMedia(): Observable<PickMedia>{
-    return this.pickedMedia$
+    return this.pickedMedia$;
   }
 
   setPickMedia(pickedMedia: PickMedia): void{
-    this.pickedMedia$.next(pickedMedia)
+    this.pickedMedia$.next(pickedMedia);
   }
 }

@@ -1,23 +1,29 @@
 export interface Category {
-    name: string,
-    featured: 0 | 1,
-    parent_cat?: number,
-    image?: string
+    name: string;
+    featured: 0 | 1;
+    parent_cat?: number;
+    image?: string;
 }
 
 export interface CategoryBasic{
-    id: number,
-    label: string,
-    img_src?: string,
-    alt_text?: string,
+    id: number;
+    label: string;
+    image: {
+      id: number,
+      src_name: string;
+      alt_text?: string;
+    };
 }
 
 export interface CategoryMenu{
-    id: number,
-    label: string,
-    parent: boolean,
-    featured: boolean,
-    img_src?: string,
-    alt_txt?: string,
-    children?: CategoryMenu[]
+    id: number;
+    label: string;
+    parent: boolean;
+    featured: boolean;
+    image: {
+        id: number,
+        src_name: string;
+        alt_text?: string;
+    };
+    children?: CategoryMenu[];
 }

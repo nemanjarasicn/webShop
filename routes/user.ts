@@ -1,64 +1,32 @@
+import { execute } from './db/mysql'
+import {giveAccess, killCookie, simpleVerifyJWT} from "./jwt/jwt";
+import {IUser} from "./Interfaces/user.interface";
 
-import { pool } from './db/mysql'
-
-const _TB_NAME = "`user`"
-
-const setSession = (req, user_id: number, time: number): void =>{
-    req.session.cookie.expires = new Date(Date.now() + time)
-    req.session.cookie.maxAge = time
-    req.session.logged = true
-    req.session.userid = user_id
-}
-
-const makeSession = (req, user_id: number) =>{
-    const hour = 3600000
-    setSession(req, user_id, hour)
-}
-
-const saveMe = (req, user_id: number) =>{
-    const year = Number(3600000 * 24 * 365)
-    setSession(req, user_id, year)
-}
+const _TB_NAME = `user`
 
 const getUserData = async (user_id: number) =>{
-    return new Promise((res, rej)=>{
-        const sql: string = "SELECT `id`, `username`, `firstname`, `lastname`, `rule_id`, `phone`, `email`  FROM " + _TB_NAME + " WHERE `id` = ?";
-        const queryParams: Array<any> = [user_id]
-         pool.query(sql, queryParams, function (error, results, fields) {
-            if(error) rej(false)
-            res(JSON.parse(JSON.stringify([true, results[0]] || [false, null])))
-        });
-    })
+    const sql: string = "SELECT ??, ??, ??, ??, ??, ??, ??  FROM ?? WHERE ?? = ?";
+    const params = [`id`, `username`, `firstname`, `lastname`, `rule_id`, `phone`, `email`, _TB_NAME, `id`, user_id]
+
+    return execute({sql, params, single: true})
 }
 
-const logout = (req): Promise<boolean> => {
-    return new Promise ((res, rej)=>{
-        req.session.destroy((err) => {
-            if(err) {
-                console.log(err);
-                return rej(false)
-            }
-            res(true)
-        });
-    })
+const login = async (params: {username: string, password: string, save_me: boolean}) =>{
+    const sql = `SELECT ??, ??, ??, ??, ??, ??, ??  FROM ?? WHERE ?? = ? AND ?? = ? AND ?? = SHA2(?, 256)`
+    const queryParams = [`id`, `username`, `firstname`, `lastname`, `rule_id`, `phone`, `email`, _TB_NAME, `rule_id`, 1, `username`, params.username, `password`, params.password]
+
+    return await execute({sql, params: queryParams, single: true}) as IUser
 }
 
-const login = async(params: {username: string, password: string, save_me: boolean}, req) =>{
-    const sql: string = "SELECT `id`, `username`, `firstname`, `lastname`, `rule_id`, `phone`, `email`  FROM " + _TB_NAME + " WHERE `rule_id` = ? AND `username` = ? AND `password` = SHA2(?, 256)";
-    const queryParams: Array<any> = [1, params.username, params.password]
-    let user: any = await new Promise((res, rej)=>{
-         pool.query(sql, queryParams, function (error, results, fields) {
-            if(error) rej(false)
-            res(JSON.parse(JSON.stringify(results[0] || false)))
-        });
-     })
+const stillLogged = async (req): Promise<IUser | false> => {
+    const token = req.session.jwt
+    const payload = token? simpleVerifyJWT(token) : false as {user_id: number} | false
 
-    if(user !== false) {
-        makeSession(req, user.id)
-        if(params.save_me) saveMe(req, user.id)
+    if(payload){
+        return await getUserData(payload.user_id) as IUser
     }
-    
-    return user
+
+    return false
 }
 
 export async function user_endpoint(req, res){
@@ -67,20 +35,19 @@ export async function user_endpoint(req, res){
 
     switch(action){
         case 'isAlreadyLogged':
-            if(req.session.userid !== undefined && req.session.logged === true){
-                returnValue = await getUserData(req.session.cookie.userid || req.session.userid)
-            }else returnValue = [false, null]
+            returnValue = await stillLogged(req)
             res.status(200)
             break;
         case 'login': 
-            returnValue = await login(req.body, req);
+            returnValue = await login(req.body);
+            if(returnValue?.id) giveAccess(req, {user_id: returnValue.id})
             res.status(200);
             break;
         case 'logout':
-            returnValue = await logout(req);
+            killCookie(req)
+            returnValue = true
             res.status(200);
-        break
-
+            break;
         default:  res.status(404); break;
     }
 

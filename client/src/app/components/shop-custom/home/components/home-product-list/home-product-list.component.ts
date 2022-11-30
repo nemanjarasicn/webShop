@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ProductSingle } from 'src/app/interfaces/product';
 import { ProductsService } from 'src/app/services/products.service';
+import {ProductEnumSingleArr} from "../../../../../../../../routes/enums/product-enum";
 
 @Component({
   selector: 'app-home-product-list',
@@ -57,7 +58,7 @@ export class HomeProductListComponent implements OnInit {
 
   ngOnInit(): void {
     // get products
-    this.productService.getAllProductByCustom(0).then((prods: ProductSingle[]) => {
+    this.productService.getAllProductByCustom(ProductEnumSingleArr.BEST_ASSESSMENT, {limit: 15}).then((prods: ProductSingle[]) => {
       this.products = prods;
     });
   }

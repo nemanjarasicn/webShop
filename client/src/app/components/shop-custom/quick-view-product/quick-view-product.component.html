@@ -3,11 +3,11 @@
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
        <div class="modal-content quick-view-modal">
           <div class="modal-body">
-             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zatvori"></button>
+             <button type="button" #closeModalRef class="btn-close" data-bs-dismiss="modal" aria-label="Zatvori"></button>
              <div class="row" *ngIf="product">
                 <div class="col-lg-6 col-xs-12">
                    <div class="quick-view-img">
-                      <img [src]="activeMainImg" [alt]="product?.gallery[0]?.alt_text" class="img-fluid bg-img">
+                      <img [src]="activeMainImg || 'assets/images/noimg.png'" [alt]="product?.gallery[0]?.alt_text || 'nema slike'" class="img-fluid bg-img">
                    </div>
                 </div>
                 <div class="col-lg-6 rtl-text">
@@ -17,19 +17,17 @@
                             {{product.name}}
                          </h2>
                          <ul class="pro-price">
-                            <li>{{product?.new_price || product.price}} din.</li>
-                            <li *ngIf="product?.new_price && product?.new_price !==  product.price"><span>{{product.price}} din.</span></li>
+                            <li>{{product?.new_price || product.price}} RSD</li>
+                            <li *ngIf="product?.new_price && product?.new_price !==  product.price"><span>{{product.price}} RSD</span></li>
                             <li *ngIf="product?.discount">{{product.discount}}% </li>
                          </ul>
                          <div class="revieu-box">
                             <ul>
-                                <fa-icon icon="star" [ngStyle]="{'color': +product?.assessment?.sum === 1? 'yellow': '#ddd'}"></fa-icon>
-                                <fa-icon icon="star" [ngStyle]="{'color': +product?.assessment?.sum === 2? 'yellow': '#ddd'}"></fa-icon>
-                                <fa-icon icon="star" [ngStyle]="{'color': +product?.assessment?.sum === 3? 'yellow': '#ddd'}"></fa-icon>
-                                <fa-icon icon="star" [ngStyle]="{'color': +product?.assessment?.sum === 4? 'yellow': '#ddd'}"></fa-icon>
-                                <fa-icon icon="star" [ngStyle]="{'color': +product?.assessment?.sum === 5? 'yellow': '#ddd'}"></fa-icon>
+                              <app-assessment-stars [assessmentSum]="+product?.assessment?.sum"></app-assessment-stars>
                             </ul>
-                            <a [routerLink]="['/shop/product', {id: product.id, review: true}]" routerLinkActive="router-link-active"><span>(broj ocena: {{product?.assessment?.num || 0}})</span></a>
+                            <a [routerLink]="['/shop/product-single', product.id]" routerLinkActive="router-link-active">
+                              <span>(broj ocena: {{product?.assessment?.num || 0}})</span>
+                            </a>
                          </div>
                          <!--<ul class="best-seller">
                             <li>
@@ -49,7 +47,13 @@
                       <div class="pro-group" *ngIf="gallery?.length > 0">
                         <h6 class="product-title">Galerija</h6>
                         <div class="gallery">
-                            <img *ngFor="let img of gallery" [src]="img.src_name" [alt]="img?.alt_text" (click)="setActiveMainImg(img.src_name)" style="cursor: pointer;">
+                            <img
+                             *ngFor="let img of gallery"
+                             [src]="img?.src_name || 'assets/images/noimg.png'"
+                             [alt]="img?.alt_text || 'nema slike'"
+                             (click)="setActiveMainImg(img?.src_name)"
+                             [style]="{cursor: img?.src_name? 'pointer': 'no-drop'}"
+                            />
                         </div>
                      </div>
                       <div class="pro-group pb-0">
@@ -104,11 +108,11 @@
                          <h6 class="product-title">Količina</h6>
                          <div class="qty-box">
                             <div class="input-group">
-                               <button class="qty-minus" (click)="minus()">
+                               <button class="qty-minus" type="button" (click)="minus()">
                                 <fa-icon icon="minus"></fa-icon>
                                </button>
-                               <input class="qty-adj form-control" type="number" value="1">
-                               <button class="qty-plus" (click)="plus()">
+                               <input class="qty-adj form-control" type="number" [value]="qty">
+                               <button class="qty-plus" (click)="plus()" type="button">
                                    <fa-icon icon="plus"></fa-icon>
                                </button>
                             </div>
@@ -118,7 +122,7 @@
                                <fa-icon icon="shopping-cart"></fa-icon>
                                Dodaj u korpu
                             </a>
-                            <a [routerLink]="['/shop/product', {id: product.id}]" routerLinkActive="router-link-active" class="btn btn-normal tooltip-top"  title="Vidi detaljnije">
+                            <a [routerLink]="['/shop/product-single', product.id]" routerLinkActive="router-link-active" class="btn btn-normal tooltip-top"  title="Vidi detaljnije">
                                 Vidi detaljnije
                             </a>
                          </div>

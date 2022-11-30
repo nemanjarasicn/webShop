@@ -1,6 +1,6 @@
-import { ListTableTdType } from "../enums/list-table-td-type.enum";
+import { ListTableTdType } from '../enums/list-table-td-type.enum';
 
 export interface ListTableTd {
-    type: ListTableTdType
-    value: string
+    type: ListTableTdType;
+    value: any; // TODO ADD PROPER INTERFACE
 }

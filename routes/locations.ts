@@ -1,65 +1,38 @@
-import { pool } from './db/mysql'
+import { execute } from './db/mysql'
 
-const _TB_NAME_ = "`location`"
+const _TB_NAME_ = "location"
 
-const getAll = () =>{
-    return new Promise((res, rej)=>{
-        const sql = "SELECT * FROM " + _TB_NAME_
-        
-        pool.query(sql, function (error, results, fields) {
-            if(error) rej(false)
-            res(JSON.parse(JSON.stringify(results || [])))
-        });
-    })
+const getAll = async () =>{
+    const sql = "SELECT * FROM " + _TB_NAME_
+    return await execute({sql})
 }
 
-const getSingle = (id: number) => {
-    return new Promise((res, rej)=>{
-        const sql = "SELECT * FROM " + _TB_NAME_ +
-        " WHERE `id` = ? " 
-        const queryParams = [id]
+const getSingle = async (id: number) => {
+    const sql = `SELECT * FROM ?? WHERE ?? = ?`
+    const params = [_TB_NAME_,'id', id]
 
-        pool.query(sql, queryParams, function (error, results, fields) {
-            if(error) rej(false)
-            res(JSON.parse(JSON.stringify(results[0] || null)))
-        });
-    })
+    return await execute({sql, params, single: true})
 }
 
-const deleteItem = (id: number) => {
-    return new Promise((res, rej)=>{
-        const sql = "DELETE FROM " + _TB_NAME_ + " WHERE `id` = ? "
-        const queryParams = [id]
+const deleteItem = async (id: number) => {
+    const sql = "DELETE FROM ?? WHERE ?? = ?"
+    const params = [_TB_NAME_, 'id', id]
 
-        pool.query(sql, queryParams, function (error, results, fields) {
-            if(error) rej(false)
-            res(JSON.parse(JSON.stringify(true)))
-        });
-    })
+    return await execute({sql, params})
 }
 
-const update = (params: {name: string, delivery_tax: number | null, id: number}) =>{
-    return new Promise((res, rej)=>{
-        const sql = "UPDATE " + _TB_NAME_ + "  SET `name` = ?, `delivery_tax` = ? WHERE `id` = ?"
-        const queryParams = [params.name, params.delivery_tax, params.id]
+const update = async (params: {name: string, delivery_tax: number | null, id: number}) =>{
+    const sql = "UPDATE ??  SET ?? = ?, ?? = ? WHERE ?? = ?"
+    const queryParams = [_TB_NAME_, `name`, params.name, `delivery_tax`, params.delivery_tax, `id`, params.id]
 
-        pool.query(sql, queryParams, function (error, results, fields) {
-            if(error) rej(false)
-            res(JSON.parse(JSON.stringify(true)))
-        });
-    })
+    return await execute({sql, params: queryParams})
 }
 
-const insert = (params: {name: string, delivery_tax: number | null}) =>{
-    return new Promise((res, rej)=>{
-        const sql = "INSERT INTO " + _TB_NAME_ + " (`name`, `delivery_tax`) VALUES ( ?, ? )"
-        const queryParams = [params.name, params.delivery_tax]
+const insert = async (params: {name: string, delivery_tax: number | null}) =>{
+    const sql = `INSERT INTO ?? (??, ??) VALUES ( ?, ? )`
+    const qParams = [_TB_NAME_, `name`, `delivery_tax`, params.name, params.delivery_tax]
 
-        pool.query(sql, queryParams, function (error, results, fields) {
-            if(error) rej(false)
-            res(JSON.parse(JSON.stringify(true)))
-        });
-    })
+    return await execute({sql, params: qParams})
 }
 
 export async function locations_endpoint(req, res){
@@ -67,7 +40,6 @@ export async function locations_endpoint(req, res){
     const params = req.body
     let returnValue: any = undefined
 
-    console.log(action, params)
     switch(action){
         case 'all':            
             returnValue = await getAll()
@@ -89,8 +61,7 @@ export async function locations_endpoint(req, res){
             returnValue = await getSingle(params.id)
             res.status(200)
             break;
-
-        default:  res.status(404); break;
+        default: res.status(404); break;
     }
 
     res.send(returnValue)

@@ -38,62 +38,66 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 exports.locations_endpoint = void 0;
 var mysql_1 = require("./db/mysql");
-var _TB_NAME_ = "`location`";
-var getAll = function () {
-    return new Promise(function (res, rej) {
-        var sql = "SELECT * FROM " + _TB_NAME_;
-        mysql_1.pool.query(sql, function (error, results, fields) {
-            if (error)
-                rej(false);
-            res(JSON.parse(JSON.stringify(results || [])));
-        });
+var _TB_NAME_ = "location";
+var getAll = function () { return __awaiter(void 0, void 0, void 0, function () {
+    var sql;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                sql = "SELECT * FROM " + _TB_NAME_;
+                return [4 /*yield*/, mysql_1.execute({ sql: sql })];
+            case 1: return [2 /*return*/, _a.sent()];
+        }
     });
-};
-var getSingle = function (id) {
-    return new Promise(function (res, rej) {
-        var sql = "SELECT * FROM " + _TB_NAME_ +
-            " WHERE `id` = ? ";
-        var queryParams = [id];
-        mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
-            if (error)
-                rej(false);
-            res(JSON.parse(JSON.stringify(results[0] || null)));
-        });
+}); };
+var getSingle = function (id) { return __awaiter(void 0, void 0, void 0, function () {
+    var sql, params;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                sql = "SELECT * FROM ?? WHERE ?? = ?";
+                params = [_TB_NAME_, 'id', id];
+                return [4 /*yield*/, mysql_1.execute({ sql: sql, params: params, single: true })];
+            case 1: return [2 /*return*/, _a.sent()];
+        }
     });
-};
-var deleteItem = function (id) {
-    return new Promise(function (res, rej) {
-        var sql = "DELETE FROM " + _TB_NAME_ + " WHERE `id` = ? ";
-        var queryParams = [id];
-        mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
-            if (error)
-                rej(false);
-            res(JSON.parse(JSON.stringify(true)));
-        });
+}); };
+var deleteItem = function (id) { return __awaiter(void 0, void 0, void 0, function () {
+    var sql, params;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                sql = "DELETE FROM ?? WHERE ?? = ?";
+                params = [_TB_NAME_, 'id', id];
+                return [4 /*yield*/, mysql_1.execute({ sql: sql, params: params })];
+            case 1: return [2 /*return*/, _a.sent()];
+        }
     });
-};
-var update = function (params) {
-    return new Promise(function (res, rej) {
-        var sql = "UPDATE " + _TB_NAME_ + "  SET `name` = ?, `delivery_tax` = ? WHERE `id` = ?";
-        var queryParams = [params.name, params.delivery_tax, params.id];
-        mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
-            if (error)
-                rej(false);
-            res(JSON.parse(JSON.stringify(true)));
-        });
+}); };
+var update = function (params) { return __awaiter(void 0, void 0, void 0, function () {
+    var sql, queryParams;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                sql = "UPDATE ??  SET ?? = ?, ?? = ? WHERE ?? = ?";
+                queryParams = [_TB_NAME_, "name", params.name, "delivery_tax", params.delivery_tax, "id", params.id];
+                return [4 /*yield*/, mysql_1.execute({ sql: sql, params: queryParams })];
+            case 1: return [2 /*return*/, _a.sent()];
+        }
     });
-};
-var insert = function (params) {
-    return new Promise(function (res, rej) {
-        var sql = "INSERT INTO " + _TB_NAME_ + " (`name`, `delivery_tax`) VALUES ( ?, ? )";
-        var queryParams = [params.name, params.delivery_tax];
-        mysql_1.pool.query(sql, queryParams, function (error, results, fields) {
-            if (error)
-                rej(false);
-            res(JSON.parse(JSON.stringify(true)));
-        });
+}); };
+var insert = function (params) { return __awaiter(void 0, void 0, void 0, function () {
+    var sql, qParams;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                sql = "INSERT INTO ?? (??, ??) VALUES ( ?, ? )";
+                qParams = [_TB_NAME_, "name", "delivery_tax", params.name, params.delivery_tax];
+                return [4 /*yield*/, mysql_1.execute({ sql: sql, params: qParams })];
+            case 1: return [2 /*return*/, _a.sent()];
+        }
     });
-};
+}); };
 function locations_endpoint(req, res) {
     return __awaiter(this, void 0, void 0, function () {
         var action, params, returnValue, _a;
@@ -103,7 +107,6 @@ function locations_endpoint(req, res) {
                     action = req.params.action;
                     params = req.body;
                     returnValue = undefined;
-                    console.log(action, params);
                     _a = action;
                     switch (_a) {
                         case 'all': return [3 /*break*/, 1];

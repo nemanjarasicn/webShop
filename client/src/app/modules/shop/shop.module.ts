@@ -24,9 +24,10 @@ import { AsideModalSingleProductComponent } from '../../components/shop-custom/a
 import { AsideModalPricingComponent } from '../../components/shop-custom/aside-modal-pricing/aside-modal-pricing.component';
 import { ListSingleProductComponent } from '../../components/shop-custom/home/components/list-single-product/list-single-product.component';
 import {
-  faPhone, faAt, faClock, faAngleRight, faBars, faSearch, faUser, faShoppingCart,
-  faEye, faPlus, faMinus, faCheck,  faTimes, faTrashAlt, faEdit, faCartPlus,  faHeart,
-  faStar, faArrowDown, faMapMarker,  faEnvelopeOpen, faEnvelopeOpenText, faFax, faAngleDoubleRight
+  faPhone, faAt, faClock, faAngleRight, faBars, faSearch, faUser, faShoppingCart, faMedal, faSignInAlt,
+  faEye, faPlus, faMinus, faCheck, faTimes, faTrashAlt, faEdit, faCartPlus, faHeart, faStream,
+  faStar, faArrowDown, faMapMarker, faEnvelopeOpen, faEnvelopeOpenText, faFax, faAngleDoubleRight, faQuestion,
+  faCheckCircle, faPlusCircle
 } from '@fortawesome/free-solid-svg-icons';
 import { faFacebookF, faInstagram } from '@fortawesome/free-brands-svg-icons';
 import { FaIconLibrary, FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -38,7 +39,17 @@ import { WishlistAsideModalService } from 'src/app/services/wishlist-aside-modal
 import {AccountAsideModalService} from '../../services/account-aside-modal.service';
 import {CartAsideProductService} from '../../services/cart-aside-product.service';
 import {RegisterComponent} from '../../components/shop-custom/register/register.component';
-import {ReactiveFormsModule} from "@angular/forms";
+import {ReactiveFormsModule} from '@angular/forms';
+import {NotificationService} from '../../services/notification.service';
+import {NotificationComponent} from '../../components/shop-custom/notification/notification.component';
+import {CartService} from '../../services/cart.service';
+import {CartCheckoutComponent} from '../../components/shop-custom/cart-checkout/cart-checkout.component';
+import {CartPreviewComponent} from '../../components/shop-custom/cart-preview/cart-preview.component';
+import {BlogService} from '../../services/blog.service';
+import {BlogSingleComponent} from '../../components/shop-custom/blog-single/blog-single.component';
+import {BlogsComponent} from '../../components/shop-custom/blogs/blogs.component';
+import {ProductSingleComponent} from '../../components/shop-custom/product-single/product-single.component';
+import {AssessmentStarsComponent} from '../../components/shop-custom/assessment-stars/assessment-stars.component';
 
 
 @NgModule({
@@ -55,6 +66,7 @@ import {ReactiveFormsModule} from "@angular/forms";
     HomeImageGroup1Component,
     HomeProductListComponent,
     ListSingleProductComponent,
+    AssessmentStarsComponent,
     HomeDiscountsListComponent,
     HomeCategorySliderComponent,
     QuickViewProductComponent,
@@ -62,10 +74,16 @@ import {ReactiveFormsModule} from "@angular/forms";
     ProductAsideModalComponent,
     WishlistAsideModalComponent,
     AccountAsideModalComponent,
+    ProductSingleComponent,
     CartAsideModalComponent,
     AsideModalSingleProductComponent,
     AsideModalPricingComponent,
-    RegisterComponent
+    RegisterComponent,
+    NotificationComponent,
+    CartCheckoutComponent,
+    CartPreviewComponent,
+    BlogsComponent,
+    BlogSingleComponent
   ],
   imports: [
     AppRoutingModule,
@@ -74,15 +92,25 @@ import {ReactiveFormsModule} from "@angular/forms";
     SlickCarouselModule,
     ReactiveFormsModule
   ],
-  providers: [QuickViewProductService, ProductsService, WishlistAsideModalService, AccountAsideModalService, CartAsideProductService]
+  providers: [
+    QuickViewProductService,
+    ProductsService,
+    WishlistAsideModalService,
+    AccountAsideModalService,
+    CartAsideProductService,
+    NotificationService,
+    CartService,
+    BlogService
+  ]
 })
 export class ShopModule {
   constructor(library: FaIconLibrary) {
     // Add an icon to the library for convenient access in other components
     library.addIcons(
-      faClock, faAt, faPhone, faAngleRight, faBars, faSearch, faUser, faPlus, faTimes, faMinus,
+      faClock, faAt, faPhone, faAngleRight, faBars, faSearch, faUser, faPlus, faTimes, faMinus, faSignInAlt, faStream,
       faShoppingCart, faTrashAlt, faEdit, faHeart, faEye, faEnvelopeOpenText, faCheck, faStar,
-      faArrowDown, faMapMarker, faEnvelopeOpen, faFax, faFacebookF, faInstagram, faCartPlus, faAngleDoubleRight
+      faArrowDown, faMapMarker, faEnvelopeOpen, faFax, faFacebookF, faInstagram, faCartPlus, faAngleDoubleRight,
+      faQuestion, faMedal, faQuestion, faMedal
     );
   }
 }

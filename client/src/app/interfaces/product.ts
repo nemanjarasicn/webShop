@@ -10,20 +10,30 @@ export interface ProductTbTr {
     assessment: number;
 }
 
+export interface IProductImage {
+  id: number;
+  src_name: string;
+  alt_text?: string;
+}
+
+export interface IProductOption {
+  id: number;
+  name: string;
+  price?: number;
+  selected?: boolean;
+}
+
 export interface ProductSingle{
     id: number;
     name: string;
-    image?: {
-        id: number,
-        src_name: string,
-        alt_text?: string
-    }[];
+    image?: IProductImage;
     description?: string;
     featured: number;
     active: number;
     discount_id?: number;
     discount?: number;
     product_category_id?: number;
+    product_category_name?: string;
     price: string;
     new_price?: string;
     barcode?: string;
@@ -33,11 +43,8 @@ export interface ProductSingle{
         num: number,
         sum: number
     };
-    gallery?: {
-        id: number,
-        src_name: string,
-        alt_text?: string
-    }[];
+    gallery?: IProductImage[];
+    options?: IProductOption[];
 }
 
 export interface ProductAsideModal{
@@ -45,8 +52,13 @@ export interface ProductAsideModal{
   new_price?: number;
   price: number;
   name: string;
-  image: string;
-  alt_text?: string;
+  image?: IProductImage;
   discount: number;
   qty?: number;
+}
+
+export interface StorageProducts{
+  productID: number;
+  qty?: number;
+  options?: IProductOption[];
 }

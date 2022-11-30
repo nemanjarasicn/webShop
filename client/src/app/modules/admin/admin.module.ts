@@ -17,15 +17,15 @@ import { ListSelectComponent } from '../../components/admin-custom/list-select/l
 import { ShowFullMediaComponent } from '../../components/admin-custom/show-full-media/show-full-media.component';
 import { PickMediaComponent } from '../../components/admin-custom/pick-media/pick-media.component';
 import { FontAwesomeModule, FaIconLibrary } from '@fortawesome/angular-fontawesome';
-import { 
+import {
   faUserCircle, faWindowMaximize, faTachometerAlt, faStore, faChevronRight, faReceipt, faSignOutAlt, faEnvelopeOpenText,
   faThList, faPercent, faList, faPlusCircle, faPhotoVideo, faEdit, faTrashAlt, faToggleOff, faToggleOn,
-  faMapMarkedAlt, faUsers, faImages, faBox, faComment, faCubes, faNewspaper, faLayerGroup
- } from '@fortawesome/free-solid-svg-icons';
+  faMapMarkedAlt, faUsers, faImages, faBox, faComment, faCubes, faNewspaper, faLayerGroup, faTimes
+} from '@fortawesome/free-solid-svg-icons';
 import { ProductsService } from 'src/app/services/products.service';
 import { ListSelectService } from 'src/app/services/list-select.service';
 import { ListService } from 'src/app/services/list.service';
-import { DataTablesModule } from "angular-datatables";
+import { DataTablesModule } from 'angular-datatables';
 import { DiscountsComponent } from '../../components/admin-custom/discounts/discounts.component';
 import { ToastComponent } from '../../components/admin-custom/toast/toast.component';
 import { LocationsComponent } from '../../components/admin-custom/locations/locations.component';
@@ -33,6 +33,14 @@ import { LocationsService } from 'src/app/services/locations.service';
 import { MediaComponent } from '../../components/admin-custom/media/media.component';
 import { StoreComponent } from 'src/app/components/admin-custom/store/store.component';
 import { MediaService } from 'src/app/services/media.service';
+import {ProductCombinationsComponent} from '../../components/admin-custom/product-combinations/product-combinations.component';
+import {AddOnComponent} from '../../components/admin-custom/add-on/add-on.component';
+import {BillsComponent} from '../../components/admin-custom/bills/bills.component';
+import {BlogComponent} from '../../components/admin-custom/blog/blog.component';
+import {NewsletterComponent} from '../../components/admin-custom/newsletter/newsletter.component';
+import {ProductAddOnService} from '../../services/product-add-on.service';
+import {ProductCombinationsService} from '../../services/product-combinations.service';
+import {BlogService} from "../../services/blog.service";
 
 @NgModule({
   declarations: [
@@ -51,7 +59,12 @@ import { MediaService } from 'src/app/services/media.service';
     MediaComponent,
     ShowFullMediaComponent,
     PickMediaComponent,
-    StoreComponent
+    StoreComponent,
+    ProductCombinationsComponent,
+    AddOnComponent,
+    BillsComponent,
+    BlogComponent,
+    NewsletterComponent
   ],
   imports: [
     AppRoutingModule,
@@ -61,13 +74,22 @@ import { MediaService } from 'src/app/services/media.service';
     FormsModule,
     ReactiveFormsModule,
     FontAwesomeModule
-    
   ],
-  providers: [AdminService, ProductsService, ListService, ListSelectService, LocationsService, MediaService],
+  providers: [
+    AdminService,
+    ProductsService,
+    ListService,
+    ListSelectService,
+    LocationsService,
+    MediaService,
+    ProductAddOnService,
+    ProductCombinationsService,
+    BlogService
+  ],
 })
 export class AdminModule {
   constructor(library: FaIconLibrary) {
     // Add an icon to the library for convenient access in other components
-    library.addIcons(faUserCircle, faImages, faUsers, faComment, faEnvelopeOpenText, faMapMarkedAlt, faWindowMaximize, faNewspaper, faLayerGroup, faTachometerAlt, faStore, faCubes, faChevronRight, faBox, faReceipt, faSignOutAlt, faThList, faPercent, faList, faPlusCircle, faPhotoVideo, faEdit, faTrashAlt, faToggleOff, faToggleOn);
-  } 
+    library.addIcons(faUserCircle, faImages, faUsers, faComment, faEnvelopeOpenText, faTimes, faMapMarkedAlt, faWindowMaximize, faNewspaper, faLayerGroup, faTachometerAlt, faStore, faCubes, faChevronRight, faBox, faReceipt, faSignOutAlt, faThList, faPercent, faList, faPlusCircle, faPhotoVideo, faEdit, faTrashAlt, faToggleOff, faToggleOn);
+  }
 }

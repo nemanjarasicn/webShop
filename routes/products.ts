@@ -1,615 +1,531 @@
-import { pool } from './db/mysql'
+import { execute } from './db/mysql'
+import {ProductEnumSingle, ProductEnumSingleArr} from "./enums/product-enum";
+import * as productAddOn from "./productAddOn";
 
-const _TB_NAME_PRODUCTS = "`product`"
-const _TB_NAME_PRODUCTS_MEDIA = "`product_media`"
-const _TB_NAME_CATEGORY = "`product_category`"
-const _TB_NAME_CATEGORY_MEDIA = "`category_media`"
-const _TB_NAME_MEDIA = "`media`"
-const _TB_NAME_DISCOUNT = "`discount`"
-const _TB_NAME_ASSESSMENT = "`product_assessment`"
+const _TB_NAME_PRODUCTS = "product"
+const _TB_NAME_PRODUCTS_MEDIA = "product_media"
+const _TB_NAME_CATEGORY = "product_category"
+const _TB_NAME_CATEGORY_MEDIA = "category_media"
+const _TB_NAME_MEDIA = "media"
+const _TB_NAME_DISCOUNT = "discount"
+const _TB_NAME_ASSESSMENT = "product_assessment"
+const _TB_NAME_ADD_ON_LIST = "product_add_on_list"
+const _TB_NAME_PRODUCT_COMBINATION_ITEM = 'product_combination_item'
 
 //categories
-const getAllParentCategories = () =>{
-    return new Promise((res, rej)=>{
-        const sql = "SELECT `id` as `value`, `name` as `label` FROM " + _TB_NAME_CATEGORY //+ " WHERE `parent_cat` IS NULL" 
+const getAllParentCategories = async () =>{
+    const sql = "SELECT ?? as ??, ?? as ?? FROM ??" //+ " WHERE `parent_cat` IS NULL"
+    const params = [`id`, `value`, `name`, `label`,  _TB_NAME_CATEGORY]
 
-        pool.query(sql, function (error, results) {
-            if(error){
-                console.log(error)
-                return rej(false)
-            } 
-            res(JSON.parse(JSON.stringify(results || [])))
-        });
-    })
+    return await execute({sql, params})
 }
 
-const getAllCategories = () =>{
-    return new Promise((res, rej)=>{
-        const sql = "SELECT `c`.`id`, `c`.`name`, `c`.`featured`, `c2`.`name` as `parent_cat`, `m`.`src_name` as `image` FROM " + _TB_NAME_CATEGORY  + "  `c` " +
-        " LEFT JOIN " + _TB_NAME_CATEGORY + " `c2` on `c2`.`id` = `c`.`parent_cat` " +
-        " LEFT JOIN " + _TB_NAME_CATEGORY_MEDIA + " `cm` ON `cm`.`category_id` = `c`.`id`" +
-        " LEFT JOIN " + _TB_NAME_MEDIA + " `m` on `m`.`id` = `cm`.`media_id`" 
-        
-        pool.query(sql, function (error, results, fields) {
-            if(error){
-                console.log(error)
-                return rej(false)
-            } 
-            res(JSON.parse(JSON.stringify(results || [])))
-        });
-    })
-}
+const getAllCategories = async () =>{
+    let completeResponse
 
-const getAllCategoriesMenu = () =>{
-    return new Promise((res, rej)=>{
-        const sql = "SELECT `c`.`id`, `c`.`name` as `label`, (`c`.`parent_cat` IS NOT NULL) AS parent, `c`.`featured`, `m`.`src_name` as `img_src`, `m`.`alt_text` " +
-        " FROM " + _TB_NAME_CATEGORY  + "  `c` " +
-        " LEFT JOIN " + _TB_NAME_CATEGORY_MEDIA + " `cm` ON `cm`.`category_id` = `c`.`id`" +
-        " LEFT JOIN " + _TB_NAME_MEDIA + " `m` on `m`.`id` = `cm`.`media_id`" +
-        " ORDER BY `c`.`parent_cat`, `c`.`featured` DESC"
-        
-        pool.query(sql, function (error, results, fields) {
-            if(error){
-                console.log(error)
-                return rej(false)
-            } 
-            res(JSON.parse(JSON.stringify(results || [])))
-        })
-    })
-}
+    let sql = `SELECT c.??, c.??, c.??, c2.?? as ?? FROM ?? c LEFT JOIN ?? c2 ON c2.?? = c.??`
+    let queryParams = [
+        'id',
+        'name',
+        'featured',
+        'name',
+        'parent_cat',
+        _TB_NAME_CATEGORY,
+        _TB_NAME_CATEGORY,
+        'id',
+        'parent_cat',
+    ]
+    completeResponse = await execute({sql, params: queryParams})
 
-const getAllParentCategoriesView = () =>{
-    return new Promise((res, rej)=>{
-        const sql = "SELECT `id`, `name` as `label` FROM " + _TB_NAME_CATEGORY + " WHERE `parent_cat` IS NULL ORDER BY `featured` DESC" 
+    if(completeResponse?.length > 0){
+        const tmp = completeResponse
 
-        pool.query(sql, function (error, results, fields) {
-            if(error){
-                console.log(error)
-                return rej(false)
-            } 
-            res(JSON.parse(JSON.stringify(results || [])))
-        })
-    })
-}
-
-const getCategoriesWithImg = () => {
-    return new Promise((res, rej)=>{
-        const sql = "SELECT `c`.`id`, `c`.`name` as `label`, `m`.`src_name` as `img_src`, `m`.`alt_text` FROM " + _TB_NAME_CATEGORY  + "  `c` " +
-        " LEFT JOIN " + _TB_NAME_CATEGORY_MEDIA + " `cm` ON `cm`.`category_id` = `c`.`id`" +
-        " LEFT JOIN " + _TB_NAME_MEDIA + " `m` on `m`.`id` = `cm`.`media_id`" +
-        " WHERE `m`.`src_name` IS NOT NULL ORDER BY `c`.`parent_cat`, `c`.`featured` DESC LIMIT 12"
-        
-        pool.query(sql, function (error, results, fields) {
-            if(error){
-                console.log(error)
-                return rej(false)
-            } 
-            res(JSON.parse(JSON.stringify(results || [])))
-        })
-    })
-}
-
-
-const getSingleCategory = (id: number) => {
-    return new Promise((res, rej)=>{
-        let completeResponse
-
-        new Promise((resIN, rejIN)=>{
-            const sql = "SELECT `c`.`name`, `c`.`featured`, `c`.`parent_cat` FROM " + _TB_NAME_CATEGORY  + "  `c`  WHERE `c`.`id` = ? " 
-            const queryParams = [id]
-    
-            pool.query(sql, queryParams, function (error, results, fields) {
-                if(error){
-                    console.log(error)
-                    return rej(false)
-                } 
-                completeResponse = JSON.parse(JSON.stringify(results[0] || null))
-
-                resIN(true)
-            });
-        }).then(result => {
-            const sql = "SELECT `m`.`id`, `m`.`src_name`, `m`.`alt_text` FROM " + _TB_NAME_MEDIA + " `m` " +
-            " INNER JOIN " + _TB_NAME_CATEGORY_MEDIA + " `cm` ON `cm`.`media_id` = `m`.`id` " +
-            " WHERE `cm`.`category_id` = ? "
-            const queryParams = [id]
-
-            pool.query(sql, queryParams, function (error, results, fields) {
-                if(error) return rej(false)
-                
-                completeResponse.image = results
-                
-                res(completeResponse)
-            });            
-        })
-    })
-}
-
-const deleteCategory = (id: number): Promise<boolean> => {
-    return new Promise(async (res, rej)=>{
-        let sql = "DELETE FROM " + _TB_NAME_CATEGORY_MEDIA + " WHERE `category_id` = ? "
-        let queryParams = [id]
-        await new Promise((resIN, rejIN)=>{
-            pool.query(sql, queryParams, function (error, results, fields) {
-                if(error) {
-                    console.log(error)
-                    return rej(false)
-                }
-                resIN(true)
-            })
-        });
-
-        sql = "UPDATE " + _TB_NAME_CATEGORY + " SET `parent_cat` = NULL WHERE `id` = ? "
-        queryParams = [id]
-        await new Promise((resIN, rejIN)=>{
-            pool.query(sql, queryParams, function (error, results, fields) {
-                if(error) {
-                    console.log(error)
-                    return rej(false)
-                }
-                resIN(true)
-            })
-        })
-
-        sql = "UPDATE " + _TB_NAME_PRODUCTS + " SET `product_category_id` = NULL WHERE `product_category_id` = ? "
-        queryParams = [id]
-        await new Promise((resIN, rejIN)=>{
-            pool.query(sql, queryParams, function (error, results, fields) {
-                if(error) {
-                    console.log(error)
-                    return rej(false)
-                }
-                resIN(true)
-            })
-        })
-
-        sql = "DELETE FROM " + _TB_NAME_CATEGORY + " WHERE `id` = ? "
-        queryParams = [id]
-        await new Promise((resIN, rejIN)=>{
-            pool.query(sql, queryParams, function (error, results, fields) {
-                if(error) {
-                    console.log(error)
-                    return rej(false)
-                }
-                resIN(true)
-            })
-        })
-
-        res(true)
-    })
-}
-
-const deleteCategoryMedia = (cat_id: number, media_id: number): Promise<boolean>=>{
-    return new Promise(async (res, rej) => {
-        const sql = "DELETE FROM " + _TB_NAME_CATEGORY_MEDIA + " WHERE `category_id` = ? AND `media_id` = ?"
-            const queryParams = [cat_id, media_id]
-
-            await pool.query(sql, queryParams, function (error, results, fields) {
-                if(error) return rej(false)            
-                res(true)
-            });    
-    })
-}
-
-const updateCategoryMedia = (cat_id: number, image: {id: number, src_name: string, alt_text?: string}[]): Promise<boolean> =>{
-    return new Promise(async (res, rej)=>{
-        if(image === null || image?.length < 1) return res(true)
-        
         let i = 0
-        for(let img of image){
-            let sql = "INSERT INTO " + _TB_NAME_CATEGORY_MEDIA + " (`category_id`, `media_id`"
-            let queryParams = [cat_id, img.id]
-
-            if(i === 0){
-                sql += ", `main`) VALUES (?, ?, ?)"
-                queryParams.push(1)
-            }else sql += ") VALUES (?, ?)"
-
-
-            await new Promise((resIN, rejIN)=>{
-                pool.query(sql, queryParams, function (error, results, fields) {
-                    if(error) return rej(false)
-                    resIN(true)            
-                });    
-            }) 
-
-            i++
+        for(let row of tmp){
+            completeResponse[i++].image = await getImageForCategory(row.id)
         }
+    }
 
-        res(true)
-    })
+
+    return completeResponse
 }
 
-const updateCategory = (params: {name: string, featured: boolean | null, parent_cat: number | null, id: number, image: {id: number, src_name: string, alt_text?: string}[]}) =>{
-    return new Promise(async(res, rej)=>{        
-        const sql = "UPDATE " + _TB_NAME_CATEGORY + "  SET `name` = ?, `featured` = ? , `parent_cat` = ? WHERE `id` = ?"
-        const queryParams = [params.name, params.featured === true? 1 : 0, params.parent_cat ? params.parent_cat: null, params.id]
+const getImageForCategory = async (id): Promise<{
+    id:number,
+    src_name: string,
+    alt_text?:string
+}> => {
+    // take main_image
+    let sql = `SELECT m.??, m.??, m.?? FROM ?? m INNER JOIN ?? cm ON cm.?? = m.?? WHERE cm.?? = ? AND cm.?? = ?`
+    let queryParams = [
+        'id',
+        'src_name',
+        'alt_text',
+        _TB_NAME_MEDIA,
+        _TB_NAME_CATEGORY_MEDIA,
+        'media_id',
+        'id',
+        'category_id',
+        id,
+        'main',
+        1
+    ]
 
-        await new Promise((resIN, rejIN)=>{
-            pool.query(sql, queryParams, function (error, results, fields) {
-                if(error) return rej(false)
-                resIN(true)            
-            });
-        })
-
-        if(await updateCategoryMedia(params.id, params.image) === false) return rej(false)
-
-        res(true)
-    })
+    const tmpImage = await execute({sql, params: queryParams, single: true}) as {id: number, src_name: string, alt_text: string}
+    return {
+        id: tmpImage?.id,
+        src_name: tmpImage?.src_name,
+        alt_text: tmpImage?.alt_text
+    }
 }
 
-const insertCategory = (params: {name: string, featured: boolean | null, parent_cat: number | null, image: {id: number, src_name: string, alt_text: string}[]}) =>{
-    return new Promise((res, rej)=>{
-        new Promise((resIN, rejIN)=>{
-            const sql = "INSERT INTO " + _TB_NAME_CATEGORY + " (`name`, `featured`, `parent_cat`) VALUES ( ?, ?, ? )"
-            const queryParams = [params.name, params.featured === true? 1 : 0, params.parent_cat ? params.parent_cat: null]
-            pool.query(sql, queryParams, function (error, results, fields) {
-                if(error) return rej(false)
-                resIN(results.insertId)
-            });
-        }).then(async (result)=>{
-            //insert media
-            if((result !== null || true) && params.image?.length > 0){
-                if(await updateCategoryMedia(+result, params.image) === false) return rej(false)
-            }
+const getAllCategoriesMenu = async () =>{
+    let completeResponse
 
-            res(true)
-        })
-    })
+    let sql = `SELECT c.??, c.?? AS ??, (c.?? IS NOT NULL) AS ??, c.?? FROM ??  c ORDER BY c.??, c.?? DESC`
+    let queryParams = [
+        'id',
+        'name',
+        'label',
+        'parent_cat',
+        'parent',
+        'featured',
+        _TB_NAME_CATEGORY,
+        'parent_cat',
+        'featured'
+    ]
+
+    completeResponse = await execute({sql, params: queryParams})
+
+    if(completeResponse?.length > 0){
+        const tmp = completeResponse
+
+        let i = 0
+        for(let row of tmp){
+            completeResponse[i++].image = await getImageForCategory(row.id)
+        }
+    }
+
+    return completeResponse
+}
+
+const getAllParentCategoriesView = async () =>{
+    const sql = "SELECT ??, ?? as ?? FROM ?? WHERE ?? IS NULL ORDER BY ?? DESC"
+    const params = [`id`, `name`, `label`, _TB_NAME_CATEGORY, `parent_cat`, `featured`]
+
+    return await execute({sql, params})
+
+}
+
+const getCategoriesWithImg = async () => {
+    let completeResponse
+
+    const sql = "SELECT `c`.`id`, `c`.`name` as `label` FROM " + _TB_NAME_CATEGORY  + "  `c` " +
+    " INNER JOIN " + _TB_NAME_CATEGORY_MEDIA + " `cm` ON `cm`.`category_id` = `c`.`id`" +
+    " INNER JOIN " + _TB_NAME_MEDIA + " `m` on `m`.`id` = `cm`.`media_id`" +
+    " WHERE `m`.`src_name` IS NOT NULL ORDER BY `c`.`parent_cat`, `c`.`featured` DESC LIMIT 12"
+
+    completeResponse =  await execute({sql})
+    if(completeResponse?.length > 0){
+        const tmp = completeResponse
+
+        let i = 0
+        for(let row of tmp){
+            completeResponse[i++].image = await getImageForCategory(row.id)
+        }
+    }
+
+    return completeResponse
+}
+
+
+const getSingleCategory = async (id: number) => {
+    let sql = `SELECT c.??, c.??, c.?? FROM ??  c WHERE c.?? = ?`
+    let params = ['name', 'featured', 'parent_cat', _TB_NAME_CATEGORY, 'id', id]
+
+    let completeResponse = await execute({sql, params, single: true})
+    completeResponse['image'] = await getImageForCategory(id)
+
+    return completeResponse
+}
+
+const deleteCategory = async (id: number): Promise<boolean> => {
+    let sql = "DELETE FROM ?? WHERE ?? = ? "
+    let params = [_TB_NAME_CATEGORY_MEDIA, `category_id`, id]
+    await execute({sql, params})
+
+    sql = "UPDATE ?? SET ?? = NULL WHERE ?? = ? "
+    params = [_TB_NAME_CATEGORY, `parent_cat`, `id`, id]
+    await execute({sql, params})
+
+    sql = "UPDATE ??  SET ?? = NULL WHERE ?? = ? "
+    params = [_TB_NAME_PRODUCTS, `product_category_id`, `product_category_id`, id]
+    await execute({sql, params})
+
+    sql = "DELETE FROM ?? WHERE ?? = ? "
+    params = [_TB_NAME_CATEGORY, `id`, id]
+    await execute({sql, params})
+
+    return true
+}
+
+const deleteCategoryMedia = async (cat_id: number, media_id: number): Promise<boolean>=>{
+    const sql = "DELETE FROM ?? WHERE ?? = ? AND ?? = ?"
+    const params = [_TB_NAME_CATEGORY_MEDIA, `category_id`, `media_id`, cat_id, media_id]
+    await execute({sql, params})
+
+    return true
+}
+
+const updateCategoryMedia = async (cat_id: number, image: {id: number, src_name: string, alt_text?: string}[]): Promise<boolean> =>{
+    if(image === null || image?.length < 1) return true
+
+    let i = 0
+    for(let img of image){
+        let sql = "INSERT INTO ?? (??, ??"
+        let params = [_TB_NAME_CATEGORY_MEDIA, `category_id`, `media_id`, cat_id, img.id]
+
+        if(i === 0){
+            sql += ", `main`) VALUES (?, ?, ?)"
+            params.push(1)
+        }else sql += ") VALUES (?, ?)"
+
+         await execute({sql, params})
+        i++
+    }
+
+    return true
+}
+
+const updateCategory = async (params: {name: string, featured: boolean | null, parent_cat: number | null, id: number, image: {id: number, src_name: string, alt_text?: string}[]}) =>{
+    const sql = "UPDATE ??  SET ?? = ?, ?? = ? , ?? = ? WHERE ?? = ?"
+    const queryParams = [_TB_NAME_CATEGORY, `name`, params.name, `featured`,  params.featured === true? 1 : 0, `parent_cat`, params.parent_cat ? params.parent_cat: null, `id`, params.id]
+
+    await execute({sql, params: queryParams})
+
+    return await updateCategoryMedia(params.id, params.image) !== false
+}
+
+const insertCategory = async (params: {name: string, featured: boolean | null, parent_cat: number | null, image: {id: number, src_name: string, alt_text: string}[]}) =>{
+    const sql = "INSERT INTO ?? (??, ??, ??) VALUES ( ?, ?, ? )"
+    const queryParams = [_TB_NAME_CATEGORY , `name`, `featured`, `parent_cat`, params.name, params.featured === true? 1 : 0, params.parent_cat ? params.parent_cat: null]
+    const result = await execute({sql, params: queryParams, lastInsertId: true})
+
+    //insert media
+    if((result !== null || true) && params.image?.length > 0){
+        if(await updateCategoryMedia(+result, params.image) === false) return false
+    }
+
+    return true
 }
 
 //discounts
-const getAllDiscounts = () =>{
-    return new Promise((res, rej)=>{
-        const sql = "SELECT * FROM " + _TB_NAME_DISCOUNT
+const getAllDiscounts = async () =>{
+    const sql = `SELECT ??, ??, ??, DATE_FORMAT(??, "%d/%m/%Y") as start_at, DATE_FORMAT(??, "%d/%m/%Y") as end_at, ??, ?? FROM ??`
+    const params = [
+        'id',
+        'name',
+        'percentage_value',
+        'start_at',
+        'end_at',
+        'promo_code',
+        'description',
+        _TB_NAME_DISCOUNT
+    ]
+
+    return await execute({sql, params})
+}
+
+const getSingleDiscount = async (id: number) => {
+    const sql = `SELECT ??, ??, ??,  DATE_FORMAT(??, "%Y-%m-%d") as start_at, DATE_FORMAT(??, "%Y-%m-%d") as end_at,  ??, ?? FROM ?? WHERE ?? = ?`
+    const params = [
+        'id',
+        'name',
+        'percentage_value',
+        'start_at',
+        'end_at',
+        'promo_code',
+        'description',
+        _TB_NAME_DISCOUNT,
+        `id`,
+        id
+    ]
+
+    return await execute({sql, params, single: true})
+}
+
+const deleteDiscount = async (id: number) => {
+    let sql = "UPDATE ?? SET ?? = NULL WHERE ?? = ?"
+    let params = [_TB_NAME_PRODUCTS, `discount_id`, `discount_id`, id]
+    await execute({sql, params})
         
-        pool.query(sql, function (error, results, fields) {
-            if(error) rej(false)
-            else res(JSON.parse(JSON.stringify(results || [])))
-        });
-    })
+    sql = "DELETE FROM ?? WHERE ?? = ? "
+    params = [_TB_NAME_DISCOUNT, `id`, id]
+    await execute({sql, params})
+
+    return true
 }
 
+const updateDiscount = async (params: {
+    name: string,
+    percentage_value: number,
+    start_at: string | null,
+    end_at: string | null,
+    promo_code: string | null,
+    description: string | null,
+    id: number
+}) =>{
+    const sql = "UPDATE " + _TB_NAME_DISCOUNT + "  SET `name` = ?, `percentage_value` = ? , `start_at` = ?, `end_at` = ?, `promo_code` = ?, `description` = ? WHERE `id` = ?"
+    const queryParams = [params.name, params.percentage_value, params.start_at, params.end_at, params.promo_code, params.description, params.id]
+    await execute({sql, params: queryParams})
 
-const getSingleDiscount = (id: number) => {
-    return new Promise((res, rej)=>{
-        const sql = "SELECT * FROM " + _TB_NAME_DISCOUNT +
-        " WHERE `id` = ? " 
-        const queryParams = [id]
-
-        pool.query(sql, queryParams, function (error, results, fields) {
-            if(error) rej(false)
-            else res(JSON.parse(JSON.stringify(results[0] || null)))
-        });
-    })
+    return true
 }
 
-const deleteDiscount = (id: number) => {
-    return new Promise(async (res, rej)=>{
-        let sql = "UPDATE " + _TB_NAME_PRODUCTS + " SET `discount_id` = NULL WHERE `discount_id` = ?"
-        let queryParams = [id]
-        await new Promise((resIN, rejIN)=>{
-            pool.query(sql, queryParams, function (error, results, fields) {
-                if(error) return rej(false)
-                resIN(true)
-            })
-        })
-        
-        sql = "DELETE FROM " + _TB_NAME_DISCOUNT + " WHERE `id` = ? "
-        queryParams = [id]
-        pool.query(sql, queryParams, function (error, results, fields) {
-            if(error) return rej(false)
-            res(true)
-        })
-    })
+const insertDiscount = async (params: {name: string, percentage_value: string, start_at: string | null, end_at: string | null, promo_code: string | null, description: string | null,}) =>{
+    const sql = "INSERT INTO " + _TB_NAME_DISCOUNT + " (`name`, `percentage_value`, `start_at`, `end_at`, `promo_code`, `description`) VALUES ( ?, ?, ?, ?, ?, ? )"
+    const queryParams = [params.name, +params.percentage_value, params.start_at, params.end_at, params.promo_code, params.description]
+
+    await execute({sql, params: queryParams})
+
+    return true
 }
 
-const updateDiscount = (params: {name: string, percentage_value: number, start_at: string | null, end_at: string | null, promo_code: string | null, id: number}) =>{
-    return new Promise((res, rej)=>{
-        const sql = "UPDATE " + _TB_NAME_DISCOUNT + "  SET `name` = ?, `percentage_value` = ? , `start_at` = ?, `end_at` = ?, `promo_code` = ? WHERE `id` = ?"
-        const queryParams = [params.name, params.percentage_value, params.start_at, params.end_at, params.promo_code, params.id]
+const getAllActiveDiscounts = async () =>{
+    const sql = "SELECT `id`, `name`, `percentage_value`, DATE_FORMAT(`start_at`, \"%d %m %Y\") AS `start_at`, DATE_FORMAT(`end_at`, \"%d %m %Y\") AS `end_at`, `promo_code`, `description` FROM " +
+     _TB_NAME_DISCOUNT + " WHERE (`start_at` IS NULL AND `end_at` IS NULL) OR (NOW() BETWEEN `start_at` AND `end_at`) AND `promo_code` IS NOT NULL "
 
-        pool.query(sql, queryParams, function (error, results, fields) {
-            if(error) return rej(false)
-            res(true)
-        })
-    })
-}
-
-const insertDiscount = (params: {name: string, percentage_value: string, start_at: string | null, end_at: string | null, promo_code: string | null}) =>{
-    return new Promise((res, rej)=>{
-        const sql = "INSERT INTO " + _TB_NAME_DISCOUNT + " (`name`, `percentage_value`, `start_at`, `end_at`, `promo_code`) VALUES ( ?, ?, ?, ?, ? )"
-        const queryParams = [params.name, +params.percentage_value, params.start_at, params.end_at, params.promo_code]
-
-        pool.query(sql, queryParams, function (error, results, fields) {
-            if(error){
-                console.log(error)
-                return rej(false)
-           } 
-            res(true)
-        })
-    })
-}
-
-const getAllActiveDiscounts = () =>{
-    return new Promise((res, rej)=>{
-        const sql = "SELECT `id`, `name`, `percentage_value`,DATE_FORMAT(`start_at`, \"%d %m %Y\") AS `start_at`, DATE_FORMAT(`end_at`, \"%d %m %Y\") AS `end_at`, `promo_code` FROM " +
-         _TB_NAME_DISCOUNT + " WHERE (`start_at` IS NULL AND `end_at` IS NULL) OR (NOW() BETWEEN `start_at` AND `end_at`) AND `promo_code` IS NOT NULL " 
-
-        pool.query(sql, function (error, results, fields) {
-            if(error){
-                console.log(error)
-                return rej(false)
-           } 
-            res(JSON.parse(JSON.stringify(results)))
-        })
-    })
+    return await execute({sql})
 }
 
 //products
-const getAllProducts = (custom? :{customSql: string, customParams: any[]}) =>{
-    return new Promise(async (res, rej)=>{
-        let completeResponse
+const getAllProducts = async (custom? :{customSql: string, customParams: any[]}) =>{
+    let sql = 'SELECT `p`.`id`, `p`.`name`, `c`.`name` as `category`, CONCAT( `p`.`price`, " rsd.") as price, ' +
+    ' CONCAT( IFNULL(`d`.`name`, "Nema popusta"), "( ", IFNULL(`d`.`percentage_value`, " "), " % )" ) as `discount`, ' +
+    " ROUND((`p`.`price` * ((100 - IFNULL(`d`.`percentage_value`, 0)) / 100)), 2) as `new_price`, `p`.`active` FROM " + _TB_NAME_PRODUCTS + " `p`" +
+    " LEFT JOIN " + _TB_NAME_CATEGORY + " `c` ON `c`.`id` = `p`.`product_category_id`" +
+    " LEFT JOIN " + _TB_NAME_DISCOUNT + " `d` on `d`.`id` = `p`.`discount_id` "
+    let queryParams = []
 
-        let sql = "SELECT `p`.`id`, `m`.`src_name` as `image`, `p`.`name`, `c`.`name` as `category`, `p`.`price`, " +
-        " CONCAT( IFNULL(`d`.`name`, \"Nema popusta\"), \"( \", IFNULL(`d`.`percentage_value`, \" \"), \" % )\" ) as `discount`, " +
-        " ROUND((`p`.`price` * ((100 - IFNULL(`d`.`percentage_value`, 0)) / 100)), 2) as `new_price`, `p`.`active` FROM " + _TB_NAME_PRODUCTS + " `p`" +
-        " LEFT JOIN " + _TB_NAME_CATEGORY + " `c` ON `c`.`id` = `p`.`product_category_id`" +
-        " LEFT JOIN " + _TB_NAME_DISCOUNT + " `d` on `d`.`id` = `p`.`discount_id` " +
-        " LEFT JOIN " + _TB_NAME_PRODUCTS_MEDIA + " `pm` ON `pm`.`product_id` = `p`.`id` AND `pm`.`main` = ? " +
-        " LEFT JOIN " + _TB_NAME_MEDIA + " `m` ON `m`.`id` = `pm`.`media_id` "
-        let queryParams = [1]
-
-        await new Promise((resIN, rejIN)=>{
-            pool.query(custom?.customSql || sql, custom?.customParams || queryParams, function (error, results, fields) {
-               if(error){
-                    console.log(error)
-                    return rej(false)
-               } 
-   
-               completeResponse = JSON.parse(JSON.stringify(results))
-               resIN(true)
-           })
-        })
-
-        if(completeResponse?.length > 0){
-            const tmp = completeResponse
-
-            let i = 0
-            for(let row of tmp){
-                //set assessment
-                completeResponse[i].assesssment = await getAssessmentForProduct(row['id'])
-
-                //set gallery
-                sql = "SELECT `m`.`src_name` FROM " + _TB_NAME_MEDIA + " `m` "+
-                " INNER JOIN " + _TB_NAME_PRODUCTS_MEDIA + " `pm` ON `pm`.`media_id` = `m`.`id` " +
-                " WHERE `pm`.`product_id` = ? ORDER BY `pm`.`main` DESC"                
-                queryParams = [row['id']]
-    
-                await new Promise((resIN, rejIN)=>{
-                    pool.query(sql, queryParams, function (error, results, fields) {
-                        if(error) return rej(false)
-                        
-                        completeResponse[i].gallery = results
-                        resIN(true)
-                    })
-                })
-    
-                i++
-            }
-        }
-
-        res(completeResponse)
+    // TODO; add interface
+    let completeResponse: any = await execute({
+        sql: custom?.customSql || sql,
+        params: custom?.customParams || queryParams
     })
-}
 
-const getAllProductCategories = () => {
-    return new Promise((res, rej)=>{
-        const sql = "SELECT `id` as 'value', `name` as 'label' FROM " + _TB_NAME_CATEGORY
-        
-        pool.query(sql, function (error, results, fields) {
-            if(error) rej(false)
-            else res(JSON.parse(JSON.stringify(results || [])))
-        });
-    })
-}
-
-const getAllProductDiscounts = () => {
-    return new Promise((res, rej)=>{
-        const sql = "SELECT `id` as 'value', `name` as 'label' FROM " + _TB_NAME_DISCOUNT
-        
-        pool.query(sql, function (error, results, fields) {
-            if(error){
-                console.log(error)
-                return rej(false)
-            } 
-            res(JSON.parse(JSON.stringify(results || [])))
-        });
-    })
-}
-
-const getSingleProduct = (id: number, custom? :{customSql: string, customParams: any[]}) => {
-    return new Promise((res, rej)=>{
-        let completeResponse
-
-        //take all info from `product` table
-        new Promise((resIN, rejIN)=>{
-            const sql = "SELECT * FROM " + _TB_NAME_PRODUCTS + " WHERE `id` = ?"
-            const queryParams = [id]
-    
-            pool.query(custom?.customSql || sql, custom?.customParams || queryParams, function (error, results, fields) {
-                if(error){
-                    console.log(error)
-                    return rej(false)
-                } 
-                completeResponse = JSON.parse(JSON.stringify(results[0] || null))
-
-                resIN(true)
-            });
-        })
-        .then(result => {
-            //take main_image
-            const sql = "SELECT `m`.`id`, `m`.`src_name`, `m`.`alt_text` FROM " + _TB_NAME_MEDIA + " `m` " +
-            " INNER JOIN " + _TB_NAME_PRODUCTS_MEDIA + " `pm` ON `pm`.`media_id` = `m`.`id` " +
-            " WHERE `pm`.`product_id` = ? AND `pm`.`main` = ?"
-            const queryParams = [id, 1]
-
-            pool.query(sql, queryParams, function (error, results, fields) {
-                if(error){
-                    console.log(error)
-                    return rej(false)
-                } 
-                
-                completeResponse.image = results
-            })
-        })
-        .then(result => {
-            //take images (gallery)
-            const sql = "SELECT `m`.`id`, `m`.`src_name`, `m`.`alt_text` FROM " + _TB_NAME_MEDIA + " `m` " +
-            " INNER JOIN " + _TB_NAME_PRODUCTS_MEDIA + " `pm` ON `pm`.`media_id` = `m`.`id` " +
-            " WHERE `pm`.`product_id` = ? AND `pm`.`main` IS NULL"
-            const queryParams = [id]
-
-            pool.query(sql, queryParams, function (error, results, fields) {
-                if(error){
-                    console.log(error)
-                    return rej(false)
-                } 
-                
-                completeResponse.gallery = results
-                res(completeResponse)
-            });
-        })
-    })
-}
-
-const deleteProduct = (id: number): Promise<boolean> => {
-    return new Promise(async (res, rej)=>{
-        let sql = "DELETE FROM " + _TB_NAME_PRODUCTS_MEDIA + " WHERE `product_id` = ? "
-        let queryParams = [id]
-        await new Promise((resIN, rejIN)=>{
-            pool.query(sql, queryParams, function (error, results, fields) {
-                if(error){
-                    console.log(error)
-                    return rej(false)
-                } 
-                resIN(true)
-            })
-        })
-        
-        sql = "DELETE FROM " + _TB_NAME_PRODUCTS + " WHERE `id` = ? "
-        queryParams = [id]        
-        await new Promise((resIN,rejIN)=>{
-            pool.query(sql, queryParams, function (error, results, fields) {
-                if(error){
-                    console.log(error)
-                    return rej(false)
-                }      
-                resIN(true)
-            });
-        })
-
-        res(true)
-    })
-}
-
-const deleteProductMedia = (prod_id: number, media_id: number): Promise<boolean>=>{
-    return new Promise((res, rej) => {
-        const sql = "DELETE FROM " + _TB_NAME_PRODUCTS_MEDIA + " WHERE `product_id` = ? AND `media_id` = ?"
-        const queryParams = [prod_id, media_id]
-
-        pool.query(sql, queryParams, function (error, results, fields) {
-            if(error) return rej(false)            
-            res(true)
-        });    
-    })
-}
-
-const updateProductMedia = (prod_id: number, image: {id: number, src_name: string, alt_text?: string}[]): Promise<boolean> =>{
-    return new Promise(async (res, rej)=>{
-        if( image === null || image?.length < 1 ) return res(true)
+    if(completeResponse?.length > 0){
+        const tmp = completeResponse
 
         let i = 0
-        for(let img of image){
-            let sql = "INSERT INTO " + _TB_NAME_PRODUCTS_MEDIA + " (`product_id`, `media_id`"
-            let queryParams = [prod_id, img.id]
+        for(let row of tmp){
+            //set assessment
+            completeResponse[i].assesssment = await getAssessmentForProduct(row['id'])
 
-            if(i === 0){
-                sql += ", `main`) VALUES (?, ?, ?)"
-                queryParams.push(1)
-            }else sql += ") VALUES (?, ?)"
+            // take main_image
+            sql = "SELECT `m`.`id`, `m`.`src_name`, `m`.`alt_text` FROM " + _TB_NAME_MEDIA + " `m` " +
+                " INNER JOIN " + _TB_NAME_PRODUCTS_MEDIA + " `pm` ON `pm`.`media_id` = `m`.`id` " +
+                " WHERE `pm`.`product_id` = ? AND `pm`.`main` = ?"
+            queryParams = [row['id'], 1]
 
+            const tmpImage = await execute({sql, params: queryParams, single: true}) as {id: number, src_name: string, alt_text: string}
+            completeResponse[i].image = {
+                id: tmpImage?.id,
+                src_name: tmpImage?.src_name,
+                alt_text: tmpImage?.alt_text
+            }
 
-            await new Promise((resIN, rejIN)=>{
-                pool.query(sql, queryParams, function (error, results, fields) {
-                    if(error) return rej(false)            
-                    resIN(true)
-                })
-            }) 
+            //set gallery
+            sql = "SELECT `m`.`src_name` FROM " + _TB_NAME_MEDIA + " `m` "+
+            " INNER JOIN " + _TB_NAME_PRODUCTS_MEDIA + " `pm` ON `pm`.`media_id` = `m`.`id` " +
+            " WHERE `pm`.`product_id` = ? ORDER BY `pm`.`main` DESC"
+            queryParams = [row['id']]
 
+            completeResponse[i].gallery = await execute({sql, params: queryParams})
+
+            // take options
+            completeResponse[i].options = await productAddOn.getAll(row['id'])
             i++
         }
+    }
 
-        res(true)
-    })
+    return completeResponse
 }
 
-const getAllProductsCustom = (type: number, ids?: number[]) =>{
-    return new Promise(async (res, rej) => {
-        /* TYPES
-         * 0: BEST ASSESSMENT
-         * 1: WISHLIST, CART
-         */
-        const limit = 15
-        const allTypes = [
-            {
-                customSql: "SELECT `p`.`id`, `m`.`src_name` as `image`, `p`.`name`, `p`.`price`, " +
-                " `d`.`percentage_value` as `discount`, ROUND((`p`.`price` * ((100 - IFNULL(`d`.`percentage_value`, 0)) / 100)), 2) as `new_price` FROM " + _TB_NAME_PRODUCTS + " `p`" +
-                " LEFT JOIN " + _TB_NAME_DISCOUNT + " `d` on `d`.`id` = `p`.`discount_id` " +
-                " LEFT JOIN " + _TB_NAME_PRODUCTS_MEDIA + " `pm` ON `pm`.`product_id` = `p`.`id` AND `pm`.`main` = ? " +
-                " LEFT JOIN " + _TB_NAME_MEDIA + " `m` ON `m`.`id` = `pm`.`media_id` " +
-                " WHERE `p`.`active` = ? LIMIT ?",
+const getAllProductCategories = async () => {
+    const sql = "SELECT ?? as ??, ?? as ?? FROM ??"
+    const params = [`id`, 'value', `name`, 'label', _TB_NAME_CATEGORY]
 
-                customParams: [1, 1, limit]
-            },
-            {
-                customSql: "SELECT `p`.`id`, `m`.`src_name` as `image`, `m`.`alt_text`, `p`.`name`, `p`.`price`, " +
-                " `d`.`percentage_value` as `discount`, ROUND((`p`.`price` * ((100 - IFNULL(`d`.`percentage_value`, 0)) / 100)), 2) as `new_price` FROM " + _TB_NAME_PRODUCTS + " `p`" +
-                " LEFT JOIN " + _TB_NAME_DISCOUNT + " `d` on `d`.`id` = `p`.`discount_id` " +
-                " LEFT JOIN " + _TB_NAME_PRODUCTS_MEDIA + " `pm` ON `pm`.`product_id` = `p`.`id` AND `pm`.`main` = ? " +
-                " LEFT JOIN " + _TB_NAME_MEDIA + " `m` ON `m`.`id` = `pm`.`media_id` " +
-                " WHERE `p`.`id` IN (?)",
+    return await execute({sql, params})
+}
 
-                customParams: [1, ids?.length < 1? null: ids]
-            }
-        ]
+const getAllProductDiscounts = async () => {
+    const sql = "SELECT ?? as ??, ?? as ?? FROM ??"
+    const params = [`id`, 'value', `name`, 'label', _TB_NAME_DISCOUNT]
+
+    return await execute({sql, params})
+}
+
+export const getSingleProduct = async (id: number, custom? :{customSql: string, customParams: any[]}) => {
+    // take all info from `product` table
+    let sql = "SELECT * FROM " + _TB_NAME_PRODUCTS + " WHERE `id` = ?"
+    let params = [id]
+    let completeResponse = await execute({sql: custom?.customSql || sql, params: custom?.customParams || params, single: true})
+
+    // take main_image
+    sql = "SELECT `m`.`id`, `m`.`src_name`, `m`.`alt_text` FROM " + _TB_NAME_MEDIA + " `m` " +
+    " INNER JOIN " + _TB_NAME_PRODUCTS_MEDIA + " `pm` ON `pm`.`media_id` = `m`.`id` " +
+    " WHERE `pm`.`product_id` = ? AND `pm`.`main` = ?"
+    params = [id, 1]
+
+    if(completeResponse) {
+        const tmpImage = await execute({sql, params, single: true}) as {id: number, src_name: string, alt_text: string}
+        completeResponse['image'] = {
+            id: tmpImage?.id,
+            src_name: tmpImage?.src_name,
+            alt_text: tmpImage?.alt_text
+        }
+
+        // take images (gallery)
+        sql = "SELECT `m`.`id`, `m`.`src_name`, `m`.`alt_text` FROM " + _TB_NAME_MEDIA + " `m` " +
+            " INNER JOIN " + _TB_NAME_PRODUCTS_MEDIA + " `pm` ON `pm`.`media_id` = `m`.`id` " +
+            " WHERE `pm`.`product_id` = ? AND `pm`.`main` IS NULL"
+        params = [id]
+        completeResponse['gallery'] = await execute({sql, params})
+
+        // take options
+        completeResponse['options'] = await productAddOn.getAll(completeResponse['id'])
+    }
+
+    return completeResponse
+}
+
+const deleteProduct = async (id: number): Promise<boolean> => {
+    let sql = "DELETE FROM ?? WHERE ?? = ? "
+
+    let params = [_TB_NAME_PRODUCTS_MEDIA, `product_id`, id]
+    await execute({sql, params})
+
+    params= [_TB_NAME_ASSESSMENT, `product_id`, id]
+    await execute({sql, params})
+
+    params= [_TB_NAME_ASSESSMENT, `product_id`, id]
+    await execute({sql, params})
+
+    params= [_TB_NAME_ADD_ON_LIST, `product_id`, id]
+    await execute({sql, params})
+
+    params= [_TB_NAME_PRODUCT_COMBINATION_ITEM, `product_id`, id]
+    await execute({sql, params})
+
+    params= [_TB_NAME_PRODUCTS, `id`, id]
+    await execute({sql, params})
+
+    return true
+}
+
+const deleteProductMedia = async (prod_id: number, media_id: number): Promise<boolean>=>{
+    const sql = "DELETE FROM ?? WHERE ?? = ? AND ?? = ?"
+    const params = [_TB_NAME_PRODUCTS_MEDIA, `product_id`, prod_id, `media_id`, media_id]
+
+    await execute({sql, params})
+
+    return true
+}
+
+const updateProductMedia = async (prod_id: number, image: {id: number, src_name: string, alt_text?: string}[]): Promise<boolean> =>{
+
+    if( image === null || image?.length < 1 ) return true
+
+    let i = 0
+    for(let img of image){
+        let sql = "INSERT INTO ?? (??, ??"
+        let queryParams = [_TB_NAME_PRODUCTS_MEDIA, `product_id`, `media_id`, prod_id, img.id]
+
+        if(i === 0){
+            sql += ", `main`) VALUES (?, ?, ?)"
+            queryParams.push(1)
+        }else sql += ") VALUES (?, ?)"
+
+
+        await execute({sql, params: queryParams})
+        i++
+    }
+
+    return true
+}
+
+const getAllProductsCustom = async (type?: ProductEnumSingleArr, param?: any) =>{
+    let customSql: string
+    let customParams: Array<string | null | number | string[] | number[]>
+
+    switch (type){
+        case ProductEnumSingleArr.BEST_ASSESSMENT:
+            customSql = "SELECT `p`.`id`, `p`.`name`, `p`.`price`, " +
+                " `d`.`percentage_value` as `discount`, ROUND((`p`.`price` * ((100 - IFNULL(`d`.`percentage_value`, 0)) / 100)), 2) as `new_price` " +
+                "FROM " + _TB_NAME_PRODUCTS + " `p`" +
+                " LEFT JOIN " + _TB_NAME_DISCOUNT + " `d` on `d`.`id` = `p`.`discount_id` " +
+                " WHERE `p`.`active` = ? LIMIT ?"
+            customParams = [1, param.limit]
+            break;
+
+        case ProductEnumSingleArr.CART_WISHLIST:
+            customSql = "SELECT `p`.`id`, `p`.`name`, `p`.`price`, " +
+            " `d`.`percentage_value` as `discount`, ROUND((`p`.`price` * ((100 - IFNULL(`d`.`percentage_value`, 0)) / 100)), 2) as `new_price` " +
+            " FROM " + _TB_NAME_PRODUCTS + " `p`" +
+            " LEFT JOIN " + _TB_NAME_DISCOUNT + " `d` on `d`.`id` = `p`.`discount_id` " +
+            " WHERE `p`.`id` IN (?)"
+            customParams = [param?.ids.length < 1? null: param.ids]
+            break;
+
+        case ProductEnumSingleArr.RELATED:
+            customSql = "SELECT `p`.`id`, `p`.`name`, `p`.`price`, " +
+                " `d`.`percentage_value` as `discount`, ROUND((`p`.`price` * ((100 - IFNULL(`d`.`percentage_value`, 0)) / 100)), 2) as `new_price` " +
+                " FROM " + _TB_NAME_PRODUCTS + " `p`" +
+                " LEFT JOIN " + _TB_NAME_DISCOUNT + " `d` on `d`.`id` = `p`.`discount_id` " +
+                " LEFT JOIN " + _TB_NAME_CATEGORY + " `c` on `c`.`id` = `p`.`product_category_id` " +
+                " WHERE `c`.`id` = ? AND `p`.`id` != ?"
+            customParams = [param.categoryId, param.productId]
+            break;
+    }
         
-        const products = await getAllProducts(allTypes[type])        
-        res(products)
-    })
+    return await getAllProducts({customSql, customParams})
 }
 
-const getSingleProductCustom = (product_id: number, type: number) =>{
-    return new Promise(async (res, rej) => {
-        /* TYPES
-         * 0: BASIC
-         */
-        const allTypes = [{
-            customSql: "SELECT `p`.`id`, `p`.`name`, `p`.`price`, `p`.`description`, `c`.`name` as `category`, " +
-            " `d`.`percentage_value` as `discount`, ROUND((`p`.`price` * ((100 - IFNULL(`d`.`percentage_value`, 0)) / 100)), 2) as `new_price` FROM " + _TB_NAME_PRODUCTS + " `p`" +
+const getSingleProductCustom = async (product_id: number, type: ProductEnumSingle) =>{
+    let customSql: string
+    let customParams: Array<string | number | Date | string[] | number[] | null>
+
+    switch (type){
+        case ProductEnumSingle.BASIC:
+            customSql= "SELECT `p`.`id`, `p`.`name`, `p`.`price`, `p`.`description`, `c`.`name` as `category`, " +
+            " `d`.`percentage_value` as `discount`, ROUND((`p`.`price` * ((100 - IFNULL(`d`.`percentage_value`, 0)) / 100)), 2) as `new_price` " +
+            " FROM " + _TB_NAME_PRODUCTS + " `p`" +
             " LEFT JOIN " + _TB_NAME_CATEGORY + " `c` on `c`.`id` = `p`.`product_category_id` " +
             " LEFT JOIN " + _TB_NAME_DISCOUNT + " `d` on `d`.`id` = `p`.`discount_id` " +
-            " WHERE `p`.`id` = ?",
+            " WHERE `p`.`id` = ?"
+            customParams= [product_id]
+            break;
+        case ProductEnumSingle.DETAIL:
+            customSql= "SELECT `p`.`id`, `p`.`name`, `p`.`price`, " +
+                " `c`.`name` as `product_category_name`, `p`.`product_category_id`, " +
+                " `d`.`percentage_value` as `discount`, ROUND((`p`.`price` * ((100 - IFNULL(`d`.`percentage_value`, 0)) / 100)), 2) as `new_price` " +
+                " FROM " + _TB_NAME_PRODUCTS + " `p`" +
+                " LEFT JOIN " + _TB_NAME_DISCOUNT + " `d` on `d`.`id` = `p`.`discount_id` " +
+                " LEFT JOIN " + _TB_NAME_CATEGORY + " `c` on `c`.`id` = `p`.`product_category_id` " +
+                " WHERE `p`.`id` = ?"
+            customParams= [product_id]
+            break;
+    }
 
-            customParams: [product_id]
-        }]
-        
-        const products: any = await getSingleProduct(product_id, allTypes[type])
-        products.assesssment = await getAssessmentForProduct(product_id)
-        res(products)
-    })
+
+    // TODO: add interface
+    const product: any = await getSingleProduct(product_id, {customSql, customParams})
+    product.assesssment = await getAssessmentForProduct(product_id)
+
+    return product
 }
 
-const updateProduct = (params: {
+const updateProduct = async (params: {
     id: number, 
     name: string, 
     description: string | null,
@@ -622,38 +538,29 @@ const updateProduct = (params: {
     delivery_matter: boolean | null,
     barcode: string | null,
     image: {id: number, src_name: string, alt_text?: string}[]}) =>{
-    return new Promise(async (res, rej)=>{        
-        let sql = "UPDATE " + _TB_NAME_PRODUCTS + "  SET `name` = ?, `featured` = ?, `active` = ?, `product_category_id` = ?, " +
-        " `price` = ?, `description` = ?, `discount_id` = ?, `unique_number` = ?, `delivery_matter` = ?, `barcode` = ? " +
-        " WHERE `id` = ?"
-        let queryParams = [
-            params.name, 
-            params.featured === true? 1 : 0, 
-            params.active === true? 1 : 0, 
-            params.product_category_id ? params.product_category_id : null,  
-            params.price,
-            params.description,
-            params.discount_id ? params.discount_id : null,
-            params.unique_number,
-            params.delivery_matter === true? 1 : 0,
-            params.barcode,
-            params.id
-        ]
+    let sql = "UPDATE " + _TB_NAME_PRODUCTS + "  SET `name` = ?, `featured` = ?, `active` = ?, `product_category_id` = ?, " +
+    " `price` = ?, `description` = ?, `discount_id` = ?, `unique_number` = ?, `delivery_matter` = ?, `barcode` = ? " +
+    " WHERE `id` = ?"
+    let queryParams = [
+        params.name,
+        params.featured === true? 1 : 0,
+        params.active === true? 1 : 0,
+        params.product_category_id ? params.product_category_id : null,
+        params.price,
+        params.description,
+        params.discount_id ? params.discount_id : null,
+        params.unique_number,
+        params.delivery_matter === true? 1 : 0,
+        params.barcode,
+        params.id
+    ]
 
-        await new Promise((resIN, rejIN)=>{
-            pool.query(sql, queryParams, function (error, results, fields) {
-                if(error) return rej(false)
-                resIN(true)            
-            })
-        })
+    await execute({sql, params: queryParams})
 
-        if(await updateProductMedia(params.id, params.image) === false) return rej(false)
-
-        res(true)
-    })
+    return await updateProductMedia(params.id, params.image) !== false;
 }
 
-const insertProduct = (params: {
+const insertProduct = async (params: {
     name: string, 
     description: string | null,
     discount_id: number | null,
@@ -665,60 +572,59 @@ const insertProduct = (params: {
     delivery_matter: boolean | null,
     barcode: string | null,
     image: {id: number, src_name: string, alt_text: string}[]}) =>{
-    return new Promise((res, rej)=>{
-        new Promise((resIN, rejIN)=>{
-            const sql = "INSERT INTO " + _TB_NAME_PRODUCTS + " (`name`, `featured`, `product_category_id`, `active`, `description`, `delivery_matter`, `barcode`, `unique_number`, `price`, `discount_id`) VALUES " + 
-            " ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )"
-            const queryParams = [
-                params.name, 
-                params.featured === true? 1 : 0, 
-                params.product_category_id ? params.product_category_id : null,
-                params.active === true? 1 : 0, 
-                params.description,
-                params.delivery_matter === true? 1 : 0,
-                params.barcode,    
-                params.unique_number,
-                params.price,
-                params.discount_id ? params.discount_id : null,
-            ]
-            pool.query(sql, queryParams, function (error, results, fields) {
-                if(error){
-                    console.log(error)
-                    return rej(false)
-                } 
-                resIN(results.insertId)
-            });
-        }).then(async (result)=>{
-            //insert media
-            if((result !== null || true) && params.image?.length > 0){
-                if(await updateProductMedia(+result, params.image) === false) return rej(false)                
-            }
 
-            res(true)
-        })
-    })
+    const sql = `INSERT INTO ??  (??, ??, ??, ??, ??, ??, ??, ??, ??, ??) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )`
+    const queryParams = [
+        _TB_NAME_PRODUCTS,
+        'name',
+        'featured',
+        'product_category_id',
+        'active',
+        'description',
+        'delivery_matter',
+        'barcode',
+        'unique_number',
+        'price',
+        'discount_id',
+        params.name,
+        params.featured === true? 1 : 0,
+        params.product_category_id ? params.product_category_id : null,
+        params.active === true? 1 : 0,
+        params.description,
+        params.delivery_matter === true? 1 : 0,
+        params.barcode,
+        params.unique_number,
+        params.price,
+        params?.discount_id ? params.discount_id : null,
+    ]
+    const lastInsertId = await execute({sql, params: queryParams, lastInsertId: true})
+
+    //insert media
+    if((lastInsertId !== null || true) && params.image?.length > 0){
+        if(await updateProductMedia(+lastInsertId, params.image) === false) return false
+    }
+    return true
+}
+
+const getTogetherSingle_related = async (product_id: number) => {
+    let single = await getSingleProductCustom(product_id, ProductEnumSingle.DETAIL)
+    let related = await getAllProductsCustom(
+        ProductEnumSingleArr.RELATED,
+        {categoryId: single?.product_category_id || 0, productId: single.id}
+    )
+
+    return {single, related}
 }
 
 //assessment
-const getAssessmentForProduct = (id: number): Promise<number | string> =>{
-    return new Promise(async (res, rej)=>{
-        const query = "SELECT COUNT(`id`) as `num`, SUM(IFNULL(`assessment`, 0)) as `sum` FROM " + _TB_NAME_ASSESSMENT + " WHERE `product_id` = ?"
-        const queryParams = [id]
+const getAssessmentForProduct = async (id: number): Promise<{sum: number, num: number} | string> =>{
+    const sql = "SELECT COUNT(`id`) as `num`, SUM(IFNULL(`assessment`, 0)) as `sum` FROM " + _TB_NAME_ASSESSMENT + " WHERE `product_id` = ?"
+    const params = [id]
 
-        const data = await new Promise((resIN, rejIN) => {
-            pool.query(query, queryParams, function (error, results, fields) {
-                if(error){
-                    console.log(error)
-                    return rej(false)
-                } 
+    const data = await execute({sql, params})
 
-                resIN(JSON.parse(JSON.stringify(results))[0])
-            });
-        })
-        
-        if(data['num'] > 0)return res(data['sum'] / data['num'])        
-        res('Nema ocene')
-    })
+    if(data['num'] > 0) return { sum: data['sum'] / data['num'], num: data['num']} // TODO rename sum to avg
+    return 'Nema ocene'
 }
 
 export async function products_endpoint(req, res){
@@ -828,13 +734,18 @@ export async function products_endpoint(req, res){
             res.status(200)
         break
         case 'get_all_products_custom': 
-            returnValue = await getAllProductsCustom(params.type, params?.ids)
+            returnValue = await getAllProductsCustom(params.type, params)
             res.status(200)
             break
         case 'get_single_product_custom': 
             returnValue = await getSingleProductCustom(params.id, params.type)
             res.status(200)
             break
+        case 'get_together_single_related':
+            returnValue = await getTogetherSingle_related(params.id)
+            res.status(200)
+            break
+
         default:  res.status(404); break;
     }
 

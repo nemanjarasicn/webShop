@@ -10,16 +10,6 @@
         }
     }
 }
-.qty-minus{
-    &::before{
-        content: unset !important;
-    }
-}
-.qty-plus{
-    &::before{
-        content: unset !important;
-    }
-}
 .gallery{
     img{
         width: 100px;

@@ -3,6 +3,8 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import {ProductAsideModal} from '../interfaces/product';
 import { ProductsService } from './products.service';
 import {localStorageNames} from '../constants/localStorageNames';
+import {NotificationService} from './notification.service';
+import {ProductEnumSingleArr} from '../../../../routes/enums/product-enum';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +15,10 @@ export class WishlistAsideModalService {
   private wishlistProducts$: BehaviorSubject<ProductAsideModal[]> = new BehaviorSubject<ProductAsideModal[]>([]);
   private wishlistProductsCount$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
 
-  constructor(private productService: ProductsService) {
+  constructor(
+    private productService: ProductsService,
+    private notificationService: NotificationService
+  ) {
 
     // get from storage
     this.refreshProductsWishlist();
@@ -37,9 +42,10 @@ export class WishlistAsideModalService {
 
   refreshProductsWishlist(): void{
     // get from storage and update observable
-    const IDsFromStorage = JSON.parse(localStorage[localStorageNames.wishlist] || null) as number[];
+    const storageProducts = JSON.parse(localStorage[localStorageNames.wishlist] || null) as number[];
 
-    this.productService.getAllProductByCustom(1, IDsFromStorage).then((prods: ProductAsideModal[]) => {
+    this.productService.getAllProductByCustom(ProductEnumSingleArr.CART_WISHLIST, {ids: storageProducts || []})
+    .then((prods: ProductAsideModal[]) => {
       this.wishlistProducts$.next(prods);
       this.wishlistProductsCount$.next(prods.length);
     });
@@ -49,8 +55,11 @@ export class WishlistAsideModalService {
     // set to storage
     const tmp: number[] = JSON.parse(localStorage[localStorageNames.wishlist] || '[]');
     localStorage[localStorageNames.wishlist] = JSON.stringify([...tmp, productID]);
+
     // update observable
     this.refreshProductsWishlist();
+
+    this.notificationService.showNotification('Proizvod dodat u listu želja');
   }
 
   removeProductFromWL(productID: number): void {
@@ -58,5 +67,7 @@ export class WishlistAsideModalService {
     localStorage[localStorageNames.wishlist] = JSON.stringify(tmp.filter(p => p !== productID));
     // update observable
     this.refreshProductsWishlist();
+
+    this.notificationService.showNotification('Proizvod obrisan sa liste želja');
   }
 }

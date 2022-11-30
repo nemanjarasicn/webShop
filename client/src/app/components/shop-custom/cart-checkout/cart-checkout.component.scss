@@ -1,0 +1,67 @@
+.CartCheckout {
+
+  h1 {
+    font-size: 24px;
+    text-align: center;
+  }
+
+  .checkout-title {
+
+    h3 {
+      font-size: 20px;
+    }
+  }
+
+  .textarea-container {
+
+    textarea {
+      min-height: 80px;
+      padding-top: 8px;
+      margin: 0;
+
+      &:focus {
+        outline: unset !important;
+      }
+    }
+  }
+}
+
+label {
+
+  .required {
+    color: red;
+  }
+}
+
+.order-note-container {
+
+  textarea {
+    min-height: 80px;
+    padding-top: 8px;
+
+    &:focus {
+      outline: unset !important;
+    }
+  }
+}
+
+.discount-container {
+
+  input {
+    width: auto;
+  }
+
+  button {
+    margin-left: 15px;
+    font-size: 18px;
+  }
+}
+
+.radio-container {
+
+  label {
+    cursor: pointer;
+    margin-left: 15px;
+  }
+}
+
